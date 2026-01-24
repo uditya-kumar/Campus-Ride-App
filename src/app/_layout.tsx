@@ -1,3 +1,4 @@
+import { useColorScheme } from "@/components/useColorScheme";
 import {
   DarkTheme,
   DefaultTheme,
@@ -5,13 +6,12 @@ import {
 } from "@react-navigation/native";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import { useEffect } from "react";
 import "react-native-reanimated";
-import { useColorScheme } from "@/components/useColorScheme";
-
 
 export {
   // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
+  ErrorBoundary
 } from "expo-router";
 
 export const unstable_settings = {
@@ -23,6 +23,11 @@ export const unstable_settings = {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  useEffect(() => {
+    // Hide the splash screen after the app is ready
+    SplashScreen.hideAsync();
+  }, []);
+
   return <RootLayoutNav />;
 }
 
