@@ -3,7 +3,7 @@ import Colors from "@/constants/Colors";
 import { Link, Tabs } from "expo-router";
 import React from "react";
 import { Pressable } from "react-native";
-import { House, User, MessageCircleMore  } from 'lucide-react-native';
+import { House, User, MessageCircleMore } from "lucide-react-native";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -39,7 +39,7 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: "Profile",
-          tabBarIcon: ({ color }) => <User size={23} color={color}/>,
+          tabBarIcon: ({ color }) => <User size={23} color={color} />,
         }}
       />
     </Tabs>
