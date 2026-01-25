@@ -39,7 +39,7 @@ export default function TabOneScreen() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [sortBy, setSortBy] = useState<string>("Departure Time");
 
-  //TODO: Filter and sort rides based on selected filters
+  //Filter and sort rides based on selected filters
   const filteredRides = useFilteredRides({
     origin,
     destination,
