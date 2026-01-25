@@ -66,7 +66,7 @@ export default function RideCard({ ride, onJoinRide }: RideCardProps) {
         </Text>
         <Button
           text="Join Ride"
-          textColor={colors.buttonBackground}
+          textColor={colors.background}
           backgroundColor={colors.tint}
           onPress={onJoinRide}
           paddingVertical={10}
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: 16,
     padding: 12,
-    gap: 16,
+    gap: 13,
   },
   row: {
     flexDirection: "row",

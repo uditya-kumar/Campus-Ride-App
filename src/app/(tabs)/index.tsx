@@ -90,8 +90,8 @@ export default function TabOneScreen() {
             onJoinRide={() => console.log("Joined ride", item.id)}
           />
         )}
-        contentContainerStyle={[{ gap: 25, paddingBottom: 10 }]}
-        ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+        contentContainerStyle={[{ gap: 26, paddingBottom: 15 }]}
+        ItemSeparatorComponent={() => <View style={{ height: 14 }} />}
       />
     </View>
   );
@@ -109,9 +109,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   filtersContainer: {
-    gap: 16,
-    marginTop: 20,
-    marginBottom: 20,
+    gap: 22,
+    marginTop: 15,
+    marginBottom: 15,
   },
   row: {
     flexDirection: "row",

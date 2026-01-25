@@ -1,15 +1,15 @@
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
-import { Circle, Square } from "lucide-react-native";
+import { CircleDot, MapPin } from "lucide-react-native";
 import { useState } from "react";
 import {
-    Modal,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
 
 type RouteSelectorProps = {
@@ -76,10 +76,10 @@ export default function RouteSelector({
         {/* Origin */}
         <View style={styles.routeRow}>
           <View style={styles.iconContainer}>
-            <Circle color={colors.tint} size={16} fill={colors.tint} />
+            <CircleDot color={colors.text} size={16} strokeWidth={2.5}/>
           </View>
           <View style={styles.locationContent}>
-            <Text style={[styles.label, { color: colors.tabIconDefault }]}>
+            <Text style={[styles.label, { color: colors.text }]}>
               Pick-up
             </Text>
             <Pressable
@@ -110,20 +110,17 @@ export default function RouteSelector({
         {/* Connecting Line */}
         <View style={styles.lineContainer}>
           <View
-            style={[
-              styles.connectingLine,
-              { backgroundColor: colors.borderColor },
-            ]}
+            style={[styles.connectingLine, { backgroundColor: colors.text }]}
           />
         </View>
 
         {/* Destination */}
         <View style={styles.routeRow}>
           <View style={styles.iconContainer}>
-            <Square color={colors.tint} size={16} fill={colors.tint} />
+            <MapPin color={colors.text} size={16} strokeWidth={2.5}/>
           </View>
           <View style={styles.locationContent}>
-            <Text style={[styles.label, { color: colors.tabIconDefault }]}>
+            <Text style={[styles.label, { color: colors.text }]}>
               Destination
             </Text>
             <Pressable
@@ -243,47 +240,46 @@ export default function RouteSelector({
 
 const styles = StyleSheet.create({
   container: {
-    gap: 8,
+    gap: 4,
   },
   card: {
-    borderRadius: 16,
-    borderWidth: 2,
-    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    padding: 12,
   },
   routeRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
+    gap: 10,
   },
   iconContainer: {
-    width: 24,
+    width: 20,
     alignItems: "center",
   },
   locationContent: {
     flex: 1,
-    gap: 4,
+    gap: 2,
   },
   label: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: "600",
   },
   locationButton: {
-    paddingVertical: 4,
+    paddingVertical: 2,
   },
   locationText: {
-    fontSize: 16,
+    fontSize: 14,
   },
   clearButton: {
-    padding: 4,
+    padding: 2,
   },
   lineContainer: {
     flexDirection: "row",
-    paddingLeft: 12,
-    marginVertical: 4,
+    paddingLeft: 8,
   },
   connectingLine: {
     width: 2,
-    height: 24,
+    height: 20,
   },
   modalOverlay: {
     flex: 1,
@@ -294,6 +290,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
+    minHeight: "50%",
     maxHeight: "80%",
   },
   modalHeader: {
