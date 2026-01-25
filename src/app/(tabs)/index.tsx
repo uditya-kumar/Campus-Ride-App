@@ -5,6 +5,7 @@ import SortByDropdown from "@/components/filters/SortByDropdown";
 import RideCard from "@/components/rideComponents/RideCard";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
+import { useFilteredRides } from "@/hooks/useFilteredRides";
 import ridesData from "@assets/data/rides";
 import { FlashList } from "@shopify/flash-list";
 import { useState } from "react";
@@ -38,6 +39,14 @@ export default function TabOneScreen() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [sortBy, setSortBy] = useState<string>("Departure Time");
 
+  //TODO: Filter and sort rides based on selected filters
+  const filteredRides = useFilteredRides({
+    origin,
+    destination,
+    selectedDate,
+    sortBy,
+  });
+
   // Rendered when no result of search found
   const renderEmptyComponent = () => (
     <View style={styles.emptyContainer}>
@@ -60,8 +69,6 @@ export default function TabOneScreen() {
           onSelectDestination={setDestination}
         />
 
-        
-
         <View style={styles.row}>
           <View style={{ flex: 1 }}>
             <DateFilter
@@ -81,7 +88,7 @@ export default function TabOneScreen() {
 
       {/* List  */}
       <FlashList
-        data={ridesData}
+        data={filteredRides}
         keyExtractor={(item) => item.id}
         ListEmptyComponent={renderEmptyComponent}
         renderItem={({ item }) => (
