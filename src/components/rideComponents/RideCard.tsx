@@ -62,7 +62,7 @@ export default function RideCard({ ride, onJoinRide }: RideCardProps) {
       {/* Price and Button Row */}
       <View style={styles.rowSpaceBetween}>
         <Text style={[styles.priceText, { color: colors.tint }]}>
-          ₹{ride.cost_per_person}/person
+          Total: ₹{ride.total_cost}
         </Text>
         <Button
           text="Join Ride"
