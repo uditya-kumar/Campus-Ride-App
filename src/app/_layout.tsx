@@ -45,6 +45,14 @@ function RootLayoutNav() {
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="createRide"
+            options={{
+              presentation: "transparentModal",
+              animation: "ios_from_right", // Enter: slide up
+              animationDuration: 150,
+            }}
+          />
         </Stack>
       </ThemeProvider>
     </SafeAreaProvider>

@@ -40,24 +40,23 @@ export default function HomeScreen() {
   };
 
   const onCreateRide = () => {
-    router.push("/home/createRide");
+    router.push("/createRide")
   };
 
   // Rendered when no result of search found
   const renderEmptyComponent = () => (
     <View style={styles.emptyContainer}>
-      <Text style={styles.emptyText}>No rides found</Text>
+      <Text style={[styles.emptyText, { color: colors.text }]}>No rides found</Text>
       <Text style={[styles.emptySubtext, { color: colors.tabIconDefault }]}>
-        Try adjusting your filters or create a new ride.
+        Try adjusting your filters or Create a new ride.
       </Text>
       <Button
-        text="Create Ride"
-        textColor={colors.buttonText}
-        backgroundColor={colors.buttonBackground}
-        onPress={onCreateRide}
-        paddingVertical={10}
-        paddingHorizontal={25}
-      />
+          text="Create Ride"
+          textColor={colors.buttonText}
+          backgroundColor={colors.buttonBackground}
+          onPress={onCreateRide}
+          paddingVertical={10}
+        />
     </View>
   );
 
@@ -100,7 +99,7 @@ export default function HomeScreen() {
         renderItem={({ item }) => (
           <RideCard ride={item} onJoinRide={() => onJoinRide(item.id)} />
         )}
-        contentContainerStyle={[{ gap: 26, paddingBottom: 15 }]}
+        contentContainerStyle={[{ gap: 22, paddingBottom: 15 }]}
         ItemSeparatorComponent={() => <View style={{ height: 14 }} />}
       />
     </View>
@@ -134,14 +133,14 @@ const styles = StyleSheet.create({
     paddingVertical: 60,
   },
   emptyText: {
-    fontSize: 22,
+    fontSize: 23,
     fontWeight: "600",
-    marginBottom: 8,
+    marginBottom: 12,
   },
   emptySubtext: {
-    fontSize: 16,
+    fontSize: 15,
     textAlign: "center",
     marginBottom: 18,
-    paddingHorizontal: 48,
+    paddingHorizontal: 58,
   },
 });

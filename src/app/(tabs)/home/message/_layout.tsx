@@ -10,7 +10,7 @@ export default function MessageLayout() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: colors.background },
+        headerStyle: { backgroundColor: colors.tabBackground },
         headerTitleStyle: { color: colors.text },
         headerTintColor: colors.text,
       }}
@@ -19,12 +19,14 @@ export default function MessageLayout() {
         name="index"
         options={{
           title: "Messages",
+          headerShown: true,
         }}
       />
       <Stack.Screen
         name="[id]"
         options={{
           title: "Chat",
+          headerShown: true,
         }}
       />
     </Stack>

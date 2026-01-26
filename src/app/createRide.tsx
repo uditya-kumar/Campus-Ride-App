@@ -73,7 +73,7 @@ const createRide = () => {
     console.log("Ride data:", rideData);
     // TODO: Submit to backend
 
-    router.back()
+    router.push('/(tabs)/home')
   };
 
   return (

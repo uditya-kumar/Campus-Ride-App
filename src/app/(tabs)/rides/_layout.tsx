@@ -1,7 +1,7 @@
-import React from "react";
-import { Stack } from "expo-router";
-import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
+import Colors from "@/constants/Colors";
+import { Stack } from "expo-router";
+import React from "react";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -10,11 +10,14 @@ export default function TabLayout() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: colors.background },
+        headerStyle: { backgroundColor: colors.tabBackground },
         headerTitleStyle: { color: colors.text },
       }}
     >
-      <Stack.Screen name="index" options={{ title: "Profile", headerShown: false}} />
+      <Stack.Screen
+        name="index"
+        options={{ title: "My Rides", headerShown: true }}
+      />
     </Stack>
   );
 }

@@ -12,34 +12,47 @@ export default function TabLayout() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: colors.background },
+        headerStyle: {
+          backgroundColor: colors.tabBackground,
+        },
         headerTitleStyle: { color: colors.text },
         headerTintColor: colors.text,
-        headerRight: () => (
-          <Link href="/home/message" asChild>
-            <Pressable>
-              {({ pressed }) => (
-                <MessageCircleMore
-                  size={25}
-                  color={Colors[colorScheme ?? "light"].text}
-                  style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                />
-              )}
-            </Pressable>
-          </Link>
-        ),
+        contentStyle: { backgroundColor: colors.background },
       }}
     >
-      <Stack.Screen name="index" options={{ title: "Campus Ride" }} />
+      <Stack.Screen
+        name="index"
+        options={{
+          title: "Campus Ride",
+          headerShown: true,
+          headerRight: () => (
+            <Link href="/home/message" asChild>
+              <Pressable>
+                {({ pressed }) => (
+                  <MessageCircleMore
+                    size={25}
+                    color={colors.text}
+                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                  />
+                )}
+              </Pressable>
+            </Link>
+          ),
+        }}
+      />
       <Stack.Screen
         name="message"
         options={{
+          animation: "ios_from_right",
           headerShown: false,
         }}
       />
       <Stack.Screen
         name="createRide"
-        options={{ title: "Create Ride", headerRight: undefined }}
+        options={{
+          title: "Create Ride",
+          headerRight: undefined,
+        }}
       />
     </Stack>
   );
