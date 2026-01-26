@@ -1,29 +1,16 @@
-import { Text, View } from "@/components/Themed";
 import DateFilter from "@/components/filters/DateFilter";
 import RouteSelector from "@/components/filters/RouteSelector";
-import SortByDropdown from "@/components/filters/SortByDropdown";
+import Button from "@/components/rideComponents/Button";
+import Dropdown from "@/components/rideComponents/Dropdown";
 import RideCard from "@/components/rideComponents/RideCard";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { useFilteredRides } from "@/hooks/useFilteredRides";
+import { locations } from "@assets/data/rides";
 import { FlashList } from "@shopify/flash-list";
-import { useState } from "react";
-import { StyleSheet } from "react-native";
-import Button from "@/components/rideComponents/Button";
 import { router } from "expo-router";
-
-const locations = [
-  "VIT",
-  "RKMP Railway",
-  "Indore",
-  "Bhopal Airport",
-  "BPL Junction Railway",
-  "Sehore",
-  "Sant Hirdaram railway",
-  "Chirayu Hospital",
-  "Lalghati",
-  "Nadra",
-];
+import { useState } from "react";
+import { StyleSheet, Text, View } from "react-native";
 
 const sortOptions = [
   "Departure Time",
@@ -37,7 +24,7 @@ export default function HomeScreen() {
 
   const [origin, setOrigin] = useState<string | null>(null);
   const [destination, setDestination] = useState<string | null>(null);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>("Departure Time");
 
   //Filter and sort rides based on selected filters
@@ -53,7 +40,7 @@ export default function HomeScreen() {
   };
 
   const onCreateRide = () => {
-    router.push('/home/createRide')
+    router.push("/home/createRide");
   };
 
   // Rendered when no result of search found
@@ -65,10 +52,11 @@ export default function HomeScreen() {
       </Text>
       <Button
         text="Create Ride"
-        textColor={colors.background}
+        textColor={colors.buttonText}
         backgroundColor={colors.buttonBackground}
         onPress={onCreateRide}
         paddingVertical={10}
+        paddingHorizontal={25}
       />
     </View>
   );
@@ -88,12 +76,14 @@ export default function HomeScreen() {
         <View style={styles.row}>
           <View style={{ flex: 1 }}>
             <DateFilter
+              labelText="Date"
               selectedDate={selectedDate}
               onSelectDate={setSelectedDate}
             />
           </View>
           <View style={{ flex: 1 }}>
-            <SortByDropdown
+            <Dropdown
+              labelText="Sort By"
               options={sortOptions}
               selectedOption={sortBy}
               onSelect={setSortBy}
@@ -150,7 +140,7 @@ const styles = StyleSheet.create({
   },
   emptySubtext: {
     fontSize: 16,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 18,
     paddingHorizontal: 48,
   },

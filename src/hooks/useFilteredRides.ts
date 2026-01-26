@@ -1,11 +1,17 @@
-import ridesData from "@assets/data/rides";
+import { ridesData } from "@assets/data/rides";
 import { useMemo } from "react";
 
 type FilterOptions = {
   origin: string | null;
   destination: string | null;
-  selectedDate: Date | null;
+  selectedDate: string | null;
   sortBy: string;
+};
+
+// Parse DD-MM-YYYY string to Date object
+const parseDate = (dateString: string): Date => {
+  const [day, month, year] = dateString.split("-").map(Number);
+  return new Date(year, month - 1, day);
 };
 
 export function useFilteredRides({
@@ -33,12 +39,13 @@ export function useFilteredRides({
 
     // Filter by date
     if (selectedDate) {
+      const filterDate = parseDate(selectedDate);
       result = result.filter((ride) => {
-        const rideDate = new Date(ride.departure_date);
+        const rideDate = parseDate(ride.departure_date);
         return (
-          rideDate.getFullYear() === selectedDate.getFullYear() &&
-          rideDate.getMonth() === selectedDate.getMonth() &&
-          rideDate.getDate() === selectedDate.getDate()
+          rideDate.getFullYear() === filterDate.getFullYear() &&
+          rideDate.getMonth() === filterDate.getMonth() &&
+          rideDate.getDate() === filterDate.getDate()
         );
       });
     }
@@ -48,8 +55,8 @@ export function useFilteredRides({
       case "Departure Time":
         result.sort(
           (a, b) =>
-            new Date(a.departure_date).getTime() -
-            new Date(b.departure_date).getTime(),
+            parseDate(a.departure_date).getTime() -
+            parseDate(b.departure_date).getTime(),
         );
         break;
       case "Price: Low to High":

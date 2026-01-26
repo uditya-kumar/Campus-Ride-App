@@ -5,12 +5,13 @@ import React from "react";
 import { House, User } from "lucide-react-native";
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const colorScheme = useColorScheme() ?? "light";
+    const colors = Colors[colorScheme];
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+        tabBarActiveTintColor: colors.tabIconSelected,
         tabBarShowLabel: false,
         tabBarStyle: {
           paddingTop: 10,

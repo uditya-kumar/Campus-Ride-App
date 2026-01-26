@@ -4,17 +4,19 @@ import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { ChevronUp, ChevronDown  } from 'lucide-react-native';
 
-type SortByDropdownProps = {
+type DropdownProps = {
   options: string[];
   selectedOption: string;
   onSelect: (option: string) => void;
+  labelText: string
 };
 
-export default function SortByDropdown({
+export default function Dropdown({
   options,
   selectedOption,
   onSelect,
-}: SortByDropdownProps) {
+  labelText
+}: DropdownProps) {
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
   const [dropdownVisible, setDropdownVisible] = useState(false);
@@ -26,7 +28,7 @@ export default function SortByDropdown({
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.label, { color: colors.text }]}>Sort By</Text>
+      <Text style={[styles.label, { color: colors.text }]}>{labelText}</Text>
       <View style={styles.dropdownWrapper}>
         <Pressable
           style={[

@@ -13,6 +13,7 @@ interface ButtonProps {
 //   icon: AllowedIconName;
   onPress?: () => void;
   paddingVertical?: number;
+  paddingHorizontal?: number,
   loading?: boolean;
 //   hideIconOnLoading?: boolean;
 }
@@ -26,6 +27,7 @@ const Button: React.FC<ButtonProps> = ({
   onPress,
   paddingVertical = 11,
   loading = false,
+  paddingHorizontal = 15,
 //   hideIconOnLoading = false,
 }) => {
 //   const ICONS: Record<AllowedIconName, React.ComponentType<LucideProps>> = {
@@ -44,6 +46,7 @@ const Button: React.FC<ButtonProps> = ({
         styles.button,
         {
           paddingVertical,
+          paddingHorizontal,
           backgroundColor,
           borderColor,
           borderWidth: borderColor !== "transparent" ? 1 : 0,
@@ -72,7 +75,6 @@ const styles = StyleSheet.create({
   button: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 15,
     borderRadius: 10,
     justifyContent: "center",
   },

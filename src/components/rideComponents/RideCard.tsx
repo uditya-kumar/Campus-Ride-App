@@ -66,7 +66,7 @@ export default function RideCard({ ride, onJoinRide }: RideCardProps) {
         </Text>
         <Button
           text="Join Ride"
-          textColor={colors.background}
+          textColor={colors.buttonText}
           backgroundColor={colors.buttonBackground}
           onPress={onJoinRide}
           paddingVertical={10}

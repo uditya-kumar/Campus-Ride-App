@@ -1,22 +1,41 @@
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
+import { X } from "lucide-react-native";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { X } from 'lucide-react-native';
 
 type DateFilterProps = {
-  selectedDate: Date | null;
-  onSelectDate: (date: Date | null) => void;
+  selectedDate: string | null;
+  onSelectDate: (date: string | null) => void;
+  labelText: string;
+};
+
+// Parse DD-MM-YYYY string to Date object
+const parseDate = (dateString: string): Date => {
+  const [day, month, year] = dateString.split("-").map(Number);
+  return new Date(year, month - 1, day);
+};
+
+// Format Date object to DD-MM-YYYY string
+const formatDateToString = (date: Date): string => {
+  const day = date.getDate().toString().padStart(2, "0");
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const year = date.getFullYear();
+  return `${day}-${month}-${year}`;
 };
 
 export default function DateFilter({
   selectedDate,
   onSelectDate,
+  labelText,
 }: DateFilterProps) {
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
   const [showPicker, setShowPicker] = useState(false);
+
+  // Convert string to Date for internal use
+  const dateValue = selectedDate ? parseDate(selectedDate) : null;
 
   const showDatePicker = () => {
     setShowPicker(true);
@@ -27,7 +46,7 @@ export default function DateFilter({
   };
 
   const handleConfirm = (date: Date) => {
-    onSelectDate(date);
+    onSelectDate(formatDateToString(date));
     hideDatePicker();
   };
 
@@ -45,7 +64,7 @@ export default function DateFilter({
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.label, { color: colors.text }]}>Date</Text>
+      <Text style={[styles.label, { color: colors.text }]}>{labelText}</Text>
       <Pressable
         style={[
           styles.selector,
@@ -64,11 +83,11 @@ export default function DateFilter({
             },
           ]}
         >
-          {selectedDate ? formatDate(selectedDate) : "Select date"}
+          {dateValue ? formatDate(dateValue) : "Select date"}
         </Text>
         {selectedDate && (
           <Pressable onPress={handleClear} style={styles.clearButton}>
-            <X size = {14} color={colors.tabIconDefault}/>
+            <X size={14} color={colors.tabIconDefault} />
           </Pressable>
         )}
       </Pressable>
@@ -76,7 +95,7 @@ export default function DateFilter({
       <DateTimePickerModal
         isVisible={showPicker}
         mode="date"
-        date={selectedDate || new Date()}
+        date={dateValue || new Date()}
         onConfirm={handleConfirm}
         onCancel={hideDatePicker}
         minimumDate={new Date()}
@@ -89,7 +108,7 @@ export default function DateFilter({
 const styles = StyleSheet.create({
   container: {
     width: 140,
-    gap: 8
+    gap: 8,
   },
   label: {
     fontSize: 14,

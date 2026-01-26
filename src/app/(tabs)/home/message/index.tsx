@@ -1,9 +1,8 @@
-import { Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import Button from "@/components/rideComponents/Button";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { router } from "expo-router";
-import { StyleSheet } from "react-native";
 
 export default function ModalScreen() {
   const colorScheme = useColorScheme() ?? "light";
