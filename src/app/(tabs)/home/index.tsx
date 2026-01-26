@@ -31,7 +31,7 @@ const sortOptions = [
   "Price: High to Low",
   "Seats Available",
 ];
-export default function TabOneScreen() {
+export default function HomeScreen() {
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
 

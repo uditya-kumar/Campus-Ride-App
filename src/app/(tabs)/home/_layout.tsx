@@ -1,9 +1,9 @@
-import React from "react";
-import { Link, Stack } from "expo-router";
-import { Pressable } from "react-native";
-import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
+import Colors from "@/constants/Colors";
+import { Link, Stack } from "expo-router";
 import { MessageCircleMore } from "lucide-react-native";
+import React from "react";
+import { Pressable } from "react-native";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -34,9 +34,7 @@ export default function TabLayout() {
       <Stack.Screen
         name="message"
         options={{
-          presentation: "modal",
-          title: "Messages",
-          headerRight: undefined,
+          headerShown: false,
         }}
       />
       <Stack.Screen
