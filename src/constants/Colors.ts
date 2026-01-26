@@ -21,7 +21,7 @@ export default {
     tabIconDefault: "#cccccc",
     tabIconSelected: tintColorDark,
     borderColor: "#374151",
-    buttonBackground: "#374151",
+    buttonBackground: "#ffffff",
     cardBackground: "#191919",
     starColor: "#FFD700",
     error: "#ef4444",

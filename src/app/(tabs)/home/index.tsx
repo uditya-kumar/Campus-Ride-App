@@ -6,10 +6,11 @@ import RideCard from "@/components/rideComponents/RideCard";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { useFilteredRides } from "@/hooks/useFilteredRides";
-import ridesData from "@assets/data/rides";
 import { FlashList } from "@shopify/flash-list";
 import { useState } from "react";
 import { StyleSheet } from "react-native";
+import Button from "@/components/rideComponents/Button";
+import { router } from "expo-router";
 
 const locations = [
   "VIT",
@@ -47,13 +48,28 @@ export default function TabOneScreen() {
     sortBy,
   });
 
+  const onJoinRide = (rideId: string) => {
+    console.log("Joined ride", rideId);
+  };
+
+  const onCreateRide = () => {
+    router.push('/home/createRide')
+  };
+
   // Rendered when no result of search found
   const renderEmptyComponent = () => (
     <View style={styles.emptyContainer}>
       <Text style={styles.emptyText}>No rides found</Text>
       <Text style={[styles.emptySubtext, { color: colors.tabIconDefault }]}>
-        Try changing your filters
+        Try adjusting your filters or create a new ride.
       </Text>
+      <Button
+        text="Create Ride"
+        textColor={colors.background}
+        backgroundColor={colors.buttonBackground}
+        onPress={onCreateRide}
+        paddingVertical={10}
+      />
     </View>
   );
 
@@ -92,10 +108,7 @@ export default function TabOneScreen() {
         keyExtractor={(item) => item.id}
         ListEmptyComponent={renderEmptyComponent}
         renderItem={({ item }) => (
-          <RideCard
-            ride={item}
-            onJoinRide={() => console.log("Joined ride", item.id)}
-          />
+          <RideCard ride={item} onJoinRide={() => onJoinRide(item.id)} />
         )}
         contentContainerStyle={[{ gap: 26, paddingBottom: 15 }]}
         ItemSeparatorComponent={() => <View style={{ height: 14 }} />}
@@ -124,7 +137,21 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 30,
   },
-  emptyContainer: {},
-  emptySubtext: {},
-  emptyText: {},
+  emptyContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 60,
+  },
+  emptyText: {
+    fontSize: 22,
+    fontWeight: "600",
+    marginBottom: 8,
+  },
+  emptySubtext: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 18,
+    paddingHorizontal: 48,
+  },
 });

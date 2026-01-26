@@ -3,6 +3,7 @@ import Colors from "@/constants/Colors";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { X } from 'lucide-react-native';
 
 type DateFilterProps = {
   selectedDate: Date | null;
@@ -67,9 +68,7 @@ export default function DateFilter({
         </Text>
         {selectedDate && (
           <Pressable onPress={handleClear} style={styles.clearButton}>
-            <Text style={{ color: colors.tabIconDefault, fontSize: 18 }}>
-              ×
-            </Text>
+            <X size = {14} color={colors.tabIconDefault}/>
           </Pressable>
         )}
       </Pressable>
