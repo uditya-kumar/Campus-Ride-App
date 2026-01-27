@@ -1,8 +1,8 @@
-import { StyleSheet, Text, View } from "react-native";
 import Button from "@/components/rideComponents/Button";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { router } from "expo-router";
+import { StyleSheet, Text, View } from "react-native";
 
 export default function ModalScreen() {
   const colorScheme = useColorScheme() ?? "light";
@@ -10,7 +10,7 @@ export default function ModalScreen() {
 
   const onCreateRide = () => {
     // move to chatdetails screen and pass [id] as parameter
-    router.push({ pathname: "/home/message/[id]", params: { id: "123" } });
+    router.push({ pathname: "/message/[id]", params: { id: "123" } });
   };
 
   return (

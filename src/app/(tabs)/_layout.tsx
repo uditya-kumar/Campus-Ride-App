@@ -32,22 +32,18 @@ export default function TabLayout() {
         name="home"
         options={{
           animation:"shift",
-          title: "Campus Ride",
+          title: "Home",
           headerShown: false,
-          tabBarIcon: ({ color }) => <House size={21} color={color} />,
-          headerRight: () => (
-            <Link href="/home/message" asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <MessageCircleMore
-                    size={25}
-                    color={colors.text}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
-          ),
+          tabBarIcon: ({ color }) => <House size={25} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="message"
+        options={{
+          animation:"shift",
+          title: "Message",
+          headerShown: false,
+          tabBarIcon: ({ color }) => <MessageCircleMore size={25} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -56,7 +52,7 @@ export default function TabLayout() {
           animation:"shift",
           title: "My Ride",
           headerShown: false,
-          tabBarIcon: ({ color }) => <CarTaxiFront size={21} color={color} />,
+          tabBarIcon: ({ color }) => <CarTaxiFront size={25} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -64,7 +60,7 @@ export default function TabLayout() {
         options={{
           animation:"shift",
           title: "Profile",
-          tabBarIcon: ({ color }) => <User size={21} color={color} />,
+          tabBarIcon: ({ color }) => <User size={25} color={color} />,
         }}
       />
     </Tabs>

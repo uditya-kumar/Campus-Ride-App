@@ -25,19 +25,6 @@ export default function TabLayout() {
         options={{
           title: "Campus Ride",
           headerShown: true,
-          headerRight: () => (
-            <Link href="/home/message" asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <MessageCircleMore
-                    size={25}
-                    color={colors.text}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
-          ),
         }}
       />
       <Stack.Screen
