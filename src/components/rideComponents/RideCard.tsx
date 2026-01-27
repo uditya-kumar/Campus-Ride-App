@@ -28,7 +28,7 @@ export default function RideCard({ ride, onJoinRide }: RideCardProps) {
   });
 
   return (
-    <View style={[styles.card, { backgroundColor: colors.cardBackground }]}>
+    <View style={[styles.card, { backgroundColor: colors.cardBackground, borderColor: colors.borderColor }]}>
       {/* Date and Time Row */}
       <View style={styles.row}>
         <CalendarDays color={colors.text} size={18} />
@@ -81,6 +81,7 @@ export default function RideCard({ ride, onJoinRide }: RideCardProps) {
 const styles = StyleSheet.create({
   card: {
     borderRadius: 16,
+    borderWidth: 1,
     padding: 12,
     gap: 13,
   },

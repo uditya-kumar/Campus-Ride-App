@@ -12,7 +12,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export {
   // Catch any errors thrown by the Layout component.
-  ErrorBoundary
+  ErrorBoundary,
 } from "expo-router";
 
 export const unstable_settings = {
@@ -48,6 +48,7 @@ function RootLayoutNav() {
           <Stack.Screen
             name="createRide"
             options={{
+              title: "Create Ride",
               presentation: "transparentModal",
               animation: "ios_from_right", // Enter: slide up
               animationDuration: 150,
