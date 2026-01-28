@@ -1,11 +1,9 @@
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
-import { Link, Stack } from "expo-router";
-import { MessageCircleMore } from "lucide-react-native";
+import { Stack } from "expo-router";
 import React from "react";
-import { Pressable } from "react-native";
 
-export default function TabLayout() {
+export default function HomeLayout() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? "light"];
 
@@ -25,20 +23,6 @@ export default function TabLayout() {
         options={{
           title: "Campus Ride",
           headerShown: true,
-        }}
-      />
-      <Stack.Screen
-        name="message"
-        options={{
-          animation: "ios_from_right",
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="createRide"
-        options={{
-          title: "Create Ride",
-          headerRight: undefined,
         }}
       />
     </Stack>

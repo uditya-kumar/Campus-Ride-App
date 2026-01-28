@@ -8,56 +8,14 @@ import { MessageCircle } from "lucide-react-native";
 import { useCallback, useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import mockChatRooms from "@assets/data/chat";
+
 type ChatRoom = Tables<"chat_rooms">;
 type Ride = Tables<"rides">;
 
 type ChatRoomWithRide = ChatRoom & {
   ride: Ride;
 };
-
-// Mock data - Replace with actual Supabase query
-const mockChatRooms: ChatRoomWithRide[] = [
-  {
-    id: "1",
-    ride_id: "ride-1",
-    status: "active",
-    created_at: new Date().toISOString(),
-    ride: {
-      id: "ride-1",
-      created_by_user_id: "user-1",
-      origin: "Campus Gate",
-      destination: "Railway Station",
-      departure_date: new Date(Date.now() + 86400000).toISOString(),
-      total_seats: 4,
-      available_seats: 2,
-      total_cost: 200,
-      cost_per_person: 50,
-      vehicle_type: "Car",
-      status: "active",
-      created_at: new Date().toISOString(),
-    },
-  },
-  {
-    id: "2",
-    ride_id: "ride-2",
-    status: "active",
-    created_at: new Date().toISOString(),
-    ride: {
-      id: "ride-2",
-      created_by_user_id: "user-2",
-      origin: "Library",
-      destination: "Airport",
-      departure_date: new Date(Date.now() + 172800000).toISOString(),
-      total_seats: 3,
-      available_seats: 1,
-      total_cost: 500,
-      cost_per_person: 167,
-      vehicle_type: "SUV",
-      status: "active",
-      created_at: new Date().toISOString(),
-    },
-  },
-];
 
 export default function MessagesScreen() {
   const colorScheme = useColorScheme() ?? "light";
