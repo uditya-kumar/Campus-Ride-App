@@ -43,6 +43,15 @@ export default function ChatScreen({
   const [messages, setMessages] = useState<IMessage[]>(initialMessages);
   const [replyMessage, setReplyMessage] = useState<ReplyMessage | null>(null);
 
+  // Memoize user object to prevent recreation on each render
+  const user = useMemo(
+    () => ({
+      _id: currentUserId,
+      name: currentUserName,
+    }),
+    [currentUserId, currentUserName],
+  );
+
   const onSend = useCallback(
     (newMessages: IMessage[] = []) => {
       setMessages((previousMessages) =>
@@ -148,8 +157,8 @@ export default function ChatScreen({
 
   const avatarImageStyle = useMemo(
     () => ({
-      left: { width: 36, height: 36, borderRadius: 18 },
-      right: { width: 36, height: 36, borderRadius: 18 },
+      left: { width: 36, height: 36, borderRadius: 18, borderCurve: "continuous" as const },
+      right: { width: 36, height: 36, borderRadius: 18, borderCurve: "continuous" as const },
     }),
     [],
   );
@@ -214,15 +223,40 @@ export default function ChatScreen({
     [replyMessage, onSwipe],
   );
 
+  // Memoize messagesContainerStyle to prevent inline object recreation
+  const messagesContainerStyle = useMemo(
+    () => [
+      styles.messagesContainer,
+      { backgroundColor: colorScheme === "dark" ? "#000000" : "#FFFFFF" },
+    ],
+    [colorScheme],
+  );
+
+  // Memoize textInputProps to prevent inline object recreation
+  const textInputProps = useMemo(
+    () => ({
+      style: [
+        styles.textInput,
+        { color: colorScheme === "dark" ? "#FFFFFF" : "#000000" },
+      ],
+      placeholderTextColor: colorScheme === "dark" ? "#8E8E93" : "#999999",
+      placeholder: "Type a message...",
+    }),
+    [colorScheme],
+  );
+
+  // Memoize keyboardAvoidingViewProps
+  const keyboardAvoidingProps = useMemo(
+    () => ({ keyboardVerticalOffset }),
+    [keyboardVerticalOffset],
+  );
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <GiftedChat
         messages={messages}
-        onSend={(messages) => onSend(messages)}
-        user={{
-          _id: currentUserId,
-          name: currentUserName,
-        }}
+        onSend={onSend}
+        user={user}
         renderBubble={renderBubble}
         renderMessage={renderMessage}
         renderAvatar={renderAvatar}
@@ -230,19 +264,9 @@ export default function ChatScreen({
         renderSend={renderSend}
         renderChatEmpty={renderChatEmpty}
         reply={replyConfig}
-        messagesContainerStyle={[
-          styles.messagesContainer,
-          { backgroundColor: colorScheme === "dark" ? "#000000" : "#FFFFFF" },
-        ]}
-        textInputProps={{
-          style: [
-            styles.textInput,
-            { color: colorScheme === "dark" ? "#FFFFFF" : "#000000" },
-          ],
-          placeholderTextColor: colorScheme === "dark" ? "#8E8E93" : "#999999",
-          placeholder: "Type a message...",
-        }}
-        keyboardAvoidingViewProps={{ keyboardVerticalOffset }}
+        messagesContainerStyle={messagesContainerStyle}
+        textInputProps={textInputProps}
+        keyboardAvoidingViewProps={keyboardAvoidingProps}
         minInputToolbarHeight={60}
         minComposerHeight={40}
         maxComposerHeight={120}

@@ -6,7 +6,7 @@ import {
 } from "@assets/data/chatdetailsMock";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { useLocalSearchParams } from "expo-router";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Platform } from "react-native";
 import { IMessage } from "react-native-gifted-chat";
 
@@ -39,10 +39,11 @@ export default function ChatDetails() {
     }).reverse();
   }, []);
 
-  const handleSendMessage = (messages: IMessage[]) => {
+  // Memoize callback to prevent recreation on each render
+  const handleSendMessage = useCallback((messages: IMessage[]) => {
     // Handle sending message to backend here
     console.log("Messages sent:", messages);
-  };
+  }, []);
 
   return (
     <ChatScreen
