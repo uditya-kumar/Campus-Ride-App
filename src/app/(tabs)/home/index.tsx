@@ -9,7 +9,7 @@ import { useFilteredRides } from "@/hooks/useFilteredRides";
 import { locations } from "@assets/data/rides";
 import { FlashList } from "@shopify/flash-list";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 const sortOptions = [
@@ -18,6 +18,7 @@ const sortOptions = [
   "Price: High to Low",
   "Seats Available",
 ];
+
 export default function HomeScreen() {
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
@@ -35,29 +36,43 @@ export default function HomeScreen() {
     sortBy,
   });
 
-  const onJoinRide = (rideId: string) => {
+  const onJoinRide = useCallback((rideId: string) => {
     console.log("Joined ride", rideId);
-  };
+  }, []);
 
-  const onCreateRide = () => {
-    router.push("/createRide")
-  };
+  const onCreateRide = useCallback(() => {
+    router.push("/createRide");
+  }, []);
 
   // Rendered when no result of search found
-  const renderEmptyComponent = () => (
-    <View style={styles.emptyContainer}>
-      <Text style={[styles.emptyText, { color: colors.text }]}>No rides found</Text>
-      <Text style={[styles.emptySubtext, { color: colors.tabIconDefault }]}>
-        Try adjusting your filters or Create a new ride.
-      </Text>
-      <Button
+  const renderEmptyComponent = useCallback(
+    () => (
+      <View style={styles.emptyContainer}>
+        <Text style={[styles.emptyText, { color: colors.text }]}>
+          No rides found
+        </Text>
+        <Text style={[styles.emptySubtext, { color: colors.tabIconDefault }]}>
+          Try adjusting your filters or Create a new ride.
+        </Text>
+        <Button
           text="Create Ride"
           textColor={colors.buttonText}
           backgroundColor={colors.buttonBackground}
           onPress={onCreateRide}
           paddingVertical={10}
         />
-    </View>
+      </View>
+    ),
+    [colors, onCreateRide],
+  );
+
+  const renderItem = useCallback(
+    ({ item }: { item: (typeof filteredRides)[number] }) => (
+      <View style={styles.cardContainerStyle}>
+        <RideCard ride={item} onJoinRide={onJoinRide} />
+      </View>
+    ),
+    [onJoinRide],
   );
 
   return (
@@ -96,11 +111,9 @@ export default function HomeScreen() {
         data={filteredRides}
         keyExtractor={(item) => item.id}
         ListEmptyComponent={renderEmptyComponent}
-        renderItem={({ item }) => (
-          <RideCard ride={item} onJoinRide={() => onJoinRide(item.id)} />
-        )}
-        contentContainerStyle={[{ gap: 22, paddingBottom: 15 }]}
-        ItemSeparatorComponent={() => <View style={{ height: 14 }} />}
+        renderItem={renderItem}
+        contentContainerStyle={styles.listContent}
+        contentInsetAdjustmentBehavior="automatic"
       />
     </View>
   );
@@ -122,9 +135,15 @@ const styles = StyleSheet.create({
     marginTop: 15,
     marginBottom: 15,
   },
+  cardContainerStyle: {
+    marginBottom: 14,
+  },
   row: {
     flexDirection: "row",
     gap: 30,
+  },
+  listContent: {
+    paddingVertical: 18,
   },
   emptyContainer: {
     flex: 1,

@@ -9,13 +9,13 @@ type Ride = Tables<"rides">;
 
 type RideCardProps = {
   ride: Ride;
-  onJoinRide?: () => void;
+  onJoinRide?: (rideId: string) => void;
 };
 
 export default function RideCard({ ride, onJoinRide }: RideCardProps) {
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
-  
+
   const departureDate = new Date(ride.departure_date);
   const date = departureDate.toLocaleDateString("en-GB", {
     day: "2-digit",
@@ -28,7 +28,15 @@ export default function RideCard({ ride, onJoinRide }: RideCardProps) {
   });
 
   return (
-    <View style={[styles.card, { backgroundColor: colors.cardBackground, borderColor: colors.borderColor }]}>
+    <View
+      style={[
+        styles.card,
+        {
+          backgroundColor: colors.cardBackground,
+          borderColor: colors.borderColor,
+        },
+      ]}
+    >
       {/* Date and Time Row */}
       <View style={styles.row}>
         <CalendarDays color={colors.text} size={18} />
@@ -68,7 +76,7 @@ export default function RideCard({ ride, onJoinRide }: RideCardProps) {
           text="Join Ride"
           textColor={colors.buttonText}
           backgroundColor={colors.buttonBackground}
-          onPress={onJoinRide}
+          onPress={() => onJoinRide?.(ride.id)}
           paddingVertical={10}
         />
       </View>
@@ -76,11 +84,10 @@ export default function RideCard({ ride, onJoinRide }: RideCardProps) {
   );
 }
 
-// ...existing code...
-
 const styles = StyleSheet.create({
   card: {
     borderRadius: 16,
+    borderCurve: 'continuous',
     borderWidth: 1,
     padding: 12,
     gap: 13,
