@@ -6,6 +6,7 @@ import {
   MOCK_PARTICIPANTS,
 } from "@assets/data/chatdetailsMock";
 import { Ionicons } from "@expo/vector-icons";
+import { useHeaderHeight } from "@react-navigation/elements";
 import { useLocalSearchParams } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { Platform, StyleSheet, Text, View } from "react-native";
@@ -18,6 +19,8 @@ import {
   IMessage,
   Send,
   SendProps,
+  Message,
+  MessageProps,
 } from "react-native-gifted-chat";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -25,15 +28,16 @@ export default function ChatDetails() {
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
   const { id } = useLocalSearchParams<{ id: string }>();
-  const insets = useSafeAreaInsets();
 
-  // Calculate keyboard offset for proper input positioning
-  // For Android, we need a larger offset to account for the keyboard
-  const tabbarHeight = 60; // Your bottom tab bar height
+  const insets = useSafeAreaInsets();
+  const headerHeight = useHeaderHeight();
+
+  // Android typically needs 0 or very small offset
+  // iOS needs the header height
   const keyboardVerticalOffset = Platform.select({
-    ios: insets.bottom + tabbarHeight + 44, // 44 for iOS predictive text bar
-    android: insets.bottom + 95, // Larger offset for Android
-    default: insets.bottom + 70,
+    ios: headerHeight,
+    android: 95,
+    default: 0,
   });
 
   // Convert mock messages to GiftedChat format
@@ -61,6 +65,18 @@ export default function ChatDetails() {
     );
   }, []);
 
+  // Add this renderMessage callback
+  const renderMessage = useCallback((props: MessageProps<IMessage>) => {
+    return (
+      <Message
+        {...props}
+        containerStyle={{
+          left: { alignItems: "center" }, // Centers avatar vertically with bubble
+          right: { alignItems: "center" },
+        }}
+      />
+    );
+  }, []);
   // Memoized styles for bubble to prevent recreation on each render
   const bubbleWrapperStyle = useMemo(
     () => ({
@@ -78,9 +94,11 @@ export default function ChatDetails() {
     () => ({
       left: {
         color: colorScheme === "dark" ? "#FFFFFF" : "#000000",
+        fontSize: 14,
       },
       right: {
         color: "#FFFFFF",
+        fontSize: 14,
       },
     }),
     [colorScheme],
@@ -131,8 +149,8 @@ export default function ChatDetails() {
   // Memoized avatar styles
   const avatarContainerStyle = useMemo(
     () => ({
-      left: { marginRight: 8 },
-      right: { marginLeft: 8 },
+      left: { marginRight: 2, alignSelf: "center" as const },
+      right: { marginLeft: 2, alignSelf: "center" as const },
     }),
     [],
   );
@@ -178,6 +196,7 @@ export default function ChatDetails() {
           name: "You",
         }}
         renderBubble={renderBubble}
+        renderMessage={renderMessage}
         renderAvatar={renderAvatar}
         timeTextStyle={bubbleTimeTextStyle}
         renderSend={renderSend}
@@ -193,7 +212,7 @@ export default function ChatDetails() {
           placeholderTextColor: colorScheme === "dark" ? "#8E8E93" : "#999999",
           placeholder: "Type a message...",
         }}
-        keyboardAvoidingViewProps={{ keyboardVerticalOffset }} // ← Use this instead
+        keyboardAvoidingViewProps={{ keyboardVerticalOffset }}
         minInputToolbarHeight={60}
         minComposerHeight={40} // ADD THIS
         maxComposerHeight={120} // ADD THIS
@@ -210,14 +229,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   messagesContainer: {
-    paddingBottom: 8,
+    paddingBottom: 2,
   },
   textInput: {
     fontSize: 16,
     lineHeight: 20,
-    marginTop: Platform.select({ ios: 8, android: 0 }),
-    marginBottom: Platform.select({ ios: 8, android: 0 }),
-    paddingHorizontal: 12,
+    marginTop: Platform.select({ ios: 8, android: 5 }),
+    marginBottom: Platform.select({ ios: 8, android: 5 }),
+    paddingHorizontal: 16,
   },
   sendContainer: {
     justifyContent: "center",
@@ -232,7 +251,7 @@ const styles = StyleSheet.create({
     height: 40,
   },
   usernameContainer: {
-    marginLeft: 10,
+    marginLeft: 1,
     marginBottom: 4,
   },
   username: {
