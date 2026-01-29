@@ -87,7 +87,7 @@ export default function RideCard({ ride, onJoinRide }: RideCardProps) {
 const styles = StyleSheet.create({
   card: {
     borderRadius: 16,
-    borderCurve: 'continuous',
+    borderCurve: "continuous",
     borderWidth: 1,
     padding: 12,
     gap: 13,
