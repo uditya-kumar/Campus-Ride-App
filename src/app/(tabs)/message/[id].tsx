@@ -7,7 +7,7 @@ import {
 } from "@assets/data/chatdetailsMock";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { useLocalSearchParams } from "expo-router";
-import { SendHorizontal } from "lucide-react-native";
+import { SendHorizontal, ChevronDown } from "lucide-react-native";
 import { useCallback, useMemo, useState } from "react";
 import { Platform, StyleSheet, Text, View } from "react-native";
 import {
@@ -22,6 +22,12 @@ import {
   Send,
   SendProps,
 } from "react-native-gifted-chat";
+
+interface ReplyMessage {
+  _id: string | number;
+  text: string;
+  user: IMessage["user"];
+}
 
 export default function ChatDetails() {
   const colorScheme = useColorScheme() ?? "light";
@@ -56,6 +62,7 @@ export default function ChatDetails() {
   }, []);
 
   const [messages, setMessages] = useState<IMessage[]>(giftedChatMessages);
+  const [replyMessage, setReplyMessage] = useState<ReplyMessage | null>(null);
 
   const onSend = useCallback((newMessages: IMessage[] = []) => {
     setMessages((previousMessages) =>
@@ -186,6 +193,37 @@ export default function ChatDetails() {
     );
   }, []);
 
+  // Empty chat placeholder
+  const renderChatEmpty = useCallback(
+    () => (
+      <View style={styles.emptyChatContainer}>
+        <Text style={[styles.emptyChatText, { color: colors.text }]}>
+          No messages yet. Say hello! 👋
+        </Text>
+      </View>
+    ),
+    [colors.text],
+  );
+
+  // Swipe-to-reply configuration
+  const replyConfig = useMemo(
+    () => ({
+      message: replyMessage,
+      onClear: () => setReplyMessage(null),
+      swipe: {
+        isEnabled: true,
+        direction: "left" as const,
+        onSwipe: (message: IMessage) =>
+          setReplyMessage({
+            _id: message._id,
+            text: message.text,
+            user: message.user,
+          }),
+      },
+    }),
+    [replyMessage],
+  );
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <GiftedChat
@@ -200,6 +238,8 @@ export default function ChatDetails() {
         renderAvatar={renderAvatar}
         timeTextStyle={bubbleTimeTextStyle}
         renderSend={renderSend}
+        renderChatEmpty={renderChatEmpty}
+        reply={replyConfig}
         messagesContainerStyle={[
           styles.messagesContainer,
           { backgroundColor: colorScheme === "dark" ? "#000000" : "#FFFFFF" },
@@ -257,5 +297,25 @@ const styles = StyleSheet.create({
   username: {
     fontSize: 12,
     fontWeight: "600",
+  },
+  scrollToBottomPosition: {
+    // Optional: customize position (default is right: 10, bottom: 30)
+    // right: 15,
+    // bottom: 40,
+  },
+  scrollToBottomContent: {
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+  },
+  emptyChatContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    transform: [{ scaleY: -1 }], // GiftedChat inverts the list, so we need to flip this back
+  },
+  emptyChatText: {
+    fontSize: 16,
+    textAlign: "center",
   },
 });
