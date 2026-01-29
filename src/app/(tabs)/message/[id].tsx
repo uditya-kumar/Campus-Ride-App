@@ -8,18 +8,16 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
-import {
-  Platform,
-  StyleSheet,
-  Text,
-  View
-} from "react-native";
+import { Platform, StyleSheet, Text, View } from "react-native";
 import {
   Avatar,
+  AvatarProps,
   Bubble,
+  BubbleProps,
   GiftedChat,
   IMessage,
   Send,
+  SendProps,
 } from "react-native-gifted-chat";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -63,72 +61,104 @@ export default function ChatDetails() {
     );
   }, []);
 
-  const renderBubble = (props: any) => {
-    const { currentMessage } = props;
-    const isCurrentUser = currentMessage?.user?._id === MOCK_CURRENT_USER_ID;
+  // Memoized styles for bubble to prevent recreation on each render
+  const bubbleWrapperStyle = useMemo(
+    () => ({
+      left: {
+        backgroundColor: colorScheme === "dark" ? "#2C2C2E" : "#F0F0F0",
+      },
+      right: {
+        backgroundColor: colorScheme === "dark" ? "#0A84FF" : "#007AFF",
+      },
+    }),
+    [colorScheme],
+  );
 
-    return (
-      <Bubble
-        {...props}
-        renderUsername={() =>
-          !isCurrentUser ? (
-            <View style={styles.usernameContainer}>
-              <Text
-                style={[
-                  styles.username,
-                  { color: colorScheme === "dark" ? "#8E8E93" : "#666666" },
-                ]}
-              >
-                {currentMessage?.user?.name}
-              </Text>
-            </View>
-          ) : null
-        }
-        wrapperStyle={{
-          left: {
-            backgroundColor: colorScheme === "dark" ? "#2C2C2E" : "#F0F0F0",
-          },
-          right: {
-            backgroundColor: colorScheme === "dark" ? "#0A84FF" : "#007AFF",
-          },
-        }}
-        textStyle={{
-          left: {
-            color: colorScheme === "dark" ? "#FFFFFF" : "#000000",
-          },
-          right: {
-            color: "#FFFFFF",
-          },
-        }}
-        timeTextStyle={{
-          left: {
-            color: colorScheme === "dark" ? "#8E8E93" : "#999999",
-          },
-          right: {
-            color: "rgba(255,255,255,0.7)",
-          },
-        }}
-      />
-    );
-  };
+  const bubbleTextStyle = useMemo(
+    () => ({
+      left: {
+        color: colorScheme === "dark" ? "#FFFFFF" : "#000000",
+      },
+      right: {
+        color: "#FFFFFF",
+      },
+    }),
+    [colorScheme],
+  );
 
-  const renderAvatar = (props: any) => {
-    return (
-      <Avatar
-        {...props}
-        containerStyle={{
-          left: { marginRight: 8 },
-          right: { marginLeft: 8 },
-        }}
-        imageStyle={{
-          left: { width: 36, height: 36, borderRadius: 18 },
-          right: { width: 36, height: 36, borderRadius: 18 },
-        }}
-      />
-    );
-  };
+  const bubbleTimeTextStyle = useMemo(
+    () => ({
+      left: {
+        color: colorScheme === "dark" ? "#8E8E93" : "#999999",
+      },
+      right: {
+        color: "rgba(255,255,255,0.7)",
+      },
+    }),
+    [colorScheme],
+  );
 
-  const renderSend = (props: any) => {
+  const usernameColor = useMemo(
+    () => (colorScheme === "dark" ? "#8E8E93" : "#666666"),
+    [colorScheme],
+  );
+
+  const renderBubble = useCallback(
+    (props: BubbleProps<IMessage>) => {
+      const { currentMessage } = props;
+      const isCurrentUser = currentMessage?.user?._id === MOCK_CURRENT_USER_ID;
+
+      return (
+        <Bubble
+          {...props}
+          renderUsername={() =>
+            !isCurrentUser ? (
+              <View style={styles.usernameContainer}>
+                <Text style={[styles.username, { color: usernameColor }]}>
+                  {currentMessage?.user?.name}
+                </Text>
+              </View>
+            ) : null
+          }
+          wrapperStyle={bubbleWrapperStyle}
+          textStyle={bubbleTextStyle}
+        />
+      );
+    },
+    [bubbleWrapperStyle, bubbleTextStyle, bubbleTimeTextStyle, usernameColor],
+  );
+
+  // Memoized avatar styles
+  const avatarContainerStyle = useMemo(
+    () => ({
+      left: { marginRight: 8 },
+      right: { marginLeft: 8 },
+    }),
+    [],
+  );
+
+  const avatarImageStyle = useMemo(
+    () => ({
+      left: { width: 36, height: 36, borderRadius: 18 },
+      right: { width: 36, height: 36, borderRadius: 18 },
+    }),
+    [],
+  );
+
+  const renderAvatar = useCallback(
+    (props: AvatarProps<IMessage>) => {
+      return (
+        <Avatar
+          {...props}
+          containerStyle={avatarContainerStyle}
+          imageStyle={avatarImageStyle}
+        />
+      );
+    },
+    [avatarContainerStyle, avatarImageStyle],
+  );
+
+  const renderSend = useCallback((props: SendProps<IMessage>) => {
     return (
       <Send {...props} containerStyle={styles.sendContainer}>
         <View style={styles.sendButton}>
@@ -136,7 +166,7 @@ export default function ChatDetails() {
         </View>
       </Send>
     );
-  };
+  }, []);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -149,6 +179,7 @@ export default function ChatDetails() {
         }}
         renderBubble={renderBubble}
         renderAvatar={renderAvatar}
+        timeTextStyle={bubbleTimeTextStyle}
         renderSend={renderSend}
         messagesContainerStyle={[
           styles.messagesContainer,
