@@ -5,7 +5,7 @@ import { Tables } from "@/database.types";
 import { FlashList } from "@shopify/flash-list";
 import { Link } from "expo-router";
 import { MessageCircle } from "lucide-react-native";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import mockChatRooms from "@assets/data/chat";
@@ -20,41 +20,15 @@ type ChatRoomWithRide = ChatRoom & {
 export default function MessagesScreen() {
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
-  const [chatRooms, setChatRooms] = useState<ChatRoomWithRide[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // TODO: Replace with actual Supabase query to fetch chat rooms
-    // Example query:
-    // const { data, error } = await supabase
-    //   .from('chat_rooms')
-    //   .select(`
-    //     *,
-    //     ride:rides(*)
-    //   `)
-    //   .eq('ride.bookings.user_id', currentUserId)
-    //   .eq('status', 'active');
-
-    // Simulating API call with mock data
-    setTimeout(() => {
-      setChatRooms(mockChatRooms);
-      setLoading(false);
-    }, 500);
-  }, []);
 
   const renderChatItem = useCallback(
     ({ item }: { item: ChatRoomWithRide }) => (
       <Link href={`/message/${item.id}`} asChild>
-        <Pressable>
+        <Pressable style={{ marginBottom: 14 }}>
           <ChatRoomCard item={item} />
         </Pressable>
       </Link>
     ),
-    [],
-  );
-
-  const ItemSeparator = useCallback(
-    () => <View style={styles.separator} />,
     [],
   );
 
@@ -73,23 +47,14 @@ export default function MessagesScreen() {
     [colors],
   );
 
-  if (loading) {
-    return (
-      <View style={[styles.container, styles.loadingContainer]}>
-        <Text style={{ color: colors.text }}>Loading chats...</Text>
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
       <FlashList
-        data={chatRooms}
+        data={mockChatRooms}
         keyExtractor={(item) => item.id}
         renderItem={renderChatItem}
         ListEmptyComponent={renderEmptyComponent}
         contentContainerStyle={styles.listContent}
-        ItemSeparatorComponent={ItemSeparator}
         contentInsetAdjustmentBehavior="automatic"
       />
     </View>
