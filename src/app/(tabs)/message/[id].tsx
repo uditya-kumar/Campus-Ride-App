@@ -5,9 +5,9 @@ import {
   MOCK_MESSAGES,
   MOCK_PARTICIPANTS,
 } from "@assets/data/chatdetailsMock";
-import { Ionicons } from "@expo/vector-icons";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { useLocalSearchParams } from "expo-router";
+import { SendHorizontal } from "lucide-react-native";
 import { useCallback, useMemo, useState } from "react";
 import { Platform, StyleSheet, Text, View } from "react-native";
 import {
@@ -17,19 +17,17 @@ import {
   BubbleProps,
   GiftedChat,
   IMessage,
-  Send,
-  SendProps,
   Message,
   MessageProps,
+  Send,
+  SendProps,
 } from "react-native-gifted-chat";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ChatDetails() {
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
   const { id } = useLocalSearchParams<{ id: string }>();
 
-  const insets = useSafeAreaInsets();
   const headerHeight = useHeaderHeight();
 
   // Android typically needs 0 or very small offset
@@ -82,9 +80,11 @@ export default function ChatDetails() {
     () => ({
       left: {
         backgroundColor: colorScheme === "dark" ? "#2C2C2E" : "#F0F0F0",
+        paddingBottom: 0,
       },
       right: {
         backgroundColor: colorScheme === "dark" ? "#0A84FF" : "#007AFF",
+        paddingBottom: 0,
       },
     }),
     [colorScheme],
@@ -180,7 +180,7 @@ export default function ChatDetails() {
     return (
       <Send {...props} containerStyle={styles.sendContainer}>
         <View style={styles.sendButton}>
-          <Ionicons name="send" size={24} color="#007AFF" />
+          <SendHorizontal size={24} color={colors.buttonBackground} />
         </View>
       </Send>
     );
