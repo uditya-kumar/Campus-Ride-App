@@ -8,7 +8,7 @@ import Colors from "@/constants/Colors";
 import { Tables } from "@/database.types";
 import { locations } from "@assets/data/rides";
 import { router } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 const vehicleOptions = ["Eco Van", "Ertiga", "Bolero", "Swift"];
@@ -33,19 +33,28 @@ const createRide = () => {
   const [totalCost, setTotalCost] = useState<Ride["total_cost"] | null>(0);
   const [vehicleType, setVehicleType] =
     useState<Ride["vehicle_type"]>("Eco Van");
-  const [costPerPerson, setCostPerPerson] =
-    useState<Ride["cost_per_person"]>(0);
 
-  // Update cost per person when totalCost or availableSeats changes
-  useEffect(() => {
+  // Derive costPerPerson from totalCost and availableSeats (not stored in state)
+  const costPerPerson = useMemo(() => {
     if (availableSeats && totalCost && availableSeats > 0 && totalCost > 0) {
-      setCostPerPerson(Math.round((totalCost / availableSeats) * 100) / 100);
-    } else {
-      setCostPerPerson(0);
+      return Math.round((totalCost / availableSeats) * 100) / 100;
     }
+    return 0;
   }, [totalCost, availableSeats]);
 
-  const handleSubmit = () => {
+  // Memoize container style
+  const containerStyle = useMemo(
+    () => [styles.container, { backgroundColor: colors.background }],
+    [colors.background],
+  );
+
+  // Memoize label style
+  const labelStyle = useMemo(
+    () => [styles.label, { color: colors.text }],
+    [colors.text],
+  );
+
+  const handleSubmit = useCallback(() => {
     // Validate form
     if (
       !origin ||
@@ -73,13 +82,19 @@ const createRide = () => {
     console.log("Ride data:", rideData);
     // TODO: Submit to backend
 
-    router.push('/(tabs)/home')
-  };
+    router.push("/(tabs)/home");
+  }, [
+    origin,
+    destination,
+    departureDate,
+    availableSeats,
+    totalCost,
+    vehicleType,
+    costPerPerson,
+  ]);
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: colors.background }]}
-    >
+    <ScrollView style={containerStyle}>
       <View style={styles.formContainer}>
         {/* Origin & Destination Selector */}
         <RouteSelector
@@ -91,7 +106,7 @@ const createRide = () => {
         />
 
         {/* Departure Date Input */}
-        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+        <View style={styles.rowSpaceBetween}>
           <DateFilter
             labelText="Departure Date"
             selectedDate={departureDate}
@@ -125,9 +140,9 @@ const createRide = () => {
         />
 
         {/* Cost Per Person (Calculated) */}
-        <Text style={[styles.label, { color: colors.text }]}>
-            Cost Per Person is:- Rs {costPerPerson.toFixed(2)} /-
-          </Text>
+        <Text style={labelStyle}>
+          Cost Per Person is:- Rs {costPerPerson.toFixed(2)} /-
+        </Text>
 
         {/* Submit Button */}
         <Button
@@ -149,6 +164,10 @@ const styles = StyleSheet.create({
   formContainer: {
     padding: 20,
     gap: 25,
+  },
+  rowSpaceBetween: {
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   title: {
     fontSize: 28,

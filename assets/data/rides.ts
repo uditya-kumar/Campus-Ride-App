@@ -1,6 +1,6 @@
 import { Tables } from "@/database.types";
 
-type Ride = Tables<"rides">;
+export type Ride = Tables<"rides">;
 
 const locations = [
   "VIT",
@@ -187,4 +187,5 @@ const ridesData: Ride[] = [
   },
 ];
 
-export { ridesData, locations };
+export { locations, ridesData };
+

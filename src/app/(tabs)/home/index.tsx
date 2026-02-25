@@ -6,19 +6,23 @@ import RideCard from "@/components/rideComponents/RideCard";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { useFilteredRides } from "@/hooks/useFilteredRides";
-import { locations } from "@assets/data/rides";
+import { locations, Ride } from "@assets/data/rides";
 import { FlashList } from "@shopify/flash-list";
 import { router } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const sortOptions = [
+// Hoist static data outside component to avoid recreation
+const sortOptions: string[] = [
   "Departure Time",
   "Price: Low to High",
   "Price: High to Low",
   "Seats Available",
 ];
+
+// Hoist keyExtractor outside component for stable reference
+const keyExtractor = (item: Ride) => item.id;
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme() ?? "light";
@@ -45,8 +49,8 @@ export default function HomeScreen() {
     router.push("/createRide");
   }, []);
 
-  // Rendered when no result of search found
-  const renderEmptyComponent = useCallback(
+  // Memoize empty component to prevent recreation on each render
+  const EmptyComponent = useMemo(
     () => (
       <View style={styles.emptyContainer}>
         <Text style={[styles.emptyText, { color: colors.text }]}>
@@ -64,13 +68,30 @@ export default function HomeScreen() {
         />
       </View>
     ),
-    [colors, onCreateRide],
+    [
+      colors.text,
+      colors.tabIconDefault,
+      colors.buttonText,
+      colors.buttonBackground,
+      onCreateRide,
+    ],
   );
 
+  // Stabilize renderItem with useCallback - pass primitives for optimal memoization
   const renderItem = useCallback(
-    ({ item }: { item: (typeof filteredRides)[number] }) => (
+    ({ item }: { item: Ride }) => (
       <View style={styles.cardContainerStyle}>
-        <RideCard ride={item} onJoinRide={onJoinRide} />
+        <RideCard
+          id={item.id}
+          origin={item.origin}
+          destination={item.destination}
+          departureDate={item.departure_date}
+          availableSeats={item.available_seats}
+          totalSeats={item.total_seats}
+          vehicleType={item.vehicle_type}
+          totalCost={item.total_cost}
+          onJoinRide={onJoinRide}
+        />
       </View>
     ),
     [onJoinRide],
@@ -89,14 +110,14 @@ export default function HomeScreen() {
         />
 
         <View style={styles.row}>
-          <View style={{ flex: 1 }}>
+          <View style={styles.flex1}>
             <DateFilter
               labelText="Date"
               selectedDate={selectedDate}
               onSelectDate={setSelectedDate}
             />
           </View>
-          <View style={{ flex: 1 }}>
+          <View style={styles.flex1}>
             <Dropdown
               labelText="Sort By"
               options={sortOptions}
@@ -110,11 +131,10 @@ export default function HomeScreen() {
       {/* List  */}
       <FlashList
         data={filteredRides}
-        keyExtractor={(item) => item.id}
-        ListEmptyComponent={renderEmptyComponent}
+        keyExtractor={keyExtractor}
+        ListEmptyComponent={EmptyComponent}
         renderItem={renderItem}
         contentContainerStyle={styles.listContent}
-        contentInsetAdjustmentBehavior="automatic"
       />
     </SafeAreaView>
   );
@@ -138,6 +158,9 @@ const styles = StyleSheet.create({
   },
   cardContainerStyle: {
     marginBottom: 14,
+  },
+  flex1: {
+    flex: 1,
   },
   row: {
     flexDirection: "row",

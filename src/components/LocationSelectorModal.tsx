@@ -1,14 +1,14 @@
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
-import { useState } from "react";
+import { FlashList } from "@shopify/flash-list";
+import { memo, useCallback, useMemo, useState } from "react";
 import {
-    Modal,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
 
 type LocationSelectorModalProps = {
@@ -20,7 +20,49 @@ type LocationSelectorModalProps = {
   onSelectLocation: (location: string) => void;
 };
 
-export default function LocationSelectorModal({
+// Memoized location item to prevent re-renders when other items change
+type LocationItemProps = {
+  location: string;
+  isSelected: boolean;
+  onSelect: (location: string) => void;
+  colors: {
+    cardBackground: string;
+    tint: string;
+    text: string;
+  };
+};
+
+const LocationItem = memo(function LocationItem({
+  location,
+  isSelected,
+  onSelect,
+  colors,
+}: LocationItemProps) {
+  const handlePress = useCallback(() => {
+    onSelect(location);
+  }, [onSelect, location]);
+
+  const itemStyle = useMemo(
+    () => ({ backgroundColor: colors.cardBackground }),
+    [colors.cardBackground],
+  );
+
+  const textStyle = useMemo(
+    () => ({
+      color: isSelected ? colors.tint : colors.text,
+      fontWeight: isSelected ? ("600" as const) : ("400" as const),
+    }),
+    [isSelected, colors.tint, colors.text],
+  );
+
+  return (
+    <Pressable style={[styles.locationItem, itemStyle]} onPress={handlePress}>
+      <Text style={[styles.locationItemText, textStyle]}>{location}</Text>
+    </Pressable>
+  );
+});
+
+const LocationSelectorModal = memo(function LocationSelectorModal({
   visible,
   onClose,
   locations,
@@ -32,20 +74,95 @@ export default function LocationSelectorModal({
   const colors = Colors[colorScheme];
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredLocations = locations.filter((location) =>
-    location.toLowerCase().includes(searchQuery.toLowerCase()),
+  // Memoize filtered locations to avoid recalculation on every render
+  const filteredLocations = useMemo(
+    () =>
+      locations.filter((location) =>
+        location.toLowerCase().includes(searchQuery.toLowerCase()),
+      ),
+    [locations, searchQuery],
   );
 
-  const handleSelect = (location: string) => {
-    onSelectLocation(location);
-    setSearchQuery("");
-    onClose();
-  };
+  // Stabilize callback references
+  const handleSelect = useCallback(
+    (location: string) => {
+      onSelectLocation(location);
+      setSearchQuery("");
+      onClose();
+    },
+    [onSelectLocation, onClose],
+  );
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setSearchQuery("");
     onClose();
-  };
+  }, [onClose]);
+
+  // Memoize dynamic styles
+  const dynamicStyles = useMemo(
+    () => ({
+      overlay: {
+        backgroundColor:
+          colorScheme === "dark"
+            ? "rgba(82, 82, 82, 0.7)"
+            : "rgba(177, 177, 177, 0.7)",
+      },
+      content: { backgroundColor: colors.background },
+      title: { color: colors.text },
+      closeButton: { color: colors.tint },
+      searchInput: {
+        backgroundColor: colors.cardBackground,
+        color: colors.text,
+        borderColor: colors.borderColor,
+      },
+      noResults: { color: colors.tabIconDefault },
+    }),
+    [
+      colorScheme,
+      colors.background,
+      colors.text,
+      colors.tint,
+      colors.cardBackground,
+      colors.borderColor,
+      colors.tabIconDefault,
+    ],
+  );
+
+  // Memoize colors object for LocationItem
+  const itemColors = useMemo(
+    () => ({
+      cardBackground: colors.cardBackground,
+      tint: colors.tint,
+      text: colors.text,
+    }),
+    [colors.cardBackground, colors.tint, colors.text],
+  );
+
+  // Memoize renderItem for FlashList
+  const renderItem = useCallback(
+    ({ item }: { item: string }) => (
+      <LocationItem
+        location={item}
+        isSelected={selectedLocation === item}
+        onSelect={handleSelect}
+        colors={itemColors}
+      />
+    ),
+    [selectedLocation, handleSelect, itemColors],
+  );
+
+  // Memoize keyExtractor
+  const keyExtractor = useCallback((item: string) => item, []);
+
+  // Memoize empty component
+  const ListEmptyComponent = useMemo(
+    () => (
+      <Text style={[styles.noResults, dynamicStyles.noResults]}>
+        No locations found
+      </Text>
+    ),
+    [dynamicStyles.noResults],
+  );
 
   return (
     <Modal
@@ -54,87 +171,43 @@ export default function LocationSelectorModal({
       transparent={true}
       onRequestClose={handleClose}
     >
-      <View
-        style={[
-          styles.modalOverlay,
-          {
-            backgroundColor:
-              colorScheme === "dark"
-                ? "rgba(82, 82, 82, 0.7)"
-                : "rgba(177, 177, 177, 0.7)",
-          },
-        ]}
-      >
-        <View
-          style={[styles.modalContent, { backgroundColor: colors.background }]}
-        >
+      <View style={[styles.modalOverlay, dynamicStyles.overlay]}>
+        <View style={[styles.modalContent, dynamicStyles.content]}>
           <View style={styles.modalHeader}>
-            <Text style={[styles.modalTitle, { color: colors.text }]}>
+            <Text style={[styles.modalTitle, dynamicStyles.title]}>
               {selectionMode === "origin"
                 ? "Select Pick-up Location"
                 : "Select Destination"}
             </Text>
             <Pressable onPress={handleClose}>
-              <Text style={[styles.closeButton, { color: colors.tint }]}>
+              <Text style={[styles.closeButton, dynamicStyles.closeButton]}>
                 Done
               </Text>
             </Pressable>
           </View>
 
           <TextInput
-            style={[
-              styles.searchInput,
-              {
-                backgroundColor: colors.cardBackground,
-                color: colors.text,
-                borderColor: colors.borderColor,
-              },
-            ]}
+            style={[styles.searchInput, dynamicStyles.searchInput]}
             placeholder="Search locations..."
             placeholderTextColor={colors.tabIconDefault}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
 
-          <ScrollView style={styles.locationList}>
-            {filteredLocations.map((location) => {
-              const isSelected = selectedLocation === location;
-              return (
-                <Pressable
-                  key={location}
-                  style={[
-                    styles.locationItem,
-                    { backgroundColor: colors.cardBackground },
-                  ]}
-                  onPress={() => handleSelect(location)}
-                >
-                  <Text
-                    style={[
-                      styles.locationItemText,
-                      {
-                        color: isSelected ? colors.tint : colors.text,
-                        fontWeight: isSelected ? "600" : "400",
-                      },
-                    ]}
-                  >
-                    {location}
-                  </Text>
-                </Pressable>
-              );
-            })}
-            {filteredLocations.length === 0 && (
-              <Text
-                style={[styles.noResults, { color: colors.tabIconDefault }]}
-              >
-                No locations found
-              </Text>
-            )}
-          </ScrollView>
+          <FlashList
+            data={filteredLocations}
+            renderItem={renderItem}
+            keyExtractor={keyExtractor}
+            ListEmptyComponent={ListEmptyComponent}
+            contentContainerStyle={styles.listContent}
+          />
         </View>
       </View>
     </Modal>
   );
-}
+});
+
+export default LocationSelectorModal;
 
 const styles = StyleSheet.create({
   modalOverlay: {
@@ -170,8 +243,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 16,
   },
-  locationList: {
-    flex: 1,
+  listContent: {
+    paddingBottom: 20,
   },
   locationItem: {
     paddingVertical: 16,

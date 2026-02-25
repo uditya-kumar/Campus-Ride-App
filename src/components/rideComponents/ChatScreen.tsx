@@ -1,7 +1,7 @@
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { SendHorizontal } from "lucide-react-native";
-import { useCallback, useMemo, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { Platform, StyleSheet, Text, View } from "react-native";
 import {
   Avatar,
@@ -30,7 +30,7 @@ interface ChatScreenProps {
   keyboardVerticalOffset?: number;
 }
 
-export default function ChatScreen({
+const ChatScreen = memo(function ChatScreen({
   messages: initialMessages,
   currentUserId,
   currentUserName = "You",
@@ -62,18 +62,21 @@ export default function ChatScreen({
     [onSendMessage],
   );
 
-  // Add this renderMessage callback
-  const renderMessage = useCallback((props: MessageProps<IMessage>) => {
-    return (
-      <Message
-        {...props}
-        containerStyle={{
-          left: { alignItems: "center" }, // Centers avatar vertically with bubble
-          right: { alignItems: "center" },
-        }}
-      />
-    );
-  }, []);
+  // Memoize renderMessage containerStyle
+  const messageContainerStyle = useMemo(
+    () => ({
+      left: { alignItems: "center" as const },
+      right: { alignItems: "center" as const },
+    }),
+    [],
+  );
+
+  const renderMessage = useCallback(
+    (props: MessageProps<IMessage>) => {
+      return <Message {...props} containerStyle={messageContainerStyle} />;
+    },
+    [messageContainerStyle],
+  );
 
   // Memoized styles for bubble to prevent recreation on each render
   const bubbleWrapperStyle = useMemo(
@@ -157,8 +160,18 @@ export default function ChatScreen({
 
   const avatarImageStyle = useMemo(
     () => ({
-      left: { width: 36, height: 36, borderRadius: 18, borderCurve: "continuous" as const },
-      right: { width: 36, height: 36, borderRadius: 18, borderCurve: "continuous" as const },
+      left: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        borderCurve: "continuous" as const,
+      },
+      right: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        borderCurve: "continuous" as const,
+      },
     }),
     [],
   );
@@ -251,8 +264,14 @@ export default function ChatScreen({
     [keyboardVerticalOffset],
   );
 
+  // Memoize container style
+  const containerStyle = useMemo(
+    () => [styles.container, { backgroundColor: colors.background }],
+    [colors.background],
+  );
+
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={containerStyle}>
       <GiftedChat
         messages={messages}
         onSend={onSend}
@@ -276,7 +295,9 @@ export default function ChatScreen({
       />
     </View>
   );
-}
+});
+
+export default ChatScreen;
 
 const styles = StyleSheet.create({
   container: {

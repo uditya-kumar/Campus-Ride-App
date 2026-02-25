@@ -43,7 +43,9 @@ function RootLayoutNav() {
   const pathname = usePathname();
 
   useEffect(() => {
-    console.log("📍 Current URL:", pathname);
+    if(__DEV__){
+      console.log("📍 Current URL:", pathname);
+    }
   }, [pathname]);
 
   return (

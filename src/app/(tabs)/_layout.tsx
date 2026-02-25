@@ -1,13 +1,7 @@
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { Tabs } from "expo-router";
-import {
-  CarTaxiFront,
-  House,
-  MessageCircleMore,
-  User,
-  SquarePlus,
-} from "lucide-react-native";
+import { House, MessageCircleMore, SquarePlus } from "lucide-react-native";
 import React from "react";
 
 export default function TabLayout() {
@@ -31,7 +25,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="home"
         options={{
-          animation: "shift",
+          animation: "none",
           title: "Home",
           headerShown: false,
           tabBarIcon: ({ color }) => <House size={25} color={color} />,
@@ -40,7 +34,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="createRide"
         options={{
-          animation: "shift",
+          animation: "none",
           title: "Create Ride",
           tabBarIcon: ({ color }) => <SquarePlus size={25} color={color} />,
         }}
@@ -48,7 +42,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="message"
         options={{
-          animation: "shift",
+          animation: "none",
           title: "Message",
           headerShown: false,
           tabBarIcon: ({ color }) => (

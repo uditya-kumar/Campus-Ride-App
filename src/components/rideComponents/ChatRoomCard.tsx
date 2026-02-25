@@ -2,7 +2,7 @@ import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { Tables } from "@/database.types";
 import { CalendarDays, ChevronRight } from "lucide-react-native";
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 type ChatRoom = Tables<"chat_rooms">;
@@ -37,30 +37,40 @@ function ChatRoomCard({ item }: ChatRoomCardProps) {
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
 
+  const cardStyle = useMemo(
+    () => [
+      styles.chatCard,
+      {
+        backgroundColor: colors.cardBackground,
+        borderColor: colors.borderColor,
+      },
+    ],
+    [colors.cardBackground, colors.borderColor],
+  );
+
+  const routeTextStyle = useMemo(
+    () => [styles.routeText, { color: colors.text }],
+    [colors.text],
+  );
+
+  const dateTextStyle = useMemo(
+    () => [styles.dateText, { color: colors.tabIconDefault }],
+    [colors.tabIconDefault],
+  );
+
   return (
-    <View
-      style={[
-        styles.chatCard,
-        {
-          backgroundColor: colors.cardBackground,
-          borderColor: colors.borderColor,
-        },
-      ]}
-    >
+    <View style={cardStyle}>
       <View style={styles.routeHeader}>
         <View style={styles.routeInfo}>
           {/* routes */}
-          <Text
-            style={[styles.routeText, { color: colors.text }]}
-            numberOfLines={1}
-          >
+          <Text style={routeTextStyle} numberOfLines={1}>
             {item.ride.origin} → {item.ride.destination}
           </Text>
 
           {/* Date Row */}
           <View style={styles.dateRow}>
             <CalendarDays color={colors.tabIconDefault} size={14} />
-            <Text style={[styles.dateText, { color: colors.tabIconDefault }]}>
+            <Text style={dateTextStyle}>
               {formatDate(item.ride.departure_date)},{" "}
               {formatTime(item.ride.departure_date)}
             </Text>

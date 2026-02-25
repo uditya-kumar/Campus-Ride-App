@@ -1,64 +1,66 @@
 // components/Button.tsx
-import React from "react";
-import { Text, StyleSheet, Pressable, ActivityIndicator } from "react-native";
-// import { Plus, SendHorizontal, Eye, UserCheck, Trash2, type LucideProps } from "lucide-react-native";
-
-// export type AllowedIconName = "Plus" | "SendHorizontal" | "Eye" | "UserCheck" | "Trash2";
+import React, { memo, useMemo } from "react";
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  Text,
+  ViewStyle,
+} from "react-native";
 
 interface ButtonProps {
   text: string;
   textColor: string;
   backgroundColor: string;
   borderColor?: string;
-//   icon: AllowedIconName;
   onPress?: () => void;
   paddingVertical?: number;
-  paddingHorizontal?: number,
+  paddingHorizontal?: number;
   loading?: boolean;
-//   hideIconOnLoading?: boolean;
 }
 
-const Button: React.FC<ButtonProps> = ({
+const Button = memo(function Button({
   text,
   textColor,
   backgroundColor,
   borderColor = "transparent",
-//   icon,
   onPress,
   paddingVertical = 11,
   loading = false,
   paddingHorizontal = 15,
-//   hideIconOnLoading = false,
-}) => {
-//   const ICONS: Record<AllowedIconName, React.ComponentType<LucideProps>> = {
-//     Plus,
-//     SendHorizontal,
-//     Eye,
-//     UserCheck,
-//     Trash2,
-//   } as const;
+}: ButtonProps) {
+  // Memoize dynamic button styles to avoid recreation on each render
+  const buttonBaseStyle = useMemo<ViewStyle>(
+    () => ({
+      paddingVertical,
+      paddingHorizontal,
+      backgroundColor,
+      borderColor,
+      borderWidth: borderColor !== "transparent" ? 1 : 0,
+    }),
+    [paddingVertical, paddingHorizontal, backgroundColor, borderColor],
+  );
 
-//   const IconComponent = ICONS[icon];
+  // Memoize text color style
+  const textColorStyle = useMemo(() => ({ color: textColor }), [textColor]);
+
+  // Pressable style function - returns memoized base + pressed opacity
+  const getPressableStyle = useMemo(
+    () =>
+      ({ pressed }: { pressed: boolean }) => [
+        styles.button,
+        buttonBaseStyle,
+        { opacity: pressed ? 0.9 : 1 },
+      ],
+    [buttonBaseStyle],
+  );
 
   return (
     <Pressable
-      style={({ pressed }) => [
-        styles.button,
-        {
-          paddingVertical,
-          paddingHorizontal,
-          backgroundColor,
-          borderColor,
-          borderWidth: borderColor !== "transparent" ? 1 : 0,
-          opacity: pressed ? 0.9 : 1,
-        },
-      ]}
+      style={getPressableStyle}
       onPress={!loading ? onPress : undefined}
     >
-      {/* {!(loading && hideIconOnLoading) && (
-        <IconComponent color={textColor} size={18} style={styles.icon} />
-      )} */}
-      <Text style={[styles.text, { color: textColor }]}>{text}</Text>
+      <Text style={[styles.text, textColorStyle]}>{text}</Text>
 
       {loading && (
         <ActivityIndicator
@@ -69,7 +71,7 @@ const Button: React.FC<ButtonProps> = ({
       )}
     </Pressable>
   );
-};
+});
 
 const styles = StyleSheet.create({
   button: {
@@ -79,10 +81,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   spinner: {
-    marginLeft: 10, // ← push spinner to right of text
-  },
-  icon: {
-    marginRight: 6,
+    marginLeft: 10,
   },
   text: {
     fontWeight: "600",

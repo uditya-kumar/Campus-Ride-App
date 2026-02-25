@@ -1,12 +1,12 @@
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
-import React from "react";
+import React, { memo, useMemo } from "react";
 import {
   KeyboardTypeOptions,
   StyleSheet,
+  Text,
   TextInput,
   View,
-  Text,
 } from "react-native";
 
 type CustomTextInputProps = {
@@ -18,19 +18,38 @@ type CustomTextInputProps = {
   labelText: string;
 };
 
-const CustomTextInput = ({
+const CustomTextInput = memo(function CustomTextInput({
   value,
   onChangeText,
   placeholder,
   style,
   keyboardType,
   labelText,
-}: CustomTextInputProps) => {
+}: CustomTextInputProps) {
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
+
+  const labelStyle = useMemo(
+    () => [styles.label, { color: colors.text }],
+    [colors.text],
+  );
+
+  const inputStyle = useMemo(
+    () => [
+      styles.searchInput,
+      {
+        backgroundColor: colors.cardBackground,
+        borderColor: colors.borderColor,
+        color: colors.text,
+      },
+      style,
+    ],
+    [colors.cardBackground, colors.borderColor, colors.text, style],
+  );
+
   return (
     <View style={styles.container}>
-      <Text style={[styles.label, { color: colors.text }]}>{labelText}</Text>
+      <Text style={labelStyle}>{labelText}</Text>
       <TextInput
         value={value}
         onChangeText={onChangeText}
@@ -38,19 +57,11 @@ const CustomTextInput = ({
         placeholderTextColor={colors.tabIconDefault}
         autoCorrect={false}
         keyboardType={keyboardType}
-        style={[
-          styles.searchInput,
-          {
-            backgroundColor: colors.cardBackground,
-            borderColor: colors.borderColor,
-            color: colors.text,
-          },
-          style,
-        ]}
+        style={inputStyle}
       />
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {
