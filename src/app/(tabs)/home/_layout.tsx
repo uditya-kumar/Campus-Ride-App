@@ -22,7 +22,7 @@ export default function HomeLayout() {
         name="index"
         options={{
           title: "Campus Ride",
-          headerShown: true,
+          headerShown: false,
         }}
       />
     </Stack>

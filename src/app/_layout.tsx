@@ -7,8 +7,14 @@ import {
 import { Stack, usePathname } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
+import { LogBox } from "react-native";
 import "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+
+// Suppress edge-to-edge warning (these props are handled automatically)
+LogBox.ignoreLogs([
+  "statusBarTranslucent and navigationBarTranslucent values are ignored",
+]);
 
 export {
   // Catch any errors thrown by the Layout component.

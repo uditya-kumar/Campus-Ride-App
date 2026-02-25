@@ -11,6 +11,7 @@ import { FlashList } from "@shopify/flash-list";
 import { router } from "expo-router";
 import { useCallback, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const sortOptions = [
   "Departure Time",
@@ -76,7 +77,7 @@ export default function HomeScreen() {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["top"]}>
       {/* Filters Section */}
       <View style={styles.filtersContainer}>
         <RouteSelector
@@ -115,7 +116,7 @@ export default function HomeScreen() {
         contentContainerStyle={styles.listContent}
         contentInsetAdjustmentBehavior="automatic"
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -131,8 +132,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   filtersContainer: {
-    gap: 22,
-    marginTop: 15,
+    gap: 20,
+    marginTop: 10,
     marginBottom: 15,
   },
   cardContainerStyle: {
@@ -143,7 +144,7 @@ const styles = StyleSheet.create({
     gap: 30,
   },
   listContent: {
-    paddingVertical: 18,
+    paddingVertical: 5,
   },
   emptyContainer: {
     flex: 1,
