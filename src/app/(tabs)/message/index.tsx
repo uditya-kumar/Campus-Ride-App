@@ -5,7 +5,7 @@ import { Tables } from "@/database.types";
 import { FlashList } from "@shopify/flash-list";
 import { Link } from "expo-router";
 import { MessageCircle } from "lucide-react-native";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import mockChatRooms from "@assets/data/chat";
@@ -24,7 +24,7 @@ export default function MessagesScreen() {
   const renderChatItem = useCallback(
     ({ item }: { item: ChatRoomWithRide }) => (
       <Link href={`/message/${item.id}`} asChild>
-        <Pressable style={{ marginBottom: 14 }}>
+        <Pressable style={styles.chatItemPressable}>
           <ChatRoomCard item={item} />
         </Pressable>
       </Link>
@@ -32,19 +32,27 @@ export default function MessagesScreen() {
     [],
   );
 
+  const emptyTextStyle = useMemo(
+    () => [styles.emptyText, { color: colors.text }],
+    [colors.text],
+  );
+
+  const emptySubtextStyle = useMemo(
+    () => [styles.emptySubtext, { color: colors.tabIconDefault }],
+    [colors.tabIconDefault],
+  );
+
   const renderEmptyComponent = useCallback(
     () => (
       <View style={styles.emptyContainer}>
         <MessageCircle color={colors.tabIconDefault} size={64} />
-        <Text style={[styles.emptyText, { color: colors.text }]}>
-          No chats yet
-        </Text>
-        <Text style={[styles.emptySubtext, { color: colors.tabIconDefault }]}>
+        <Text style={emptyTextStyle}>No chats yet</Text>
+        <Text style={emptySubtextStyle}>
           Join a ride to start chatting with other passengers
         </Text>
       </View>
     ),
-    [colors],
+    [colors.tabIconDefault, emptyTextStyle, emptySubtextStyle],
   );
 
   return (
@@ -75,6 +83,9 @@ const styles = StyleSheet.create({
   },
   separator: {
     height: 14,
+  },
+  chatItemPressable: {
+    marginBottom: 14,
   },
   emptyContainer: {
     flex: 1,

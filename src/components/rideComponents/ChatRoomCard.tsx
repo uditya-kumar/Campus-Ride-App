@@ -1,9 +1,10 @@
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { Tables } from "@/database.types";
-import { CalendarDays, ChevronRight } from "lucide-react-native";
 import { memo, useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import EvilIcons from '@expo/vector-icons/EvilIcons';
 
 type ChatRoom = Tables<"chat_rooms">;
 type Ride = Tables<"rides">;
@@ -69,14 +70,14 @@ function ChatRoomCard({ item }: ChatRoomCardProps) {
 
           {/* Date Row */}
           <View style={styles.dateRow}>
-            <CalendarDays color={colors.tabIconDefault} size={14} />
+            <FontAwesome5 name="calendar-alt" color={colors.tabIconDefault} size={14} />
             <Text style={dateTextStyle}>
               {formatDate(item.ride.departure_date)},{" "}
               {formatTime(item.ride.departure_date)}
             </Text>
           </View>
         </View>
-        <ChevronRight color={colors.tabIconDefault} size={20} />
+        <EvilIcons name="chevron-right" color={colors.tabIconDefault} size={30} />
       </View>
     </View>
   );

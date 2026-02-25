@@ -4,6 +4,9 @@ import Colors from "@/constants/Colors";
 import { CalendarDays, Car, MapPinned, Users } from "lucide-react-native";
 import { memo, useCallback, useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import Octicons from '@expo/vector-icons/Octicons';
 
 // Hoist Intl formatters to module scope - expensive to construct, created once
 const dateFormatter = new Intl.DateTimeFormat("en-GB", {
@@ -75,7 +78,7 @@ const RideCard = memo(function RideCard({
     <View style={[styles.card, dynamicStyles.card]}>
       {/* Date and Time Row */}
       <View style={styles.row}>
-        <CalendarDays color={colors.text} size={18} />
+        <FontAwesome5 name="calendar-alt" color={colors.text} size={18} />
         <Text style={[styles.primaryText, dynamicStyles.primaryText]}>
           {date}, {time}
         </Text>
@@ -83,7 +86,7 @@ const RideCard = memo(function RideCard({
 
       {/* Route Row */}
       <View style={styles.row}>
-        <MapPinned color={colors.text} size={18} />
+        <MaterialCommunityIcons name="map-marker-radius-outline" color={colors.text} size={18} />
         <Text style={[styles.primaryText, dynamicStyles.primaryText]}>
           {origin} To {destination}
         </Text>
@@ -92,13 +95,13 @@ const RideCard = memo(function RideCard({
       {/* Seats and Car Row */}
       <View style={styles.rowSpaceBetween}>
         <View style={styles.row}>
-          <Users color={colors.text} size={18} />
+          <Octicons name="people" color={colors.text} size={18} />
           <Text style={styles.secondaryText}>
             {availableSeats}/{totalSeats} seats left
           </Text>
         </View>
         <View style={styles.row}>
-          <Car color={colors.text} size={22} />
+          <MaterialCommunityIcons name="car-outline" color={colors.text} size={22} />
           <Text style={styles.secondaryText}>{vehicleType}</Text>
         </View>
       </View>
