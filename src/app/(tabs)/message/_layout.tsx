@@ -3,6 +3,17 @@ import Colors from "@/constants/Colors";
 import { Stack } from "expo-router";
 import React, { useMemo } from "react";
 
+// Hoisted static screen options
+const indexScreenOptions = {
+  title: "Messages",
+  headerShown: true,
+};
+
+const chatScreenOptions = {
+  title: "Chat",
+  headerShown: true,
+};
+
 export default function MessageLayout() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? "light"];
@@ -18,20 +29,8 @@ export default function MessageLayout() {
 
   return (
     <Stack screenOptions={screenOptions}>
-      <Stack.Screen
-        name="index"
-        options={{
-          title: "Messages",
-          headerShown: true,
-        }}
-      />
-      <Stack.Screen
-        name="[id]"
-        options={{
-          title: "Chat",
-          headerShown: true,
-        }}
-      />
+      <Stack.Screen name="index" options={indexScreenOptions} />
+      <Stack.Screen name="[id]" options={chatScreenOptions} />
     </Stack>
   );
 }

@@ -6,21 +6,24 @@ import {
 } from "@assets/data/chatdetailsMock";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { useLocalSearchParams } from "expo-router";
-import { useCallback, useMemo } from "react";
+import { memo, useCallback, useMemo } from "react";
 import { Platform } from "react-native";
 import { IMessage } from "react-native-gifted-chat";
 
-export default function ChatDetails() {
+export default memo(function ChatDetails() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const headerHeight = useHeaderHeight();
 
-  // Android typically needs 0 or very small offset
-  // iOS needs the header height
-  const keyboardVerticalOffset = Platform.select({
-    ios: headerHeight,
-    android: 95,
-    default: 0,
-  });
+  // Memoize keyboard offset - only recalculates when headerHeight changes
+  const keyboardVerticalOffset = useMemo(
+    () =>
+      Platform.select({
+        ios: headerHeight,
+        android: 95,
+        default: 0,
+      }),
+    [headerHeight]
+  );
 
   // Convert mock messages to GiftedChat format
   const giftedChatMessages: IMessage[] = useMemo(() => {
@@ -54,4 +57,4 @@ export default function ChatDetails() {
       keyboardVerticalOffset={keyboardVerticalOffset}
     />
   );
-}
+});

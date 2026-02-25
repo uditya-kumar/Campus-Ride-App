@@ -270,6 +270,18 @@ const ChatScreen = memo(function ChatScreen({
     [colors.background],
   );
 
+  // FlatList performance optimizations
+  const listProps = useMemo(
+    () => ({
+      removeClippedSubviews: true,
+      maxToRenderPerBatch: 10,
+      updateCellsBatchingPeriod: 50,
+      windowSize: 21,
+      initialNumToRender: 15,
+    }),
+    [],
+  );
+
   return (
     <View style={containerStyle}>
       <GiftedChat
@@ -286,6 +298,7 @@ const ChatScreen = memo(function ChatScreen({
         messagesContainerStyle={messagesContainerStyle}
         textInputProps={textInputProps}
         keyboardAvoidingViewProps={keyboardAvoidingProps}
+        listProps={listProps}
         minInputToolbarHeight={60}
         minComposerHeight={40}
         maxComposerHeight={120}
