@@ -6,6 +6,7 @@ import {
   House,
   MessageCircleMore,
   User,
+  SquarePlus,
 } from "lucide-react-native";
 import React from "react";
 
@@ -37,6 +38,14 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="createRide"
+        options={{
+          animation: "shift",
+          title: "Create Ride",
+          tabBarIcon: ({ color }) => <SquarePlus size={25} color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="message"
         options={{
           animation: "shift",
@@ -45,23 +54,6 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <MessageCircleMore size={25} color={color} />
           ),
-        }}
-      />
-      <Tabs.Screen
-        name="rides"
-        options={{
-          animation: "shift",
-          title: "My Ride",
-          headerShown: false,
-          tabBarIcon: ({ color }) => <CarTaxiFront size={25} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          animation: "shift",
-          title: "Profile",
-          tabBarIcon: ({ color }) => <User size={25} color={color} />,
         }}
       />
     </Tabs>
