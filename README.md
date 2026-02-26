@@ -9,7 +9,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-~5.9.2-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-Coming%20Soon-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
 
-[Tech Stack](#tech-stack) • [Screens](#screens--navigation) • [Components](#components) • [Database](#database-schema) • [Roadmap](#roadmap)
+[Tech Stack](#tech-stack) • [Screens](#screens--navigation) • [Database](#database-schema) • [Roadmap](#roadmap)
 
 </div>
 
