@@ -17,15 +17,23 @@
 
 ---
 
-## Table of Contents
+## 📸 Screenshots
 
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Screens & Navigation](#screens--navigation)
-- [Components](#components)
-- [Database Schema](#database-schema)
-- [Getting Started](#getting-started)
-- [Roadmap](#roadmap)
+<div align="center">
+
+### Application Interface
+
+<table>
+  <tr>
+    <td><img src="assets/screenshots/screenshot2.png" alt="Screenshot 1" width="250"/></td>
+    <td><img src="assets/screenshots/screenshot1.png" alt="Screenshot 2" width="250"/></td>
+    <td><img src="assets/screenshots/screenshot3.png" alt="Screenshot 3" width="250"/></td>
+  </tr>
+</table>
+
+_Experience the clean and intuitive user interface of Campus Ride_
+
+</div>
 
 ---
 
