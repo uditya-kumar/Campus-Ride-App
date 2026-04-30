@@ -1,7 +1,7 @@
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { FlashList } from "@shopify/flash-list";
-import { memo, useCallback, useMemo, useState } from "react";
+import { useState } from "react";
 import {
   Modal,
   Pressable,
@@ -20,7 +20,6 @@ type LocationSelectorModalProps = {
   onSelectLocation: (location: string) => void;
 };
 
-// Memoized location item to prevent re-renders when other items change
 type LocationItemProps = {
   location: string;
   isSelected: boolean;
@@ -32,37 +31,31 @@ type LocationItemProps = {
   };
 };
 
-const LocationItem = memo(function LocationItem({
+function LocationItem({
   location,
   isSelected,
   onSelect,
   colors,
 }: LocationItemProps) {
-  const handlePress = useCallback(() => {
+  const handlePress = () => {
     onSelect(location);
-  }, [onSelect, location]);
+  };
 
-  const itemStyle = useMemo(
-    () => ({ backgroundColor: colors.cardBackground }),
-    [colors.cardBackground],
-  );
+  const itemStyle = { backgroundColor: colors.cardBackground };
 
-  const textStyle = useMemo(
-    () => ({
-      color: isSelected ? colors.tint : colors.text,
-      fontWeight: isSelected ? ("600" as const) : ("400" as const),
-    }),
-    [isSelected, colors.tint, colors.text],
-  );
+  const textStyle = {
+    color: isSelected ? colors.tint : colors.text,
+    fontWeight: isSelected ? ("600" as const) : ("400" as const),
+  };
 
   return (
     <Pressable style={[styles.locationItem, itemStyle]} onPress={handlePress}>
       <Text style={[styles.locationItemText, textStyle]}>{location}</Text>
     </Pressable>
   );
-});
+}
 
-const LocationSelectorModal = memo(function LocationSelectorModal({
+function LocationSelectorModal({
   visible,
   onClose,
   locations,
@@ -74,94 +67,60 @@ const LocationSelectorModal = memo(function LocationSelectorModal({
   const colors = Colors[colorScheme];
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Memoize filtered locations to avoid recalculation on every render
-  const filteredLocations = useMemo(
-    () =>
-      locations.filter((location) =>
-        location.toLowerCase().includes(searchQuery.toLowerCase()),
-      ),
-    [locations, searchQuery],
+  const filteredLocations = locations.filter((location) =>
+    location.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  // Stabilize callback references
-  const handleSelect = useCallback(
-    (location: string) => {
-      onSelectLocation(location);
-      setSearchQuery("");
-      onClose();
-    },
-    [onSelectLocation, onClose],
-  );
-
-  const handleClose = useCallback(() => {
+  const handleSelect = (location: string) => {
+    onSelectLocation(location);
     setSearchQuery("");
     onClose();
-  }, [onClose]);
+  };
 
-  // Memoize dynamic styles
-  const dynamicStyles = useMemo(
-    () => ({
-      overlay: {
-        backgroundColor:
-          colorScheme === "dark"
-            ? "rgba(82, 82, 82, 0.7)"
-            : "rgba(177, 177, 177, 0.7)",
-      },
-      content: { backgroundColor: colors.background },
-      title: { color: colors.text },
-      closeButton: { color: colors.tint },
-      searchInput: {
-        backgroundColor: colors.cardBackground,
-        color: colors.text,
-        borderColor: colors.borderColor,
-      },
-      noResults: { color: colors.tabIconDefault },
-    }),
-    [
-      colorScheme,
-      colors.background,
-      colors.text,
-      colors.tint,
-      colors.cardBackground,
-      colors.borderColor,
-      colors.tabIconDefault,
-    ],
+  const handleClose = () => {
+    setSearchQuery("");
+    onClose();
+  };
+
+  const dynamicStyles = {
+    overlay: {
+      backgroundColor:
+        colorScheme === "dark"
+          ? "rgba(82, 82, 82, 0.7)"
+          : "rgba(177, 177, 177, 0.7)",
+    },
+    content: { backgroundColor: colors.background },
+    title: { color: colors.text },
+    closeButton: { color: colors.tint },
+    searchInput: {
+      backgroundColor: colors.cardBackground,
+      color: colors.text,
+      borderColor: colors.borderColor,
+    },
+    noResults: { color: colors.tabIconDefault },
+  };
+
+  const itemColors = {
+    cardBackground: colors.cardBackground,
+    tint: colors.tint,
+    text: colors.text,
+  };
+
+  const renderItem = ({ item }: { item: string }) => (
+    <LocationItem
+      location={item}
+      isSelected={selectedLocation === item}
+      onSelect={handleSelect}
+      colors={itemColors}
+    />
   );
 
-  // Memoize colors object for LocationItem
-  const itemColors = useMemo(
-    () => ({
-      cardBackground: colors.cardBackground,
-      tint: colors.tint,
-      text: colors.text,
-    }),
-    [colors.cardBackground, colors.tint, colors.text],
-  );
+  const keyExtractor = (item: string) => item;
 
-  // Memoize renderItem for FlashList
-  const renderItem = useCallback(
-    ({ item }: { item: string }) => (
-      <LocationItem
-        location={item}
-        isSelected={selectedLocation === item}
-        onSelect={handleSelect}
-        colors={itemColors}
-      />
-    ),
-    [selectedLocation, handleSelect, itemColors],
-  );
-
-  // Memoize keyExtractor
-  const keyExtractor = useCallback((item: string) => item, []);
-
-  // Memoize empty component
-  const ListEmptyComponent = useMemo(
-    () => (
-      <Text style={[styles.noResults, dynamicStyles.noResults]}>
-        No locations found
-      </Text>
-    ),
-    [dynamicStyles.noResults],
+  const ListEmptyComponent = (
+    <Text style={[styles.noResults, dynamicStyles.noResults]}>
+      No locations found
+    </Text>
   );
 
   return (
@@ -205,7 +164,7 @@ const LocationSelectorModal = memo(function LocationSelectorModal({
       </View>
     </Modal>
   );
-});
+}
 
 export default LocationSelectorModal;
 

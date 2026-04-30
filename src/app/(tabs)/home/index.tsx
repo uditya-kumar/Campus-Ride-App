@@ -9,7 +9,7 @@ import { useFilteredRides } from "@/hooks/useFilteredRides";
 import { locations, Ride } from "@assets/data/rides";
 import { FlashList } from "@shopify/flash-list";
 import { router } from "expo-router";
-import { useCallback, useMemo, useState } from "react";
+import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -41,60 +41,46 @@ export default function HomeScreen() {
     sortBy,
   });
 
-  const onJoinRide = useCallback((rideId: string) => {
+  const onJoinRide = (rideId: string) => {
     console.log("Joined ride", rideId);
-  }, []);
+  };
 
-  const onCreateRide = useCallback(() => {
+  const onCreateRide = () => {
     router.push("/createRide");
-  }, []);
+  };
 
-  // Memoize empty component to prevent recreation on each render
-  const EmptyComponent = useMemo(
-    () => (
-      <View style={styles.emptyContainer}>
-        <Text style={[styles.emptyText, { color: colors.text }]}>
-          No rides found
-        </Text>
-        <Text style={[styles.emptySubtext, { color: colors.tabIconDefault }]}>
-          Try adjusting your filters or Create a new ride.
-        </Text>
-        <Button
-          text="Create Ride"
-          textColor={colors.buttonText}
-          backgroundColor={colors.buttonBackground}
-          onPress={onCreateRide}
-          paddingVertical={10}
-        />
-      </View>
-    ),
-    [
-      colors.text,
-      colors.tabIconDefault,
-      colors.buttonText,
-      colors.buttonBackground,
-      onCreateRide,
-    ],
+  const EmptyComponent = (
+    <View style={styles.emptyContainer}>
+      <Text style={[styles.emptyText, { color: colors.text }]}>
+        No rides found
+      </Text>
+      <Text style={[styles.emptySubtext, { color: colors.tabIconDefault }]}>
+        Try adjusting your filters or Create a new ride.
+      </Text>
+      <Button
+        text="Create Ride"
+        textColor={colors.buttonText}
+        backgroundColor={colors.buttonBackground}
+        onPress={onCreateRide}
+        paddingVertical={10}
+      />
+    </View>
   );
 
-  // Stabilize renderItem with useCallback - pass primitives for optimal memoization
-  const renderItem = useCallback(
-    ({ item }: { item: Ride }) => (
-      <View style={styles.cardContainerStyle}>
-        <RideCard
-          id={item.id}
-          origin={item.origin}
-          destination={item.destination}
-          departureDate={item.departure_date}
-          availableSeats={item.available_seats}
-          totalSeats={item.total_seats}
-          vehicleType={item.vehicle_type}
-          totalCost={item.total_cost}
-          onJoinRide={onJoinRide}
-        />
-      </View>
-    ),
-    [onJoinRide],
+  const renderItem = ({ item }: { item: Ride }) => (
+    <View style={styles.cardContainerStyle}>
+      <RideCard
+        id={item.id}
+        origin={item.origin}
+        destination={item.destination}
+        departureDate={item.departure_date}
+        availableSeats={item.available_seats}
+        totalSeats={item.total_seats}
+        vehicleType={item.vehicle_type}
+        totalCost={item.total_cost}
+        onJoinRide={onJoinRide}
+      />
+    </View>
   );
 
   return (

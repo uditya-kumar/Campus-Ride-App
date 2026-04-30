@@ -1,5 +1,4 @@
 import { ridesData } from "@assets/data/rides";
-import { useMemo } from "react";
 
 type FilterOptions = {
   origin: string | null;
@@ -20,56 +19,54 @@ export function useFilteredRides({
   selectedDate,
   sortBy,
 }: FilterOptions) {
-  return useMemo(() => {
-    let result = [...ridesData];
+  let result = [...ridesData];
 
-    // Filter by origin
-    if (origin) {
-      result = result.filter(
-        (ride) => ride.origin.toLowerCase() === origin.toLowerCase(),
+  // Filter by origin
+  if (origin) {
+    result = result.filter(
+      (ride) => ride.origin.toLowerCase() === origin.toLowerCase(),
+    );
+  }
+
+  // Filter by destination
+  if (destination) {
+    result = result.filter(
+      (ride) => ride.destination.toLowerCase() === destination.toLowerCase(),
+    );
+  }
+
+  // Filter by date
+  if (selectedDate) {
+    const filterDate = parseDate(selectedDate);
+    result = result.filter((ride) => {
+      const rideDate = parseDate(ride.departure_date);
+      return (
+        rideDate.getFullYear() === filterDate.getFullYear() &&
+        rideDate.getMonth() === filterDate.getMonth() &&
+        rideDate.getDate() === filterDate.getDate()
       );
-    }
+    });
+  }
 
-    // Filter by destination
-    if (destination) {
-      result = result.filter(
-        (ride) => ride.destination.toLowerCase() === destination.toLowerCase(),
+  // Sort results
+  switch (sortBy) {
+    case "Departure Time":
+      result.sort(
+        (a, b) =>
+          parseDate(a.departure_date).getTime() -
+          parseDate(b.departure_date).getTime(),
       );
-    }
+      break;
+    case "Price: Low to High":
+      result.sort((a, b) => a.cost_per_person - b.cost_per_person);
+      break;
+    case "Price: High to Low":
+      result.sort((a, b) => b.cost_per_person - a.cost_per_person);
+      break;
+    case "Seats Available":
+      result.sort((a, b) => b.available_seats - a.available_seats);
+      break;
+  }
 
-    // Filter by date
-    if (selectedDate) {
-      const filterDate = parseDate(selectedDate);
-      result = result.filter((ride) => {
-        const rideDate = parseDate(ride.departure_date);
-        return (
-          rideDate.getFullYear() === filterDate.getFullYear() &&
-          rideDate.getMonth() === filterDate.getMonth() &&
-          rideDate.getDate() === filterDate.getDate()
-        );
-      });
-    }
-
-    // Sort results
-    switch (sortBy) {
-      case "Departure Time":
-        result.sort(
-          (a, b) =>
-            parseDate(a.departure_date).getTime() -
-            parseDate(b.departure_date).getTime(),
-        );
-        break;
-      case "Price: Low to High":
-        result.sort((a, b) => a.cost_per_person - b.cost_per_person);
-        break;
-      case "Price: High to Low":
-        result.sort((a, b) => b.cost_per_person - a.cost_per_person);
-        break;
-      case "Seats Available":
-        result.sort((a, b) => b.available_seats - a.available_seats);
-        break;
-    }
-
-    return result;
-  }, [origin, destination, selectedDate, sortBy]);
+  return result;
 }

@@ -1,6 +1,5 @@
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
-import React, { memo, useMemo } from "react";
 import {
   KeyboardTypeOptions,
   StyleSheet,
@@ -18,7 +17,7 @@ type CustomTextInputProps = {
   labelText: string;
 };
 
-const CustomTextInput = memo(function CustomTextInput({
+function CustomTextInput({
   value,
   onChangeText,
   placeholder,
@@ -29,23 +28,17 @@ const CustomTextInput = memo(function CustomTextInput({
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
 
-  const labelStyle = useMemo(
-    () => [styles.label, { color: colors.text }],
-    [colors.text],
-  );
+  const labelStyle = [styles.label, { color: colors.text }];
 
-  const inputStyle = useMemo(
-    () => [
-      styles.searchInput,
-      {
-        backgroundColor: colors.cardBackground,
-        borderColor: colors.borderColor,
-        color: colors.text,
-      },
-      style,
-    ],
-    [colors.cardBackground, colors.borderColor, colors.text, style],
-  );
+  const inputStyle = [
+    styles.searchInput,
+    {
+      backgroundColor: colors.cardBackground,
+      borderColor: colors.borderColor,
+      color: colors.text,
+    },
+    style,
+  ];
 
   return (
     <View style={styles.container}>
@@ -61,7 +54,7 @@ const CustomTextInput = memo(function CustomTextInput({
       />
     </View>
   );
-});
+}
 
 const styles = StyleSheet.create({
   container: {

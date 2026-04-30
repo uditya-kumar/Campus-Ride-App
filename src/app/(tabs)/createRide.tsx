@@ -8,7 +8,7 @@ import Colors from "@/constants/Colors";
 import { Tables } from "@/database.types";
 import { locations } from "@assets/data/rides";
 import { router } from "expo-router";
-import React, { useCallback, useMemo, useState } from "react";
+import { useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 const vehicleOptions = ["Eco Van", "Ertiga", "Bolero", "Swift"];
@@ -34,27 +34,17 @@ const createRide = () => {
   const [vehicleType, setVehicleType] =
     useState<Ride["vehicle_type"]>("Eco Van");
 
-  // Derive costPerPerson from totalCost and availableSeats (not stored in state)
-  const costPerPerson = useMemo(() => {
-    if (availableSeats && totalCost && availableSeats > 0 && totalCost > 0) {
-      return Math.round((totalCost / availableSeats) * 100) / 100;
-    }
-    return 0;
-  }, [totalCost, availableSeats]);
+  // Derive costPerPerson from totalCost and availableSeats
+  const costPerPerson =
+    availableSeats && totalCost && availableSeats > 0 && totalCost > 0
+      ? Math.round((totalCost / availableSeats) * 100) / 100
+      : 0;
 
-  // Memoize container style
-  const containerStyle = useMemo(
-    () => [styles.container, { backgroundColor: colors.background }],
-    [colors.background],
-  );
+  const containerStyle = [styles.container, { backgroundColor: colors.background }];
 
-  // Memoize label style
-  const labelStyle = useMemo(
-    () => [styles.label, { color: colors.text }],
-    [colors.text],
-  );
+  const labelStyle = [styles.label, { color: colors.text }];
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = () => {
     // Validate form
     if (
       !origin ||
@@ -83,15 +73,7 @@ const createRide = () => {
     // TODO: Submit to backend
 
     router.push("/(tabs)/home");
-  }, [
-    origin,
-    destination,
-    departureDate,
-    availableSeats,
-    totalCost,
-    vehicleType,
-    costPerPerson,
-  ]);
+  };
 
   return (
     <ScrollView style={containerStyle}>

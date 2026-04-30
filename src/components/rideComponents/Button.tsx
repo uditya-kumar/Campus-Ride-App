@@ -1,5 +1,4 @@
 // components/Button.tsx
-import React, { memo, useMemo } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -19,7 +18,7 @@ interface ButtonProps {
   loading?: boolean;
 }
 
-const Button = memo(function Button({
+function Button({
   text,
   textColor,
   backgroundColor,
@@ -29,31 +28,21 @@ const Button = memo(function Button({
   loading = false,
   paddingHorizontal = 15,
 }: ButtonProps) {
-  // Memoize dynamic button styles to avoid recreation on each render
-  const buttonBaseStyle = useMemo<ViewStyle>(
-    () => ({
-      paddingVertical,
-      paddingHorizontal,
-      backgroundColor,
-      borderColor,
-      borderWidth: borderColor !== "transparent" ? 1 : 0,
-    }),
-    [paddingVertical, paddingHorizontal, backgroundColor, borderColor],
-  );
+  const buttonBaseStyle: ViewStyle = {
+    paddingVertical,
+    paddingHorizontal,
+    backgroundColor,
+    borderColor,
+    borderWidth: borderColor !== "transparent" ? 1 : 0,
+  };
 
-  // Memoize text color style
-  const textColorStyle = useMemo(() => ({ color: textColor }), [textColor]);
+  const textColorStyle = { color: textColor };
 
-  // Pressable style function - returns memoized base + pressed opacity
-  const getPressableStyle = useMemo(
-    () =>
-      ({ pressed }: { pressed: boolean }) => [
-        styles.button,
-        buttonBaseStyle,
-        { opacity: pressed ? 0.9 : 1 },
-      ],
-    [buttonBaseStyle],
-  );
+  const getPressableStyle = ({ pressed }: { pressed: boolean }) => [
+    styles.button,
+    buttonBaseStyle,
+    { opacity: pressed ? 0.9 : 1 },
+  ];
 
   return (
     <Pressable
@@ -71,7 +60,7 @@ const Button = memo(function Button({
       )}
     </Pressable>
   );
-});
+}
 
 const styles = StyleSheet.create({
   button: {

@@ -1,7 +1,6 @@
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { Tables } from "@/database.types";
-import { memo, useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
@@ -38,26 +37,17 @@ function ChatRoomCard({ item }: ChatRoomCardProps) {
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
 
-  const cardStyle = useMemo(
-    () => [
-      styles.chatCard,
-      {
-        backgroundColor: colors.cardBackground,
-        borderColor: colors.borderColor,
-      },
-    ],
-    [colors.cardBackground, colors.borderColor],
-  );
+  const cardStyle = [
+    styles.chatCard,
+    {
+      backgroundColor: colors.cardBackground,
+      borderColor: colors.borderColor,
+    },
+  ];
 
-  const routeTextStyle = useMemo(
-    () => [styles.routeText, { color: colors.text }],
-    [colors.text],
-  );
+  const routeTextStyle = [styles.routeText, { color: colors.text }];
 
-  const dateTextStyle = useMemo(
-    () => [styles.dateText, { color: colors.tabIconDefault }],
-    [colors.tabIconDefault],
-  );
+  const dateTextStyle = [styles.dateText, { color: colors.tabIconDefault }];
 
   return (
     <View style={cardStyle}>
@@ -83,7 +73,7 @@ function ChatRoomCard({ item }: ChatRoomCardProps) {
   );
 }
 
-export default memo(ChatRoomCard);
+export default ChatRoomCard;
 
 const styles = StyleSheet.create({
   chatCard: {

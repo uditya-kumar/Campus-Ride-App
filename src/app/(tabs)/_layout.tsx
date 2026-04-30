@@ -1,7 +1,6 @@
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { Tabs } from "expo-router";
-import React, { useMemo } from "react";
 import Feather from '@expo/vector-icons/Feather';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
@@ -9,20 +8,17 @@ export default function TabLayout() {
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
 
-  const screenOptions = useMemo(
-    () => ({
-      tabBarActiveTintColor: colors.tabIconSelected,
-      tabBarInactiveTintColor: colors.tabIconDefault,
-      tabBarShowLabel: true,
-      tabBarLabelPosition: "below-icon" as const,
-      tabBarStyle: {
-        paddingTop: 10,
-        height: 68,
-        backgroundColor: colors.tabBackground,
-      },
-    }),
-    [colors.tabIconSelected, colors.tabIconDefault, colors.tabBackground],
-  );
+  const screenOptions = {
+    tabBarActiveTintColor: colors.tabIconSelected,
+    tabBarInactiveTintColor: colors.tabIconDefault,
+    tabBarShowLabel: true,
+    tabBarLabelPosition: "below-icon" as const,
+    tabBarStyle: {
+      paddingTop: 10,
+      height: 68,
+      backgroundColor: colors.tabBackground,
+    },
+  };
 
   return (
     <Tabs screenOptions={screenOptions}>

@@ -1,7 +1,7 @@
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { ChevronDown, ChevronUp } from "lucide-react-native";
-import { memo, useCallback, useMemo, useState } from "react";
+import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 type DropdownProps = {
@@ -11,7 +11,6 @@ type DropdownProps = {
   labelText: string;
 };
 
-// Memoized option item to prevent re-renders when other options change
 type OptionItemProps = {
   option: string;
   isSelected: boolean;
@@ -24,41 +23,34 @@ type OptionItemProps = {
   };
 };
 
-const OptionItem = memo(function OptionItem({
+function OptionItem({
   option,
   isSelected,
   isLast,
   onSelect,
   colors,
 }: OptionItemProps) {
-  const handlePress = useCallback(() => {
+  const handlePress = () => {
     onSelect(option);
-  }, [onSelect, option]);
+  };
 
-  const textStyle = useMemo(
-    () => ({
-      color: isSelected ? colors.tint : colors.text,
-      fontWeight: isSelected ? ("600" as const) : ("400" as const),
-    }),
-    [isSelected, colors.tint, colors.text],
-  );
+  const textStyle = {
+    color: isSelected ? colors.tint : colors.text,
+    fontWeight: isSelected ? ("600" as const) : ("400" as const),
+  };
 
-  const itemStyle = useMemo(
-    () =>
-      !isLast
-        ? { borderBottomWidth: 1, borderBottomColor: colors.borderColor }
-        : undefined,
-    [isLast, colors.borderColor],
-  );
+  const itemStyle = !isLast
+    ? { borderBottomWidth: 1, borderBottomColor: colors.borderColor }
+    : undefined;
 
   return (
     <Pressable style={[styles.optionItem, itemStyle]} onPress={handlePress}>
       <Text style={[styles.optionText, textStyle]}>{option}</Text>
     </Pressable>
   );
-});
+}
 
-const Dropdown = memo(function Dropdown({
+function Dropdown({
   options,
   selectedOption,
   onSelect,
@@ -68,49 +60,37 @@ const Dropdown = memo(function Dropdown({
   const colors = Colors[colorScheme];
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
-  // Stabilize callback reference
-  const handleSelect = useCallback(
-    (option: string) => {
-      onSelect(option);
-      setDropdownVisible(false);
-    },
-    [onSelect],
-  );
-
-  const toggleDropdown = useCallback(() => {
-    setDropdownVisible((prev) => !prev);
-  }, []);
-
-  const closeDropdown = useCallback(() => {
+  const handleSelect = (option: string) => {
+    onSelect(option);
     setDropdownVisible(false);
-  }, []);
+  };
 
-  // Memoize dynamic styles to avoid creating new objects on each render
-  const dynamicStyles = useMemo(
-    () => ({
-      label: { color: colors.text },
-      selector: {
-        backgroundColor: colors.cardBackground,
-        borderColor: colors.borderColor,
-      },
-      selectorText: { color: colors.text },
-      dropdownBox: {
-        backgroundColor: colors.cardBackground,
-        borderColor: colors.borderColor,
-      },
-    }),
-    [colors.text, colors.cardBackground, colors.borderColor],
-  );
+  const toggleDropdown = () => {
+    setDropdownVisible((prev) => !prev);
+  };
 
-  // Memoize colors object for OptionItem to prevent reference changes
-  const optionColors = useMemo(
-    () => ({
-      tint: colors.tint,
-      text: colors.text,
+  const closeDropdown = () => {
+    setDropdownVisible(false);
+  };
+
+  const dynamicStyles = {
+    label: { color: colors.text },
+    selector: {
+      backgroundColor: colors.cardBackground,
       borderColor: colors.borderColor,
-    }),
-    [colors.tint, colors.text, colors.borderColor],
-  );
+    },
+    selectorText: { color: colors.text },
+    dropdownBox: {
+      backgroundColor: colors.cardBackground,
+      borderColor: colors.borderColor,
+    },
+  };
+
+  const optionColors = {
+    tint: colors.tint,
+    text: colors.text,
+    borderColor: colors.borderColor,
+  };
 
   return (
     <View style={styles.container}>
@@ -151,7 +131,7 @@ const Dropdown = memo(function Dropdown({
       </View>
     </View>
   );
-});
+}
 
 export default Dropdown;
 
