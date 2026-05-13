@@ -8,5 +8,12 @@
     "shadcn",
     "youtube",
     "kaliLinux"
-  ]
+  ],
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/udity/.opensrc/repos/github.com/FaridSafi/react-native-gifted-chat/3.3.2/src/GiftedChat/**)",
+      "Read(//c/Users/udity/.opensrc/repos/github.com/FaridSafi/react-native-gifted-chat/3.3.2/src/MessagesContainer/**)",
+      "Read(//c/Users/udity/.opensrc/repos/github.com/FaridSafi/react-native-gifted-chat/3.3.2/src/Message/**)"
+    ]
+  }
 }

@@ -16,12 +16,6 @@ import {
   SendProps,
 } from "react-native-gifted-chat";
 
-interface ReplyMessage {
-  _id: string | number;
-  text: string;
-  user: IMessage["user"];
-}
-
 interface ChatScreenProps {
   messages: IMessage[];
   currentUserId: string;
@@ -41,7 +35,6 @@ function ChatScreen({
   const colors = Colors[colorScheme];
 
   const [messages, setMessages] = useState<IMessage[]>(initialMessages);
-  const [replyMessage, setReplyMessage] = useState<ReplyMessage | null>(null);
 
   const user = {
     _id: currentUserId,
@@ -167,24 +160,6 @@ function ChatScreen({
     </View>
   );
 
-  const onSwipe = (message: IMessage) => {
-    setReplyMessage({
-      _id: message._id,
-      text: message.text,
-      user: message.user,
-    });
-  };
-
-  const replyConfig = {
-    message: replyMessage,
-    onClear: () => setReplyMessage(null),
-    swipe: {
-      isEnabled: true,
-      direction: "right" as const,
-      onSwipe,
-    },
-  };
-
   const messagesContainerStyle = [
     styles.messagesContainer,
     { backgroundColor: colorScheme === "dark" ? "#000000" : "#FFFFFF" },
@@ -207,8 +182,8 @@ function ChatScreen({
     removeClippedSubviews: true,
     maxToRenderPerBatch: 10,
     updateCellsBatchingPeriod: 50,
-    windowSize: 21,
-    initialNumToRender: 15,
+    windowSize: 11,
+    initialNumToRender: 8,
   };
 
   return (
@@ -223,11 +198,11 @@ function ChatScreen({
         timeTextStyle={bubbleTimeTextStyle}
         renderSend={renderSend}
         renderChatEmpty={renderChatEmpty}
-        reply={replyConfig}
         messagesContainerStyle={messagesContainerStyle}
         textInputProps={textInputProps}
         keyboardAvoidingViewProps={keyboardAvoidingProps}
         listProps={listProps}
+        isDayAnimationEnabled={false}
         minInputToolbarHeight={60}
         minComposerHeight={40}
         maxComposerHeight={120}

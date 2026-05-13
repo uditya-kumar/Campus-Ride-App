@@ -6,8 +6,30 @@ import {
 } from "@assets/data/chatdetailsMock";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { useLocalSearchParams } from "expo-router";
-import { Platform } from "react-native";
+import { useEffect, useState } from "react";
+import { InteractionManager, Platform, View } from "react-native";
 import { IMessage } from "react-native-gifted-chat";
+
+const participantsById = new Map(MOCK_PARTICIPANTS.map((p) => [p.id, p]));
+
+const GIFTED_CHAT_MESSAGES: IMessage[] = MOCK_MESSAGES.map((msg) => {
+  const user = participantsById.get(msg.user_id);
+  return {
+    _id: msg.id,
+    text: msg.content,
+    createdAt: new Date(msg.created_at!),
+    user: {
+      _id: msg.user_id,
+      name: user?.full_name || "Unknown",
+      avatar: user?.avatar_url || undefined,
+    },
+  };
+}).reverse();
+
+const handleSendMessage = (messages: IMessage[]) => {
+  // Handle sending message to backend here
+  console.log("Messages sent:", messages);
+};
 
 export default function ChatDetails() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -19,29 +41,21 @@ export default function ChatDetails() {
     default: 0,
   });
 
-  // Convert mock messages to GiftedChat format
-  const giftedChatMessages: IMessage[] = MOCK_MESSAGES.map((msg) => {
-    const user = MOCK_PARTICIPANTS.find((p) => p.id === msg.user_id);
-    return {
-      _id: msg.id,
-      text: msg.content,
-      createdAt: new Date(msg.created_at!),
-      user: {
-        _id: msg.user_id,
-        name: user?.full_name || "Unknown",
-        avatar: user?.avatar_url || undefined,
-      },
-    };
-  }).reverse();
+  const [ready, setReady] = useState(false);
 
-  const handleSendMessage = (messages: IMessage[]) => {
-    // Handle sending message to backend here
-    console.log("Messages sent:", messages);
-  };
+  useEffect(() => {
+    const handle = InteractionManager.runAfterInteractions(() => {
+      setReady(true);
+    });
+    return () => handle.cancel();
+  }, []);
+
+  if (!ready)
+    return <View style={{ flex: 1 }} />;
 
   return (
     <ChatScreen
-      messages={giftedChatMessages}
+      messages={GIFTED_CHAT_MESSAGES}
       currentUserId={MOCK_CURRENT_USER_ID}
       currentUserName="You"
       onSendMessage={handleSendMessage}
