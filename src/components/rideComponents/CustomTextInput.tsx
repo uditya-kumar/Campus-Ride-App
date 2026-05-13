@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   searchInput: {
-    height: 47,
+    height: 45,
     borderRadius: 10,
     borderWidth: 1,
     paddingLeft: 15,

@@ -1,20 +1,20 @@
+import { createRide } from "@/api/rides";
 import DateFilter from "@/components/filters/DateFilter";
 import RouteSelector from "@/components/filters/RouteSelector";
+import TimeFilter from "@/components/filters/TimeFilter";
 import Button from "@/components/rideComponents/Button";
 import CustomTextInput from "@/components/rideComponents/CustomTextInput";
 import Dropdown from "@/components/rideComponents/Dropdown";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { Tables } from "@/database.types";
+import { toIsoIST } from "@/libs/datetime";
+import { useAuth } from "@/providers/AuthProvider";
 import { locations } from "@assets/data/rides";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useState } from "react";
 import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createRide } from "@/api/rides";
-import TimeFilter from "@/components/filters/TimeFilter";
-import { toIsoIST } from "@/libs/datetime";
-import { useAuth } from "@/providers/AuthProvider";
 
 const vehicleOptions = ["Eco Van", "Ertiga", "Bolero", "Swift"];
 
@@ -137,29 +137,34 @@ const CreateRideScreen = () => {
           />
           {/* Vehicle Type Input */}
         </View>
+
+        {/* Available Seats + Total Cost */}
+        <View style={styles.row}>
+          <View style={styles.flex1}>
+            <CustomTextInput
+              labelText="Available Seats"
+              value={availableSeats ? availableSeats.toString() : ""}
+              onChangeText={(text) => setAvailableSeats(parseInt(text) || 0)}
+              placeholder="e.g. 4"
+              keyboardType="numeric"
+            />
+          </View>
+          <View style={styles.flex1}>
+            <CustomTextInput
+              labelText="Total Cost (₹)"
+              value={totalCost ? totalCost.toString() : ""}
+              onChangeText={(text) => setTotalCost(parseFloat(text) || 0)}
+              placeholder="e.g. 1600"
+              keyboardType="numeric"
+            />
+          </View>
+        </View>
+
         <Dropdown
           labelText="Vehicle Type"
           options={vehicleOptions}
           selectedOption={vehicleType}
           onSelect={setVehicleType}
-        />
-
-        {/* Available Seats Input */}
-        <CustomTextInput
-          labelText="Available Seats"
-          value={availableSeats ? availableSeats.toString() : ""}
-          onChangeText={(text) => setAvailableSeats(parseInt(text) || 0)}
-          placeholder="Enter number of seats"
-          keyboardType="numeric"
-        />
-
-        {/* Total Cost Input */}
-        <CustomTextInput
-          labelText="Total Cost"
-          value={totalCost ? totalCost.toString() : ""}
-          onChangeText={(text) => setTotalCost(parseFloat(text) || 0)}
-          placeholder="Enter total cost"
-          keyboardType="numeric"
         />
 
         {/* Cost Per Person (Calculated) */}
@@ -192,6 +197,13 @@ const styles = StyleSheet.create({
   rowSpaceBetween: {
     flexDirection: "row",
     justifyContent: "space-between",
+  },
+  row: {
+    flexDirection: "row",
+    gap: 15,
+  },
+  flex1: {
+    flex: 1,
   },
   title: {
     fontSize: 28,

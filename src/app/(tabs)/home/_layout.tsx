@@ -1,7 +1,10 @@
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
+import { signOut } from "@/libs/auth";
 import { Stack } from "expo-router";
+import { LogOut } from "lucide-react-native";
 import React from "react";
+import { Pressable } from "react-native";
 
 export default function HomeLayout() {
   const colorScheme = useColorScheme();
@@ -22,7 +25,15 @@ export default function HomeLayout() {
         name="index"
         options={{
           title: "Campus Ride",
-          headerShown: false,
+          headerRight: () => (
+            <Pressable
+              onPress={signOut}
+              hitSlop={10}
+              style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+            >
+              <LogOut size={22} color={colors.text} />
+            </Pressable>
+          ),
         }}
       />
     </Stack>

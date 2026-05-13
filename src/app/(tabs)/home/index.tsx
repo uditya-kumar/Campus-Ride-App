@@ -12,8 +12,6 @@ import { FlashList } from "@shopify/flash-list";
 import { router } from "expo-router";
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { signOut } from "@/libs/auth";
 
 type Ride = Tables<"rides">;
 
@@ -89,7 +87,7 @@ export default function HomeScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <View style={styles.container}>
       {/* Filters Section */}
       <View style={styles.filtersContainer}>
         <RouteSelector
@@ -120,16 +118,6 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {/* Test Signout button */}
-      <Button
-        text="Sign out"
-        onPress={signOut}
-        textColor={colors.text}
-        backgroundColor="transparent"
-        borderColor={colors.borderColor}
-        paddingVertical={8}
-      />
-
       {/* List  */}
       <FlashList
         data={filteredRides}
@@ -138,7 +126,7 @@ export default function HomeScreen() {
         renderItem={renderItem}
         contentContainerStyle={styles.listContent}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -154,8 +142,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   filtersContainer: {
-    gap: 20,
-    marginTop: 10,
+    gap: 21,
+    marginTop: 14,
     marginBottom: 15,
   },
   cardContainerStyle: {
