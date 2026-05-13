@@ -9,13 +9,18 @@ import { Tables } from "@/database.types";
 import { locations } from "@assets/data/rides";
 import { router } from "expo-router";
 import { useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createRide } from "@/api/rides";
+import TimeFilter from "@/components/filters/TimeFilter";
+import { toIsoIST } from "@/libs/datetime";
+import { useAuth } from "@/providers/AuthProvider";
 
 const vehicleOptions = ["Eco Van", "Ertiga", "Bolero", "Swift"];
 
 type Ride = Tables<"rides">;
 
-const createRide = () => {
+const CreateRideScreen = () => {
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
 
@@ -33,6 +38,32 @@ const createRide = () => {
   const [totalCost, setTotalCost] = useState<Ride["total_cost"] | null>(0);
   const [vehicleType, setVehicleType] =
     useState<Ride["vehicle_type"]>("Eco Van");
+  const [departureTime, setDepartureTime] = useState<string | null>(null); // "HH:mm"
+
+  const queryClient = useQueryClient();
+  const { session } = useAuth();
+
+  const resetForm = () => {
+    setOrigin(null);
+    setDestination(null);
+    setDepartureDate(null);
+    setDepartureTime(null);
+    setAvailableSeats(0);
+    setTotalCost(0);
+    setVehicleType("Eco Van");
+  };
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: createRide,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["rides"] });
+      resetForm();
+      router.push("/(tabs)/home");
+    },
+    onError: (err) => {
+      Alert.alert("Could not create ride", err.message);
+    },
+  });
 
   // Derive costPerPerson from totalCost and availableSeats
   const costPerPerson =
@@ -40,39 +71,44 @@ const createRide = () => {
       ? Math.round((totalCost / availableSeats) * 100) / 100
       : 0;
 
-  const containerStyle = [styles.container, { backgroundColor: colors.background }];
+  const containerStyle = [
+    styles.container,
+    { backgroundColor: colors.background },
+  ];
 
   const labelStyle = [styles.label, { color: colors.text }];
 
   const handleSubmit = () => {
-    // Validate form
     if (
       !origin ||
       !destination ||
       !departureDate ||
+      !departureTime ||
       !availableSeats ||
       !totalCost ||
       !vehicleType
     ) {
-      alert("Please fill in all fields");
+      Alert.alert("Please fill in all fields");
       return;
     }
 
-    // Create ride object
-    const rideData = {
+    if (!session) {
+      Alert.alert("You must be signed in to create a ride");
+      return;
+    }
+
+    mutate({
       origin,
       destination,
-      departure_date: departureDate,
+      departure_date: toIsoIST(departureDate, departureTime),
       available_seats: availableSeats,
+      total_seats: availableSeats,
+      cost_per_person: costPerPerson,
       total_cost: totalCost,
       vehicle_type: vehicleType,
-      cost_per_person: costPerPerson,
-    };
-
-    console.log("Ride data:", rideData);
-    // TODO: Submit to backend
-
-    router.push("/(tabs)/home");
+      status: "active",
+      created_by_user_id: session.user.id,
+    });
   };
 
   return (
@@ -94,14 +130,19 @@ const createRide = () => {
             selectedDate={departureDate}
             onSelectDate={setDepartureDate}
           />
-          {/* Vehicle Type Input */}
-          <Dropdown
-            labelText="Vehicle Type"
-            options={vehicleOptions}
-            selectedOption={vehicleType}
-            onSelect={setVehicleType}
+          <TimeFilter
+            labelText="Departure Time"
+            selectedTime={departureTime}
+            onSelectTime={setDepartureTime}
           />
+          {/* Vehicle Type Input */}
         </View>
+        <Dropdown
+          labelText="Vehicle Type"
+          options={vehicleOptions}
+          selectedOption={vehicleType}
+          onSelect={setVehicleType}
+        />
 
         {/* Available Seats Input */}
         <CustomTextInput
@@ -128,11 +169,12 @@ const createRide = () => {
 
         {/* Submit Button */}
         <Button
-          text="Create Ride"
+          text={isPending ? "Creating..." : "Create Ride"}
           textColor={colors.buttonText}
           backgroundColor={colors.buttonBackground}
           onPress={handleSubmit}
           paddingVertical={13}
+          loading={isPending}
         />
       </View>
     </ScrollView>
@@ -195,4 +237,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default createRide;
+export default CreateRideScreen;

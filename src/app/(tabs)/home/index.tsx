@@ -6,16 +6,21 @@ import RideCard from "@/components/rideComponents/RideCard";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { useFilteredRides } from "@/hooks/useFilteredRides";
-import { locations, Ride } from "@assets/data/rides";
+import { locations } from "@/constants/locations";
+import type { Tables } from "@/database.types";
 import { FlashList } from "@shopify/flash-list";
 import { router } from "expo-router";
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { signOut } from "@/libs/auth";
+
+type Ride = Tables<"rides">;
 
 // Hoist static data outside component to avoid recreation
+const SORT_PLACEHOLDER = "Select Sort";
 const sortOptions: string[] = [
-  "Departure Time",
+  SORT_PLACEHOLDER,
   "Price: Low to High",
   "Price: High to Low",
   "Seats Available",
@@ -31,7 +36,7 @@ export default function HomeScreen() {
   const [origin, setOrigin] = useState<string | null>(null);
   const [destination, setDestination] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<string>("Departure Time");
+  const [sortBy, setSortBy] = useState<string>("");
 
   //Filter and sort rides based on selected filters
   const filteredRides = useFilteredRides({
@@ -108,11 +113,22 @@ export default function HomeScreen() {
               labelText="Sort By"
               options={sortOptions}
               selectedOption={sortBy}
-              onSelect={setSortBy}
+              onSelect={(opt) => setSortBy(opt === SORT_PLACEHOLDER ? "" : opt)}
+              placeholder={SORT_PLACEHOLDER}
             />
           </View>
         </View>
       </View>
+
+      {/* Test Signout button */}
+      <Button
+        text="Sign out"
+        onPress={signOut}
+        textColor={colors.text}
+        backgroundColor="transparent"
+        borderColor={colors.borderColor}
+        paddingVertical={8}
+      />
 
       {/* List  */}
       <FlashList

@@ -10,6 +10,8 @@ import { useEffect } from "react";
 import { LogBox } from "react-native";
 import "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { QueryProvider } from "@/providers/QueryProvider";
+import { AuthProvider } from "@/providers/AuthProvider";
 
 // Suppress edge-to-edge warning (these props are handled automatically)
 LogBox.ignoreLogs([
@@ -18,7 +20,7 @@ LogBox.ignoreLogs([
 
 export {
   // Catch any errors thrown by the Layout component.
-  ErrorBoundary
+  ErrorBoundary,
 } from "expo-router";
 
 export const unstable_settings = {
@@ -28,6 +30,8 @@ export const unstable_settings = {
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+
+const hiddenHeaderOptions = { headerShown: false };
 
 export default function RootLayout() {
   useEffect(() => {
@@ -40,21 +44,22 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
-  const pathname = usePathname();
-
-  useEffect(() => {
-    if(__DEV__){
-      console.log("📍 Current URL:", pathname);
-    }
-  }, [pathname]);
 
   return (
     <SafeAreaProvider>
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        </Stack>
-      </ThemeProvider>
+      <QueryProvider>
+        <AuthProvider>
+          <ThemeProvider
+            value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+          >
+            <Stack>
+              <Stack.Screen name="index" options={hiddenHeaderOptions} />
+              <Stack.Screen name="(auth)" options={hiddenHeaderOptions} />
+              <Stack.Screen name="(tabs)" options={hiddenHeaderOptions} />
+            </Stack>
+          </ThemeProvider>
+        </AuthProvider>
+      </QueryProvider>
     </SafeAreaProvider>
   );
 }

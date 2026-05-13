@@ -1,12 +1,17 @@
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
-import { Tabs } from "expo-router";
+import { Redirect, Tabs } from "expo-router";
 import Feather from '@expo/vector-icons/Feather';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { useAuth } from "@/providers/AuthProvider";
 
 export default function TabLayout() {
+  const { session, loading } = useAuth();
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
+
+  if (loading) return null;
+  if (!session) return <Redirect href="/(auth)/signin" />;
 
   const screenOptions = {
     tabBarActiveTintColor: colors.tabIconSelected,

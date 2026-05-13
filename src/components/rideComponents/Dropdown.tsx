@@ -9,6 +9,7 @@ type DropdownProps = {
   selectedOption: string;
   onSelect: (option: string) => void;
   labelText: string;
+  placeholder?: string;
 };
 
 type OptionItemProps = {
@@ -55,6 +56,7 @@ function Dropdown({
   selectedOption,
   onSelect,
   labelText,
+  placeholder,
 }: DropdownProps) {
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
@@ -79,7 +81,7 @@ function Dropdown({
       backgroundColor: colors.cardBackground,
       borderColor: colors.borderColor,
     },
-    selectorText: { color: colors.text },
+    selectorText: { color: selectedOption ? colors.text : colors.tabIconDefault },
     dropdownBox: {
       backgroundColor: colors.cardBackground,
       borderColor: colors.borderColor,
@@ -101,7 +103,7 @@ function Dropdown({
           onPress={toggleDropdown}
         >
           <Text style={[styles.selectorText, dynamicStyles.selectorText]}>
-            {selectedOption}
+            {selectedOption || placeholder || ""}
           </Text>
           {dropdownVisible ? (
             <ChevronUp size={15} color={colors.text} />
