@@ -1,6 +1,12 @@
 {
   "enabledMcpjsonServers": [
     "exa",
-    "context7"
+    "context7",
+    "claude-code-docs"
+  ],
+  "disabledMcpjsonServers": [
+    "shadcn",
+    "youtube",
+    "kaliLinux"
   ]
 }
