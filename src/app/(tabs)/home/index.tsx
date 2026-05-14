@@ -27,6 +27,10 @@ const sortOptions: string[] = [
 // Hoist keyExtractor outside component for stable reference
 const keyExtractor = (item: Ride) => item.id;
 
+// Ride list isn't a chat — opt out of anchor preservation so re-sorts/refilters
+// land scrolled to the top instead of pinning the previously-visible item.
+const maintainVisibleContentPosition = { disabled: true } as const;
+
 export default function HomeScreen() {
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
@@ -141,6 +145,7 @@ export default function HomeScreen() {
         ListEmptyComponent={listEmpty}
         renderItem={renderItem}
         contentContainerStyle={styles.listContent}
+        maintainVisibleContentPosition={maintainVisibleContentPosition}
       />
     </View>
   );

@@ -1,4 +1,13 @@
 {
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/udity/.opensrc/repos/github.com/FaridSafi/react-native-gifted-chat/3.3.2/src/GiftedChat/**)",
+      "Read(//c/Users/udity/.opensrc/repos/github.com/FaridSafi/react-native-gifted-chat/3.3.2/src/MessagesContainer/**)",
+      "Read(//c/Users/udity/.opensrc/repos/github.com/FaridSafi/react-native-gifted-chat/3.3.2/src/Message/**)",
+      "Bash(ls \"C:\\\\Users\\\\udity\\\\.opensrc\\\\repos/github.com/Shopify/flash-list/2.0.2/\")",
+      "Read(//c/Users/udity/.opensrc/repos/github.com/Shopify/flash-list/2.0.2/**)"
+    ]
+  },
   "enabledMcpjsonServers": [
     "exa",
     "context7",
@@ -8,12 +17,5 @@
     "shadcn",
     "youtube",
     "kaliLinux"
-  ],
-  "permissions": {
-    "allow": [
-      "Read(//c/Users/udity/.opensrc/repos/github.com/FaridSafi/react-native-gifted-chat/3.3.2/src/GiftedChat/**)",
-      "Read(//c/Users/udity/.opensrc/repos/github.com/FaridSafi/react-native-gifted-chat/3.3.2/src/MessagesContainer/**)",
-      "Read(//c/Users/udity/.opensrc/repos/github.com/FaridSafi/react-native-gifted-chat/3.3.2/src/Message/**)"
-    ]
-  }
+  ]
 }
