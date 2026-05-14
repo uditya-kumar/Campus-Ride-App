@@ -4,7 +4,12 @@ import { signOut } from "@/libs/auth";
 import { Stack } from "expo-router";
 import { LogOut } from "lucide-react-native";
 import React from "react";
-import { Pressable } from "react-native";
+import { Alert, Pressable } from "react-native";
+
+const handleSignOut = async () => {
+  const { error } = await signOut();
+  if (error) Alert.alert("Sign out failed", error.message);
+};
 
 export default function HomeLayout() {
   const colorScheme = useColorScheme();
@@ -27,7 +32,7 @@ export default function HomeLayout() {
           title: "Campus Ride",
           headerRight: () => (
             <Pressable
-              onPress={signOut}
+              onPress={handleSignOut}
               hitSlop={10}
               style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
             >

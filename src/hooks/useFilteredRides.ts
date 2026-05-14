@@ -2,11 +2,16 @@ import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { fetchRides, type RideFilters } from "@/api/rides";
 
 export function useFilteredRides(filters: RideFilters) {
-  const query = useQuery({
+  const {data, isLoading, isError, error, refetch} = useQuery({
     queryKey: ["rides", filters] as const,
     queryFn: () => fetchRides(filters),
-    placeholderData: keepPreviousData,
   });
 
-  return query.data ?? [];
+  return {
+    rides: data ?? [],
+    isLoading,
+    isError,
+    error,
+    refetch
+  }
 }

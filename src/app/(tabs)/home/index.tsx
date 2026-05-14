@@ -11,7 +11,7 @@ import type { Tables } from "@/database.types";
 import { FlashList } from "@shopify/flash-list";
 import { router } from "expo-router";
 import { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 type Ride = Tables<"rides">;
 
@@ -37,7 +37,7 @@ export default function HomeScreen() {
   const [sortBy, setSortBy] = useState<string>("");
 
   //Filter and sort rides based on selected filters
-  const filteredRides = useFilteredRides({
+  const { rides, isLoading, isError, error } = useFilteredRides({
     origin,
     destination,
     selectedDate,
@@ -52,7 +52,23 @@ export default function HomeScreen() {
     router.push("/createRide");
   };
 
-  const EmptyComponent = (
+  const listEmpty = isLoading ? (
+    <View style={styles.listCentered}>
+      <ActivityIndicator size="large" color={colors.tint} />
+    </View>
+  ) : isError ? (
+    <View style={styles.listCentered}>
+      <Text style={[styles.emptyText, { color: colors.text }]} selectable>
+        Couldn't load rides
+      </Text>
+      <Text
+        style={[styles.emptySubtext, { color: colors.tabIconDefault }]}
+        selectable
+      >
+        {error?.message ?? "Please try again."}
+      </Text>
+    </View>
+  ) : (
     <View style={styles.emptyContainer}>
       <Text style={[styles.emptyText, { color: colors.text }]}>
         No rides found
@@ -120,9 +136,9 @@ export default function HomeScreen() {
 
       {/* List  */}
       <FlashList
-        data={filteredRides}
+        data={rides}
         keyExtractor={keyExtractor}
-        ListEmptyComponent={EmptyComponent}
+        ListEmptyComponent={listEmpty}
         renderItem={renderItem}
         contentContainerStyle={styles.listContent}
       />
@@ -134,6 +150,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 16,
+  },
+  listCentered: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 150,
   },
   title: {
     fontSize: 20,
