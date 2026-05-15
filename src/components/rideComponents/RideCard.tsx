@@ -1,40 +1,26 @@
 import Button from "@/components/rideComponents/Button";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
+import type { Tables } from "@/database.types";
 import { formatDisplayDate, formatDisplayTime } from "@/libs/datetime";
 import { StyleSheet, Text, View } from "react-native";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Octicons from '@expo/vector-icons/Octicons';
 
+type Ride = Tables<"rides">;
+
 type RideCardProps = {
-  id: string;
-  origin: string;
-  destination: string;
-  departureDate: string;
-  availableSeats: number;
-  totalSeats: number;
-  vehicleType: string;
-  totalCost: number;
+  ride: Ride;
   onJoinRide?: (rideId: string) => void;
 };
 
-function RideCard({
-  id,
-  origin,
-  destination,
-  departureDate,
-  availableSeats,
-  totalSeats,
-  vehicleType,
-  totalCost,
-  onJoinRide,
-}: RideCardProps) {
+function RideCard({ ride, onJoinRide }: RideCardProps) {
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
 
-  const date = formatDisplayDate(departureDate);
-  const time = formatDisplayTime(departureDate);
+  const date = formatDisplayDate(ride.departure_date);
+  const time = formatDisplayTime(ride.departure_date);
 
   const dynamicStyles = {
     card: {
@@ -46,7 +32,7 @@ function RideCard({
   };
 
   const handleJoinRide = () => {
-    onJoinRide?.(id);
+    onJoinRide?.(ride.id);
   };
 
   return (
@@ -63,7 +49,7 @@ function RideCard({
       <View style={styles.row}>
         <MaterialCommunityIcons name="map-marker-radius-outline" color={colors.text} size={18} />
         <Text style={[styles.primaryText, dynamicStyles.primaryText]}>
-          {origin} To {destination}
+          {ride.origin} To {ride.destination}
         </Text>
       </View>
 
@@ -72,18 +58,18 @@ function RideCard({
         <View style={styles.row}>
           <Octicons name="people" color={colors.text} size={18} />
           <Text style={styles.secondaryText}>
-            {availableSeats}/{totalSeats} seats left
+            {ride.available_seats}/{ride.total_seats} seats left
           </Text>
         </View>
         <View style={styles.row}>
           <MaterialCommunityIcons name="car-outline" color={colors.text} size={22} />
-          <Text style={styles.secondaryText}>{vehicleType}</Text>
+          <Text style={styles.secondaryText}>{ride.vehicle_type}</Text>
         </View>
       </View>
 
       <View style={styles.rowSpaceBetween}>
         <Text style={[styles.priceText, dynamicStyles.priceText]}>
-          Total: ₹{totalCost}
+          Total: ₹{ride.total_cost}
         </Text>
         <Button
           text="Join Ride"

@@ -96,17 +96,7 @@ export default function HomeScreen() {
 
   const renderItem = ({ item }: { item: Ride }) => (
     <View style={styles.cardContainerStyle}>
-      <RideCard
-        id={item.id}
-        origin={item.origin}
-        destination={item.destination}
-        departureDate={item.departure_date}
-        availableSeats={item.available_seats}
-        totalSeats={item.total_seats}
-        vehicleType={item.vehicle_type}
-        totalCost={item.total_cost}
-        onJoinRide={onJoinRide}
-      />
+      <RideCard ride={item} onJoinRide={onJoinRide} />
     </View>
   );
 
@@ -166,12 +156,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 150,
-  },
-  title: {
-    fontSize: 20,
-    paddingVertical: 20,
-    fontWeight: "bold",
-    textAlign: "center",
   },
   filtersContainer: {
     gap: 21,

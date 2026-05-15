@@ -50,8 +50,8 @@ function RootLayoutNav() {
 
   return (
     <SafeAreaProvider>
-      <QueryProvider>
-        <AuthProvider>
+      <AuthProvider>
+        <QueryProvider>
           <ThemeProvider
             value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
           >
@@ -62,8 +62,8 @@ function RootLayoutNav() {
               <Stack.Screen name="+not-found" />
             </Stack>
           </ThemeProvider>
-        </AuthProvider>
-      </QueryProvider>
+        </QueryProvider>
+      </AuthProvider>
     </SafeAreaProvider>
   );
 }

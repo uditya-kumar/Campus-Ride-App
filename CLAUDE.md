@@ -11,7 +11,7 @@ npm run ios         # Run on iOS simulator
 npm run web         # Run in browser
 ```
 
-No lint, typecheck, or test scripts are configured. For type-checking, run `npx tsc --noEmit`. There is no test runner wired up — `react-test-renderer` is installed but unused.
+No lint, typecheck, or test scripts are configured. There is no test runner wired up — `react-test-renderer` is installed but unused.
 
 ## Architecture
 
@@ -25,7 +25,7 @@ The recent history (`5e6d189`, `0aa9422`) deliberately removed `useMemo`/`useCal
 
 Routes live in `src/app/`, not a top-level `app/`. `expo-router/entry` is the main entry (see `package.json`).
 
-- `src/app/_layout.tsx` — root stack wraps children in `SafeAreaProvider` → `QueryProvider` → `AuthProvider` → `ThemeProvider` (React Navigation Dark/Default driven by system color scheme).
+- `src/app/_layout.tsx` — root stack wraps children in `SafeAreaProvider` → `AuthProvider` → `QueryProvider` → `ThemeProvider` (React Navigation Dark/Default driven by system color scheme). `AuthProvider` is *outside* `QueryProvider` so query code can subscribe to auth state changes (e.g. clearing the cache on sign-out).
 - `src/app/index.tsx` — auth gate: while `loading` shows a spinner, then redirects to `(tabs)/home` or `(auth)/signin` based on session.
 - `src/app/(auth)/signin.tsx` — combined sign-in/sign-up form, calls helpers in `src/libs/auth.ts`.
 - `src/app/(tabs)/_layout.tsx` — three tabs: `home`, `createRide`, `message`. Also enforces auth: redirects to signin if no session. `home` and `message` hide the header and use nested stacks inside their folders.
@@ -42,15 +42,15 @@ Use these aliases; relative `../../` imports aren't the convention here.
 
 ### Auth & data layer (Supabase + TanStack Query)
 
-- `src/libs/supabase.ts` — Supabase client; uses `expo-sqlite/localStorage` for session persistence and toggles `autoRefresh` on `AppState` change. Env vars: `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
+- `src/libs/supabase.ts` — Supabase client only. The `AppState`-driven `startAutoRefresh`/`stopAutoRefresh` lifecycle lives in `AuthProvider` (with cleanup), *not* here — don't re-add a module-scope `AppState.addEventListener` to this file. Env vars: `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
 - `src/libs/auth.ts` — thin wrappers: `signIn` / `signUp` / `signOut` / `getSession`. Supabase resolves with `{ error }` rather than throwing — handle by destructuring, not `try/catch`.
-- `src/providers/AuthProvider.tsx` — single subscription to `onAuthStateChange`; exposes `{ session, loading }` via `useAuth()`. UI that branches on auth state must read this, not call `getSession()` directly.
+- `src/providers/AuthProvider.tsx` — single subscription to `onAuthStateChange` (the source of truth for `session`); `getSession()` is awaited only to flip the initial `loading` flag, its return value is intentionally ignored to avoid racing with the subscription. Also owns the `AppState` auto-refresh wiring. Exposes `{ session, loading }` via `useAuth()`. UI that branches on auth state must read this, not call `getSession()` directly.
 - `src/providers/QueryProvider.tsx` — `QueryClient` with `staleTime: 60_000`, `retry: 2`. Wires TanStack Query's `onlineManager` to `@react-native-community/netinfo` and `focusManager` to `AppState`.
-- `src/api/rides.ts` — `fetchRides(filters)` and `createRide(...)` against the `rides` table.
-- `src/hooks/useFilteredRides.ts` — `useQuery` wrapper around `fetchRides`. Returns `{ rides, isLoading, isError, error, refetch }`. **No `keepPreviousData`** — filter changes intentionally show a spinner instead of a stale list.
-- `src/database.types.ts` holds the Supabase-generated schema (`rides`, `bookings`, `chat_rooms`, `users`). **Saved as UTF-16** (BOM + wide chars); the Read tool output looks garbled but the file is valid — don't "fix" the encoding.
+- `src/api/rides.ts` — `fetchRides(filters)` and `createRide(...)` against the `rides` table. **Insert payloads use `RideInsert` (not `TablesInsert<"rides">`)**, which `Omit`s `cost_per_person` because it's a Postgres `GENERATED ALWAYS AS (total_cost / total_seats)` STORED column. Do not pass `cost_per_person` from the client — Postgres rejects writes to it.
+- `src/hooks/useFilteredRides.ts` — `useQuery` wrapper around `fetchRides`. Returns `{ rides, isLoading, isError, error, refetch }` — consumers (the home screen) destructure these and branch on them rather than receiving a bare array. **No `keepPreviousData`** — filter changes intentionally show a spinner instead of a stale list.
+- `src/database.types.ts` holds the Supabase-generated schema (`rides`, `bookings`, `chat_rooms`, `users`). **Saved as UTF-16** (BOM + wide chars); the Read tool output looks garbled but the file is valid — don't "fix" the encoding. Regenerate with `npx supabase gen types typescript ...` after schema changes.
 
-Chat is still on mocks: `src/app/(tabs)/message/index.tsx` reads `assets/data/chat.ts`, `[id].tsx` reads `assets/data/chatdetailsMock.ts`.
+Chat is still on mocks: `src/app/(tabs)/message/index.tsx` reads `assets/data/chat.ts`, `[id].tsx` reads `assets/data/chatdetailsMock.ts`. Migrating to Supabase is on the backlog.
 
 ### Date formats
 

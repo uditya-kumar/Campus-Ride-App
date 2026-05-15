@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Alert, StyleSheet, TextInput, View } from "react-native";
-import { router } from "expo-router";
 import Button from "@/components/rideComponents/Button";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
@@ -15,17 +14,22 @@ export default function SignInScreen() {
   const [loading, setLoading] = useState(false);
 
   const onSubmit = async (mode: "in" | "up") => {
-    if (!email || !password) {
+    // Trim email only — passwords may legitimately contain surrounding whitespace.
+    const cleanEmail = email.trim();
+    if (!cleanEmail || !password) {
       Alert.alert("Please enter email and password");
       return;
     }
     setLoading(true);
-    const { error } = mode === "in"
-      ? await signIn(email, password)
-      : await signUp(email, password);
-    setLoading(false);
-    if (error) return Alert.alert(error.message);
-    router.replace("/(tabs)/home");
+    try {
+      const { error } = mode === "in"
+        ? await signIn(cleanEmail, password)
+        : await signUp(cleanEmail, password);
+      if (error) return Alert.alert(error.message);
+      // (auth)/_layout.tsx handles redirect once the session arrives.
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
