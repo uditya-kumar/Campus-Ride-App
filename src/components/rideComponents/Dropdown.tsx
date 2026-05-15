@@ -1,8 +1,15 @@
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { ChevronDown, ChevronUp } from "lucide-react-native";
-import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useRef, useState } from "react";
+import {
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  type View as RNView,
+} from "react-native";
 
 type DropdownProps = {
   options: string[];
@@ -12,44 +19,12 @@ type DropdownProps = {
   placeholder?: string;
 };
 
-type OptionItemProps = {
-  option: string;
-  isSelected: boolean;
-  isLast: boolean;
-  onSelect: (option: string) => void;
-  colors: {
-    tint: string;
-    text: string;
-    borderColor: string;
-  };
+type TriggerLayout = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 };
-
-function OptionItem({
-  option,
-  isSelected,
-  isLast,
-  onSelect,
-  colors,
-}: OptionItemProps) {
-  const handlePress = () => {
-    onSelect(option);
-  };
-
-  const textStyle = {
-    color: isSelected ? colors.tint : colors.text,
-    fontWeight: isSelected ? ("600" as const) : ("400" as const),
-  };
-
-  const itemStyle = !isLast
-    ? { borderBottomWidth: 1, borderBottomColor: colors.borderColor }
-    : undefined;
-
-  return (
-    <Pressable style={[styles.optionItem, itemStyle]} onPress={handlePress}>
-      <Text style={[styles.optionText, textStyle]}>{option}</Text>
-    </Pressable>
-  );
-}
 
 function Dropdown({
   options,
@@ -61,18 +36,26 @@ function Dropdown({
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
   const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [triggerLayout, setTriggerLayout] = useState<TriggerLayout | null>(
+    null,
+  );
+  const triggerRef = useRef<RNView>(null);
 
-  const handleSelect = (option: string) => {
-    onSelect(option);
-    setDropdownVisible(false);
-  };
-
-  const toggleDropdown = () => {
-    setDropdownVisible((prev) => !prev);
+  const openDropdown = () => {
+    // measure trigger position in screen coordinates so the menu can sit under it
+    triggerRef.current?.measureInWindow((x, y, width, height) => {
+      setTriggerLayout({ x, y, width, height });
+      setDropdownVisible(true);
+    });
   };
 
   const closeDropdown = () => {
     setDropdownVisible(false);
+  };
+
+  const handleSelect = (option: string) => {
+    onSelect(option);
+    closeDropdown();
   };
 
   const dynamicStyles = {
@@ -81,56 +64,90 @@ function Dropdown({
       backgroundColor: colors.cardBackground,
       borderColor: colors.borderColor,
     },
-    selectorText: { color: selectedOption ? colors.text : colors.tabIconDefault },
+    selectorText: {
+      color: selectedOption ? colors.text : colors.tabIconDefault,
+    },
     dropdownBox: {
       backgroundColor: colors.cardBackground,
       borderColor: colors.borderColor,
     },
   };
 
-  const optionColors = {
-    tint: colors.tint,
-    text: colors.text,
-    borderColor: colors.borderColor,
-  };
+  const dropdownPositionStyle = triggerLayout
+    ? {
+        top: triggerLayout.y + triggerLayout.height + 45,
+        left: triggerLayout.x,
+        width: triggerLayout.width,
+      }
+    : null;
 
   return (
     <View style={styles.container}>
       <Text style={[styles.label, dynamicStyles.label]}>{labelText}</Text>
-      <View style={styles.dropdownWrapper}>
-        <Pressable
-          style={[styles.selector, dynamicStyles.selector]}
-          onPress={toggleDropdown}
-        >
-          <Text style={[styles.selectorText, dynamicStyles.selectorText]}>
-            {selectedOption || placeholder || ""}
-          </Text>
-          {dropdownVisible ? (
-            <ChevronUp size={15} color={colors.text} />
-          ) : (
-            <ChevronDown size={15} color={colors.text} />
+      <Pressable
+        ref={triggerRef}
+        style={[styles.selector, dynamicStyles.selector]}
+        onPress={openDropdown}
+      >
+        <Text style={[styles.selectorText, dynamicStyles.selectorText]}>
+          {selectedOption || placeholder || ""}
+        </Text>
+        {dropdownVisible ? (
+          <ChevronUp size={15} color={colors.text} />
+        ) : (
+          <ChevronDown size={15} color={colors.text} />
+        )}
+      </Pressable>
+
+      <Modal
+        transparent
+        visible={dropdownVisible}
+        animationType="none"
+        onRequestClose={closeDropdown}
+        statusBarTranslucent
+      >
+        <Pressable style={StyleSheet.absoluteFill} onPress={closeDropdown}>
+          {dropdownPositionStyle && (
+            <View
+              style={[
+                styles.dropdownBox,
+                dynamicStyles.dropdownBox,
+                dropdownPositionStyle,
+              ]}
+            >
+              {options.map((option, index) => {
+                const isSelected = selectedOption === option;
+                const isLast = index === options.length - 1;
+                return (
+                  <Pressable
+                    key={option}
+                    onPress={() => handleSelect(option)}
+                    style={[
+                      styles.optionItem,
+                      !isLast && {
+                        borderBottomWidth: 1,
+                        borderBottomColor: colors.borderColor,
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.optionText,
+                        {
+                          color: isSelected ? colors.tint : colors.text,
+                          fontWeight: isSelected ? "600" : "400",
+                        },
+                      ]}
+                    >
+                      {option}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
           )}
         </Pressable>
-
-        {/* Dropdown Box */}
-        {dropdownVisible && (
-          <>
-            <Pressable style={styles.backdrop} onPress={closeDropdown} />
-            <View style={[styles.dropdownBox, dynamicStyles.dropdownBox]}>
-              {options.map((option, index) => (
-                <OptionItem
-                  key={option}
-                  option={option}
-                  isSelected={selectedOption === option}
-                  isLast={index === options.length - 1}
-                  onSelect={handleSelect}
-                  colors={optionColors}
-                />
-              ))}
-            </View>
-          </>
-        )}
-      </View>
+      </Modal>
     </View>
   );
 }
@@ -146,10 +163,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
   },
-  dropdownWrapper: {
-    position: "relative",
-    zIndex: 1000,
-  },
   selector: {
     flexDirection: "row",
     alignItems: "center",
@@ -163,22 +176,10 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 13,
   },
-  backdrop: {
-    position: "absolute",
-    top: -1000,
-    left: -1000,
-    right: -1000,
-    bottom: -1000,
-    zIndex: 999,
-  },
   dropdownBox: {
     position: "absolute",
-    top: 44,
-    left: 0,
-    right: 0,
     borderRadius: 10,
     borderWidth: 1,
-    zIndex: 1000,
     boxShadow: "0 2px 4px rgba(0, 0, 0, 0.25)",
   },
   optionItem: {

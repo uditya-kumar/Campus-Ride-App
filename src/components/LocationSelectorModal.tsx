@@ -67,8 +67,9 @@ function LocationSelectorModal({
   const colors = Colors[colorScheme];
   const [searchQuery, setSearchQuery] = useState("");
 
+  const query = searchQuery.toLowerCase();
   const filteredLocations = locations.filter((location) =>
-    location.toLowerCase().includes(searchQuery.toLowerCase()),
+    location.toLowerCase().includes(query),
   );
 
   const handleSelect = (location: string) => {
