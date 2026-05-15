@@ -1,5 +1,5 @@
 import { Redirect } from 'expo-router';
-import { useAuth } from '../providers/AuthProvider';
+import { useAuth } from '@/providers/AuthProvider';
 import { ActivityIndicator, View } from 'react-native';
 
 // This route catches the root path ("/") and immediately redirects the user

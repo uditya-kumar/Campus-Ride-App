@@ -1,21 +1,11 @@
 import Button from "@/components/rideComponents/Button";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
+import { formatDisplayDate, formatDisplayTime } from "@/libs/datetime";
 import { StyleSheet, Text, View } from "react-native";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Octicons from '@expo/vector-icons/Octicons';
-
-// Hoist Intl formatters to module scope - expensive to construct, created once
-const dateFormatter = new Intl.DateTimeFormat("en-GB", {
-  day: "2-digit",
-  month: "short",
-  year: "2-digit",
-});
-const timeFormatter = new Intl.DateTimeFormat(undefined, {
-  hour: "2-digit",
-  minute: "2-digit",
-});
 
 type RideCardProps = {
   id: string;
@@ -43,9 +33,8 @@ function RideCard({
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
 
-  const parsedDate = new Date(departureDate);
-  const date = dateFormatter.format(parsedDate);
-  const time = timeFormatter.format(parsedDate);
+  const date = formatDisplayDate(departureDate);
+  const time = formatDisplayTime(departureDate);
 
   const dynamicStyles = {
     card: {

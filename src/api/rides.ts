@@ -1,4 +1,5 @@
 import { supabase } from "@/libs/supabase";
+import { dayRangeIST } from "@/libs/datetime";
 import type { Tables, TablesInsert } from "@/database.types";
 
 export type Ride = Tables<"rides">;
@@ -19,9 +20,7 @@ export async function fetchRides(filters: RideFilters): Promise<Ride[]> {
     query = query.ilike("destination", filters.destination);
 
   if (filters.selectedDate) {
-    const [day, month, year] = filters.selectedDate.split("-");
-    const start = `${year}-${month}-${day}T00:00:00+05:30`;
-    const end = `${year}-${month}-${day}T23:59:59+05:30`;
+    const { start, end } = dayRangeIST(filters.selectedDate);
     query = query.gte("departure_date", start).lte("departure_date", end);
   }
 

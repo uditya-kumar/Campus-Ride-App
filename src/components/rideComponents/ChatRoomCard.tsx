@@ -1,6 +1,7 @@
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { Tables } from "@/database.types";
+import { formatDisplayDate, formatDisplayTime } from "@/libs/datetime";
 import { StyleSheet, Text, View } from "react-native";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
@@ -14,23 +15,6 @@ type ChatRoomWithRide = ChatRoom & {
 
 type ChatRoomCardProps = {
   item: ChatRoomWithRide;
-};
-
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "2-digit",
-  });
-};
-
-const formatTime = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 };
 
 function ChatRoomCard({ item }: ChatRoomCardProps) {
@@ -62,8 +46,8 @@ function ChatRoomCard({ item }: ChatRoomCardProps) {
           <View style={styles.dateRow}>
             <FontAwesome5 name="calendar-alt" color={colors.tabIconDefault} size={14} />
             <Text style={dateTextStyle}>
-              {formatDate(item.ride.departure_date)},{" "}
-              {formatTime(item.ride.departure_date)}
+              {formatDisplayDate(item.ride.departure_date)},{" "}
+              {formatDisplayTime(item.ride.departure_date)}
             </Text>
           </View>
         </View>
