@@ -7,6 +7,8 @@ import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { useFilteredRides } from "@/hooks/useFilteredRides";
 import { locations } from "@/constants/locations";
+import { MAX_DEPARTURE_DAYS_AHEAD } from "@/constants/rides";
+import { daysFromNow } from "@/libs/datetime";
 import type { Tables } from "@/database.types";
 import { FlashList } from "@shopify/flash-list";
 import { router } from "expo-router";
@@ -39,6 +41,8 @@ export default function HomeScreen() {
   const [destination, setDestination] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>("");
+
+  const maxDepartureDate = daysFromNow(MAX_DEPARTURE_DAYS_AHEAD);
 
   //Filter and sort rides based on selected filters
   const { rides, isLoading, isError, error } = useFilteredRides({
@@ -124,6 +128,7 @@ export default function HomeScreen() {
               labelText="Date"
               selectedDate={selectedDate}
               onSelectDate={setSelectedDate}
+              maximumDate={maxDepartureDate}
             />
           </View>
           <View style={styles.flex1}>

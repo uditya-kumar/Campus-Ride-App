@@ -72,6 +72,12 @@ export function dayRangeIST(dateDDMMYYYY: string): {
   };
 }
 
+// number of days -> Date that many days from now (wall-clock, fine for IST since no DST)
+// e.g. daysFromNow(60) -> a Date 60 * 24h ahead of this moment
+export function daysFromNow(days: number): Date {
+  return new Date(Date.now() + days * 86_400_000);
+}
+
 // "HH:mm" -> Date (today at that time, local)
 // e.g. "21:45" -> today's Date with hours=21, minutes=45
 export function parseHHmm(t: string): Date {

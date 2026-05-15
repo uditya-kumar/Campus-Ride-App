@@ -14,12 +14,14 @@ type DateFilterProps = {
   selectedDate: string | null;
   onSelectDate: (date: string | null) => void;
   labelText: string;
+  maximumDate?: Date;
 };
 
 export default function DateFilter({
   selectedDate,
   onSelectDate,
   labelText,
+  maximumDate,
 }: DateFilterProps) {
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
@@ -81,6 +83,7 @@ export default function DateFilter({
         onConfirm={handleConfirm}
         onCancel={hideDatePicker}
         minimumDate={new Date()}
+        maximumDate={maximumDate}
         isDarkModeEnabled={colorScheme === "dark"}
       />
     </View>
