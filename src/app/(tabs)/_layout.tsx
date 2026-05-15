@@ -4,13 +4,27 @@ import { Redirect, Tabs } from "expo-router";
 import Feather from '@expo/vector-icons/Feather';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { useAuth } from "@/providers/AuthProvider";
+import { ActivityIndicator, View } from "react-native";
 
 export default function TabLayout() {
   const { session, loading } = useAuth();
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
 
-  if (loading) return null;
+  if (loading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: colors.background,
+        }}
+      >
+        <ActivityIndicator size="large" color={colors.tint} />
+      </View>
+    );
+  }
   if (!session) return <Redirect href="/(auth)/signin" />;
 
   const screenOptions = {

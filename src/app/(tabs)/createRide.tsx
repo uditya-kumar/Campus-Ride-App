@@ -75,13 +75,6 @@ const CreateRideScreen = () => {
       ? Math.round((totalCost / availableSeats) * 100) / 100
       : 0;
 
-  const containerStyle = [
-    styles.container,
-    { backgroundColor: colors.background },
-  ];
-
-  const labelStyle = [styles.label, { color: colors.text }];
-
   const maxDepartureDate = daysFromNow(MAX_DEPARTURE_DAYS_AHEAD);
 
   const handleSubmit = () => {
@@ -154,7 +147,7 @@ const CreateRideScreen = () => {
   };
 
   return (
-    <ScrollView style={containerStyle}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.formContainer}>
         {/* Origin & Destination Selector */}
         <RouteSelector
@@ -222,7 +215,7 @@ const CreateRideScreen = () => {
         />
 
         {/* Cost Per Person (Calculated) */}
-        <Text style={labelStyle}>
+        <Text style={[styles.label, { color: colors.text }]}>
           Cost Per Person is:- Rs {costPerPerson.toFixed(2)} /-
         </Text>
 
@@ -259,47 +252,16 @@ const styles = StyleSheet.create({
   flex1: {
     flex: 1,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 24,
-    textAlign: "center",
-  },
-  inputGroup: {
-    marginBottom: 8,
-  },
   label: {
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 15,
-  },
-  input: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
   },
   calculatedField: {
     borderWidth: 1,
     borderRadius: 8,
     padding: 12,
     backgroundColor: "#f5f5f5",
-  },
-  calculatedText: {
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  submitButton: {
-    padding: 16,
-    borderRadius: 8,
-    alignItems: "center",
-    marginTop: 12,
-    marginBottom: 40,
-  },
-  submitButtonText: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "bold",
   },
 });
 

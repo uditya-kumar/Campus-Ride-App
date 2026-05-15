@@ -13,7 +13,6 @@ export default {
     buttonBackground: "#3b82f6",
     buttonText: "#ffffff",
     cardBackground: "white",
-    starColor: "#FFD700",
     error: "#ef4444",
   },
   dark: {
@@ -27,7 +26,6 @@ export default {
     buttonBackground: "#3b82f6",
     buttonText: "#ffffff",
     cardBackground: "#191919",
-    starColor: "#FFD700",
     error: "#ef4444",
   },
 };
