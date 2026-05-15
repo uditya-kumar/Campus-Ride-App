@@ -1,5 +1,10 @@
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
+import {
+  formatDisplayTime12h,
+  parseHHmm,
+  toHHmm,
+} from "@/libs/datetime";
 import { X } from "lucide-react-native";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
@@ -9,29 +14,6 @@ type TimeFilterProps = {
   selectedTime: string | null; // "HH:mm" 24h
   onSelectTime: (time: string | null) => void;
   labelText: string;
-};
-
-// "HH:mm" → Date (today at that time, local)
-const parseTime = (t: string): Date => {
-  const [h, m] = t.split(":").map(Number);
-  const d = new Date();
-  d.setHours(h, m, 0, 0);
-  return d;
-};
-
-// Date → "HH:mm"
-const formatTime = (d: Date): string => {
-  const h = String(d.getHours()).padStart(2, "0");
-  const m = String(d.getMinutes()).padStart(2, "0");
-  return `${h}:${m}`;
-};
-
-// "HH:mm" → "9:30 AM" for display
-const displayTime = (t: string): string => {
-  const [hh, mm] = t.split(":").map(Number);
-  const ampm = hh >= 12 ? "PM" : "AM";
-  const h12 = hh % 12 === 0 ? 12 : hh % 12;
-  return `${h12}:${String(mm).padStart(2, "0")} ${ampm}`;
 };
 
 export default function TimeFilter({ selectedTime, onSelectTime, labelText }: TimeFilterProps) {
@@ -47,7 +29,7 @@ export default function TimeFilter({ selectedTime, onSelectTime, labelText }: Ti
         onPress={() => setShowPicker(true)}
       >
         <Text style={[styles.selectorText, { color: selectedTime ? colors.text : colors.tabIconDefault }]}>
-          {selectedTime ? displayTime(selectedTime) : "Select time"}
+          {selectedTime ? formatDisplayTime12h(selectedTime) : "Select time"}
         </Text>
         {selectedTime && (
           <Pressable onPress={() => onSelectTime(null)} style={styles.clearButton}>
@@ -59,8 +41,8 @@ export default function TimeFilter({ selectedTime, onSelectTime, labelText }: Ti
       <DateTimePickerModal
         isVisible={showPicker}
         mode="time"
-        date={selectedTime ? parseTime(selectedTime) : new Date()}
-        onConfirm={(d) => { onSelectTime(formatTime(d)); setShowPicker(false); }}
+        date={selectedTime ? parseHHmm(selectedTime) : new Date()}
+        onConfirm={(d) => { onSelectTime(toHHmm(d)); setShowPicker(false); }}
         onCancel={() => setShowPicker(false)}
         isDarkModeEnabled={colorScheme === "dark"}
         is24Hour={false}

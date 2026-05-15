@@ -22,6 +22,14 @@ const displayTimeFormatter = new Intl.DateTimeFormat("en-GB", {
   hour12: false,
 });
 
+// 12-hour with AM/PM — pinned to en-US so the marker is uppercase ("AM"/"PM")
+// regardless of device locale (en-GB renders "am"/"pm" lowercase).
+const display12hTimeFormatter = new Intl.DateTimeFormat("en-US", {
+  hour: "numeric",
+  minute: "2-digit",
+  hour12: true,
+});
+
 // --- Conversions ---
 
 // "DD-MM-YYYY" -> Date
@@ -64,6 +72,23 @@ export function dayRangeIST(dateDDMMYYYY: string): {
   };
 }
 
+// "HH:mm" -> Date (today at that time, local)
+// e.g. "21:45" -> today's Date with hours=21, minutes=45
+export function parseHHmm(t: string): Date {
+  const [h, m] = t.split(":").map(Number);
+  const d = new Date();
+  d.setHours(h, m, 0, 0);
+  return d;
+}
+
+// Date -> "HH:mm"
+// e.g. Date(..., 21, 45) -> "21:45"
+export function toHHmm(d: Date): string {
+  const h = String(d.getHours()).padStart(2, "0");
+  const m = String(d.getMinutes()).padStart(2, "0");
+  return `${h}:${m}`;
+}
+
 // --- Display ---
 
 // ISO string -> "DD MMM YY"
@@ -82,4 +107,10 @@ export function formatDisplayDateNumeric(d: Date): string {
 // e.g. "2026-05-15T21:45:00+05:30" -> "21:45"
 export function formatDisplayTime(iso: string): string {
   return displayTimeFormatter.format(new Date(iso));
+}
+
+// "HH:mm" -> "h:mm AM/PM"
+// e.g. "21:45" -> "9:45 PM"
+export function formatDisplayTime12h(hhmm: string): string {
+  return display12hTimeFormatter.format(parseHHmm(hhmm));
 }

@@ -1,4 +1,4 @@
-import { useAuth } from '../../providers/AuthProvider';
+import { useAuth } from '@/providers/AuthProvider';
 import { Redirect, Stack } from 'expo-router';
 
 // Hoisted static options to prevent new object references
