@@ -10,7 +10,7 @@ import Colors from "@/constants/Colors";
 import { Tables } from "@/database.types";
 import { toIsoIST } from "@/libs/datetime";
 import { useAuth } from "@/providers/AuthProvider";
-import { locations } from "@assets/data/rides";
+import { locations } from "@/constants/locations";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useState } from "react";

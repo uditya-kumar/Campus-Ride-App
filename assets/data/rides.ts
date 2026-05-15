@@ -2,19 +2,6 @@ import { Tables } from "@/database.types";
 
 export type Ride = Tables<"rides">;
 
-const locations = [
-  "VIT",
-  "RKMP Railway",
-  "Indore",
-  "Bhopal Airport",
-  "BPL Junction Railway",
-  "Sehore",
-  "Sant Hirdaram railway",
-  "Chirayu Hospital",
-  "Lalghati",
-  "Nadra",
-];
-
 // Mock data simulating Supabase response
 const ridesData: Ride[] = [
   {
@@ -187,5 +174,5 @@ const ridesData: Ride[] = [
   },
 ];
 
-export { locations, ridesData };
+export { ridesData };
 
