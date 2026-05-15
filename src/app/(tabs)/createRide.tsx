@@ -253,12 +253,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginBottom: 15,
   },
-  calculatedField: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    backgroundColor: "#f5f5f5",
-  },
 });
 
 export default CreateRideScreen;

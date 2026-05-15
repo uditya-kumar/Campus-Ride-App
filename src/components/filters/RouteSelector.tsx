@@ -140,6 +140,7 @@ export default function RouteSelector({
         selectionMode={selectionMode}
         selectedLocation={selectionMode === "origin" ? origin : destination}
         onSelectLocation={handleSelect}
+        excludeLocation={selectionMode === "origin" ? destination : origin}
       />
     </View>
   );

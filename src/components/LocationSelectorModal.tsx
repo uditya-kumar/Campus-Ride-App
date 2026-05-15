@@ -18,6 +18,9 @@ type LocationSelectorModalProps = {
   selectionMode: "origin" | "destination" | null;
   selectedLocation: string | null;
   onSelectLocation: (location: string) => void;
+  // Hidden from the list — used by RouteSelector to keep the user from picking
+  // the same place for origin and destination.
+  excludeLocation?: string | null;
 };
 
 type LocationItemProps = {
@@ -62,14 +65,16 @@ function LocationSelectorModal({
   selectionMode,
   selectedLocation,
   onSelectLocation,
+  excludeLocation,
 }: LocationSelectorModalProps) {
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
   const [searchQuery, setSearchQuery] = useState("");
 
   const query = searchQuery.toLowerCase();
-  const filteredLocations = locations.filter((location) =>
-    location.toLowerCase().includes(query),
+  const filteredLocations = locations.filter(
+    (location) =>
+      location !== excludeLocation && location.toLowerCase().includes(query),
   );
 
   const handleSelect = (location: string) => {
