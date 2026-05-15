@@ -4,6 +4,11 @@ import type { Tables, TablesInsert } from "@/database.types";
 
 export type Ride = Tables<"rides">;
 
+// `cost_per_person` is a Postgres GENERATED column — clients must not set it.
+// The column is read-only at the DB level; this type makes that a compile-time
+// rule too, so a stray write attempt is caught before runtime.
+export type RideInsert = Omit<TablesInsert<"rides">, "cost_per_person">;
+
 export type RideFilters = {
   origin: string | null;
   destination: string | null;
@@ -51,7 +56,7 @@ export async function fetchRides(filters: RideFilters): Promise<Ride[]> {
   return data ?? [];
 }
 
-export async function createRide(ride: TablesInsert<"rides">): Promise<Ride> {
+export async function createRide(ride: RideInsert): Promise<Ride> {
   const { data, error } = await supabase
     .from("rides")
     .insert(ride)

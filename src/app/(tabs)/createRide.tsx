@@ -7,20 +7,16 @@ import CustomTextInput from "@/components/rideComponents/CustomTextInput";
 import Dropdown from "@/components/rideComponents/Dropdown";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
+import { locations } from "@/constants/locations";
+import { MAX_DEPARTURE_DAYS_AHEAD, MAX_TOTAL_COST, MAX_RIDE_SEATS } from "@/constants/rides";
+import { vehicleOptions } from "@/constants/vehicles";
 import { Tables } from "@/database.types";
 import { daysFromNow, toIsoIST } from "@/libs/datetime";
 import { useAuth } from "@/providers/AuthProvider";
-import { locations } from "@/constants/locations";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useState } from "react";
 import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
-import { vehicleOptions } from "@/constants/vehicles";
-import {
-  MAX_AVAILABLE_SEATS,
-  MAX_DEPARTURE_DAYS_AHEAD,
-  MAX_TOTAL_COST,
-} from "@/constants/rides";
 
 type Ride = Tables<"rides">;
 
@@ -36,9 +32,7 @@ const CreateRideScreen = () => {
   const [departureDate, setDepartureDate] = useState<
     Ride["departure_date"] | null
   >(null);
-  const [availableSeats, setAvailableSeats] = useState<
-    Ride["total_seats"] | null
-  >(0);
+  const [totalSeats, setTotalSeats] = useState<Ride["total_seats"] | null>(0);
   const [totalCost, setTotalCost] = useState<Ride["total_cost"] | null>(0);
   const [vehicleType, setVehicleType] =
     useState<Ride["vehicle_type"]>("Eco Van");
@@ -52,7 +46,7 @@ const CreateRideScreen = () => {
     setDestination(null);
     setDepartureDate(null);
     setDepartureTime(null);
-    setAvailableSeats(0);
+    setTotalSeats(0);
     setTotalCost(0);
     setVehicleType("Eco Van");
   };
@@ -69,10 +63,10 @@ const CreateRideScreen = () => {
     },
   });
 
-  // Derive costPerPerson from totalCost and availableSeats
+  // Live preview only — Postgres stores the authoritative value (generated column).
   const costPerPerson =
-    availableSeats && totalCost && availableSeats > 0 && totalCost > 0
-      ? Math.round((totalCost / availableSeats) * 100) / 100
+    totalSeats && totalCost && totalSeats > 0 && totalCost > 0
+      ? Math.round((totalCost / totalSeats) * 100) / 100
       : 0;
 
   const maxDepartureDate = daysFromNow(MAX_DEPARTURE_DAYS_AHEAD);
@@ -107,13 +101,13 @@ const CreateRideScreen = () => {
       return;
     }
 
-    if (!availableSeats || availableSeats <= 0) {
-      Alert.alert("Available seats must be greater than 0");
+    if (!totalSeats || totalSeats <= 0) {
+      Alert.alert("Total seats must be greater than 0");
       return;
     }
 
-    if (availableSeats > MAX_AVAILABLE_SEATS) {
-      Alert.alert(`Available seats can't exceed ${MAX_AVAILABLE_SEATS}`);
+    if (totalSeats > MAX_RIDE_SEATS) {
+      Alert.alert(`Total seats can't exceed ${MAX_RIDE_SEATS}`);
       return;
     }
 
@@ -136,9 +130,9 @@ const CreateRideScreen = () => {
       origin,
       destination,
       departure_date: toIsoIST(departureDate, departureTime),
-      available_seats: availableSeats,
-      total_seats: availableSeats,
-      cost_per_person: costPerPerson,
+      // available_seats starts equal to total_seats — bookings will decrement it.
+      available_seats: totalSeats,
+      total_seats: totalSeats,
       total_cost: totalCost,
       vehicle_type: vehicleType,
       status: "active",
@@ -147,7 +141,9 @@ const CreateRideScreen = () => {
   };
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
+    <ScrollView
+      style={[styles.container, { backgroundColor: colors.background }]}
+    >
       <View style={styles.formContainer}>
         {/* Origin & Destination Selector */}
         <RouteSelector
@@ -178,17 +174,17 @@ const CreateRideScreen = () => {
         <View style={styles.row}>
           <View style={styles.flex1}>
             <CustomTextInput
-              labelText="Available Seats"
-              value={availableSeats ? availableSeats.toString() : ""}
+              labelText="Total Seats"
+              value={totalSeats ? totalSeats.toString() : ""}
               onChangeText={(text) =>
-                setAvailableSeats(
+                setTotalSeats(
                   Math.min(
-                    MAX_AVAILABLE_SEATS,
+                    MAX_RIDE_SEATS,
                     Math.max(0, parseInt(text, 10) || 0),
                   ),
                 )
               }
-              placeholder={`eg. 4`}
+              placeholder="eg. 4"
               keyboardType="number-pad"
             />
           </View>
