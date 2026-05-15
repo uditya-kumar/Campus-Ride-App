@@ -1,13 +1,17 @@
 import { supabase } from "@/libs/supabase";
 import { dayRangeIST } from "@/libs/datetime";
-import type { Tables, TablesInsert } from "@/database.types";
+import type { Tables } from "@/database.types";
 
 export type Ride = Tables<"rides">;
 
-// `cost_per_person` is a Postgres GENERATED column — clients must not set it.
-// The column is read-only at the DB level; this type makes that a compile-time
-// rule too, so a stray write attempt is caught before runtime.
-export type RideInsert = Omit<TablesInsert<"rides">, "cost_per_person">;
+export type CreateRideInput = {
+  origin: string;
+  destination: string;
+  departure_date: string; // ISO with IST offset, from toIsoIST()
+  total_seats: number;
+  total_cost: number;
+  vehicle_type: string;
+};
 
 export type RideFilters = {
   origin: string | null;
@@ -17,8 +21,14 @@ export type RideFilters = {
 };
 
 export async function fetchRides(filters: RideFilters): Promise<Ride[]> {
-  // building the query
-  let query = supabase.from("rides").select("*").eq("status", "active");
+  // building the query — only show active rides that still have at least one
+  // seat AND haven't already departed.
+  let query = supabase
+    .from("rides")
+    .select("*")
+    .eq("status", "active")
+    .gt("available_seats", 0)
+    .gte("departure_date", new Date().toISOString());
 
   if (filters.origin) query = query.ilike("origin", filters.origin);
   if (filters.destination)
@@ -56,12 +66,20 @@ export async function fetchRides(filters: RideFilters): Promise<Ride[]> {
   return data ?? [];
 }
 
-export async function createRide(ride: RideInsert): Promise<Ride> {
-  const { data, error } = await supabase
-    .from("rides")
-    .insert(ride)
-    .select()
-    .single();
+export async function createRide(input: CreateRideInput): Promise<string> {
+  const { data, error } = await supabase.rpc("create_ride", {
+    p_origin: input.origin,
+    p_destination: input.destination,
+    p_departure_date: input.departure_date,
+    p_total_seats: input.total_seats,
+    p_total_cost: input.total_cost,
+    p_vehicle_type: input.vehicle_type,
+  });
   if (error) throw error;
-  return data;
+  return data; // ride_id (uuid)
+}
+
+export async function joinRide(rideId: string): Promise<void> {
+  const { error } = await supabase.rpc("join_ride", { p_ride_id: rideId });
+  if (error) throw error;
 }

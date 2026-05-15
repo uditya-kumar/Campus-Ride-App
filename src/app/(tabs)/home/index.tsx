@@ -14,6 +14,9 @@ import { FlashList } from "@shopify/flash-list";
 import { router } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { useJoinRide } from "@/hooks/useJoinRide";
+import { Alert } from "react-native";
+import { useMyBookings } from "@/hooks/useMyBookings";
 
 type Ride = Tables<"rides">;
 
@@ -41,6 +44,12 @@ export default function HomeScreen() {
   const [destination, setDestination] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>("");
+  const { data: myBookedRideIds } = useMyBookings();
+  const {
+    mutate: joinRide,
+    isPending: isJoining,
+    variables: joiningRideId,
+  } = useJoinRide();
 
   const maxDepartureDate = daysFromNow(MAX_DEPARTURE_DAYS_AHEAD);
 
@@ -53,7 +62,14 @@ export default function HomeScreen() {
   });
 
   const onJoinRide = (rideId: string) => {
-    console.log("Joined ride", rideId);
+    joinRide(rideId, {
+      onError: (err) => {
+        Alert.alert("Couldn't join ride", err.message);
+      },
+      onSuccess: () => {
+        Alert.alert("Joined!", "You've been added to this ride.");
+      },
+    });
   };
 
   const onCreateRide = () => {
@@ -94,11 +110,20 @@ export default function HomeScreen() {
     </View>
   );
 
-  const renderItem = ({ item }: { item: Ride }) => (
+  const renderItem = ({ item }: { item: Ride }) => {
+    const isMember = !!myBookedRideIds?.has(item.id);
+
+    return (
     <View style={styles.cardContainerStyle}>
-      <RideCard ride={item} onJoinRide={onJoinRide} />
+      <RideCard
+        ride={item}
+        onJoinRide={onJoinRide}
+        isJoining={isJoining && joiningRideId === item.id}
+        isMember={isMember}
+      />
     </View>
   );
+  };
 
   return (
     <View style={styles.container}>

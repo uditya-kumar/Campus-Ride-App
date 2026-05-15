@@ -8,7 +8,11 @@ import Dropdown from "@/components/rideComponents/Dropdown";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { locations } from "@/constants/locations";
-import { MAX_DEPARTURE_DAYS_AHEAD, MAX_TOTAL_COST, MAX_RIDE_SEATS } from "@/constants/rides";
+import {
+  MAX_DEPARTURE_DAYS_AHEAD,
+  MAX_TOTAL_COST,
+  MAX_RIDE_SEATS,
+} from "@/constants/rides";
 import { vehicleOptions } from "@/constants/vehicles";
 import { Tables } from "@/database.types";
 import { daysFromNow, toIsoIST } from "@/libs/datetime";
@@ -55,6 +59,9 @@ const CreateRideScreen = () => {
     mutationFn: createRide,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["rides"] });
+      // The RPC also adds the creator to bookings — refetch so the home
+      // screen shows "Chat" on the new card instead of "Join Ride".
+      queryClient.invalidateQueries({ queryKey: ["bookings"] });
       resetForm();
       router.push("/(tabs)/home");
     },
@@ -111,6 +118,11 @@ const CreateRideScreen = () => {
       return;
     }
 
+    if (totalSeats < 2) {
+      Alert.alert("A ride needs at least 2 seats (you + 1 passenger)");
+      return;
+    }
+
     if (!totalCost || totalCost <= 0) {
       Alert.alert("Total cost must be greater than 0");
       return;
@@ -130,13 +142,9 @@ const CreateRideScreen = () => {
       origin,
       destination,
       departure_date: toIsoIST(departureDate, departureTime),
-      // available_seats starts equal to total_seats — bookings will decrement it.
-      available_seats: totalSeats,
       total_seats: totalSeats,
       total_cost: totalCost,
       vehicle_type: vehicleType,
-      status: "active",
-      created_by_user_id: session.user.id,
     });
   };
 

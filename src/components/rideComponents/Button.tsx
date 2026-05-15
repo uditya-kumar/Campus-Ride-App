@@ -1,4 +1,5 @@
 // components/Button.tsx
+import type { ReactNode } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -16,6 +17,7 @@ interface ButtonProps {
   paddingVertical?: number;
   paddingHorizontal?: number;
   loading?: boolean;
+  icon?: ReactNode;
 }
 
 function Button({
@@ -27,6 +29,7 @@ function Button({
   paddingVertical = 11,
   loading = false,
   paddingHorizontal = 15,
+  icon,
 }: ButtonProps) {
   const buttonBaseStyle: ViewStyle = {
     paddingVertical,
@@ -49,7 +52,10 @@ function Button({
       style={getPressableStyle}
       onPress={!loading ? onPress : undefined}
     >
-      <Text style={[styles.text, textColorStyle]}>{text}</Text>
+      {icon ? <>{icon}</> : null}
+      <Text style={[styles.text, textColorStyle, icon ? styles.textWithIcon : null]}>
+        {text}
+      </Text>
 
       {loading && (
         <ActivityIndicator
@@ -75,6 +81,9 @@ const styles = StyleSheet.create({
   text: {
     fontWeight: "600",
     fontSize: 14,
+  },
+  textWithIcon: {
+    marginLeft: 6,
   },
 });
 

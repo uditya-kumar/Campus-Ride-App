@@ -4,18 +4,22 @@ import Colors from "@/constants/Colors";
 import type { Tables } from "@/database.types";
 import { formatDisplayDate, formatDisplayTime } from "@/libs/datetime";
 import { StyleSheet, Text, View } from "react-native";
+import Feather from "@expo/vector-icons/Feather";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import Octicons from '@expo/vector-icons/Octicons';
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import Octicons from "@expo/vector-icons/Octicons";
+import { router } from "expo-router";
 
 type Ride = Tables<"rides">;
 
 type RideCardProps = {
   ride: Ride;
   onJoinRide?: (rideId: string) => void;
+  isJoining?: boolean;
+  isMember?: boolean;
 };
 
-function RideCard({ ride, onJoinRide }: RideCardProps) {
+function RideCard({ ride, onJoinRide, isJoining, isMember }: RideCardProps) {
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
 
@@ -29,6 +33,10 @@ function RideCard({ ride, onJoinRide }: RideCardProps) {
     },
     primaryText: { color: colors.text },
     priceText: { color: colors.tint },
+  };
+
+  const openChat = () => {
+    router.push(`/message/${ride.id}`);
   };
 
   const handleJoinRide = () => {
@@ -47,7 +55,11 @@ function RideCard({ ride, onJoinRide }: RideCardProps) {
 
       {/* Route Row */}
       <View style={styles.row}>
-        <MaterialCommunityIcons name="map-marker-radius-outline" color={colors.text} size={18} />
+        <MaterialCommunityIcons
+          name="map-marker-radius-outline"
+          color={colors.text}
+          size={18}
+        />
         <Text style={[styles.primaryText, dynamicStyles.primaryText]}>
           {ride.origin} To {ride.destination}
         </Text>
@@ -62,7 +74,11 @@ function RideCard({ ride, onJoinRide }: RideCardProps) {
           </Text>
         </View>
         <View style={styles.row}>
-          <MaterialCommunityIcons name="car-outline" color={colors.text} size={22} />
+          <MaterialCommunityIcons
+            name="car-outline"
+            color={colors.text}
+            size={22}
+          />
           <Text style={styles.secondaryText}>{ride.vehicle_type}</Text>
         </View>
       </View>
@@ -71,13 +87,32 @@ function RideCard({ ride, onJoinRide }: RideCardProps) {
         <Text style={[styles.priceText, dynamicStyles.priceText]}>
           Total: ₹{ride.total_cost}
         </Text>
-        <Button
-          text="Join Ride"
-          textColor={colors.buttonText}
-          backgroundColor={colors.buttonBackground}
-          onPress={handleJoinRide}
-          paddingVertical={10}
-        />
+        {isMember ? (
+          <Button
+            text="Chat"
+            textColor={colors.buttonBackgroundSecondary}
+            backgroundColor="transparent"
+            borderColor={colors.buttonBackgroundSecondary}
+            onPress={openChat}
+            paddingVertical={10}
+            icon={
+              <Feather
+                name="message-circle"
+                size={18}
+                color={colors.buttonBackgroundSecondary}
+              />
+            }
+          />
+        ) : (
+          <Button
+            text="Join Ride"
+            textColor={colors.buttonText}
+            backgroundColor={colors.buttonBackground}
+            onPress={handleJoinRide}
+            paddingVertical={10}
+            loading={isJoining}
+          />
+        )}
       </View>
     </View>
   );
