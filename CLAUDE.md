@@ -76,3 +76,21 @@ Most screens read `Colors[useColorScheme() ?? "light"]` directly from `src/const
 - Lists that may grow (rides, chat rooms, messages) should use `@shopify/flash-list`, not `FlatList`.
 - Chat UI uses `react-native-gifted-chat`.
 - Icons: a mix of `@expo/vector-icons` (FontAwesome5, MaterialCommunityIcons, Octicons, AntDesign, Feather, EvilIcons) and `lucide-react-native`. Either is fine; match the file you're editing.
+
+## Tooling
+
+### Supabase MCP (read-only)
+
+`.mcp.json` registers a Supabase MCP server scoped to this project (`project_ref=zwdjjlcpyfbybjdexdji`) in **read-only** mode. Use it to inspect live schema, run `SELECT` queries, or verify constraints without leaving the editor. Writes (INSERT/UPDATE/DELETE/DDL) are blocked at the MCP boundary — schema changes still go through Supabase Studio's SQL editor, then regenerate `src/database.types.ts`.
+
+### Skills (in `.agents/skills/`)
+
+Project-local skills available for reference. Read the relevant `SKILL.md` before starting work in the matching area:
+
+- `building-native-ui/` — Expo Router conventions, native tabs, animations, controls, headers, search, gradients, media. Has subtopic refs in `references/`.
+- `vercel-react-native-skills/` — performance and patterns: list virtualization, memoization rules under React Compiler, animations on GPU properties, native modals, navigation, state management. Rules in `rules/*.md`; see `SKILL.md` for the priority table.
+- `native-data-fetching/` — patterns for data fetching in Expo apps.
+- `expo-api-routes/` — server route conventions for Expo Router.
+- `upgrading-expo/` — guidance for SDK upgrades.
+
+The skills override generic React Native advice; when in doubt about list performance, animation choice, or navigation pattern, the skill rules win.
