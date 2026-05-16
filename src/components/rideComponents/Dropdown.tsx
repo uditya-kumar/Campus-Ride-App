@@ -75,7 +75,7 @@ function Dropdown({
 
   const dropdownPositionStyle = triggerLayout
     ? {
-        top: triggerLayout.y + triggerLayout.height + 45,
+        top: triggerLayout.y + triggerLayout.height + 4,
         left: triggerLayout.x,
         width: triggerLayout.width,
       }
