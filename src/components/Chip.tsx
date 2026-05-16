@@ -4,16 +4,21 @@ type ChipProps = {
   label: string;
   active: boolean;
   onPress: () => void;
-  accentColor: string;
-  textColor: string;
+  // Color used for the filled background + label when active.
+  activeColor: string;
+  // Color used for the border + label when inactive.
+  inactiveColor: string;
+  // Label color when chip is active (sits on `activeColor` background).
+  activeTextColor: string;
 };
 
 export default function Chip({
   label,
   active,
   onPress,
-  accentColor,
-  textColor,
+  activeColor,
+  inactiveColor,
+  activeTextColor,
 }: ChipProps) {
   return (
     <Pressable
@@ -21,12 +26,17 @@ export default function Chip({
       style={[
         styles.chip,
         {
-          borderColor: accentColor,
-          backgroundColor: active ? accentColor : "transparent",
+          borderColor: active ? activeColor : inactiveColor,
+          backgroundColor: active ? activeColor : "transparent",
         },
       ]}
     >
-      <Text style={[styles.text, { color: active ? textColor : accentColor }]}>
+      <Text
+        style={[
+          styles.text,
+          { color: active ? activeTextColor : inactiveColor },
+        ]}
+      >
         {label}
       </Text>
     </Pressable>

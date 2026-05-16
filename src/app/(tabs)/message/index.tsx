@@ -94,15 +94,17 @@ export default function MessagesScreen() {
           label="Upcoming"
           active={view === "upcoming"}
           onPress={() => setView("upcoming")}
-          accentColor={colors.buttonBackgroundSecondary}
-          textColor={colors.buttonText}
+          activeColor={colors.buttonBackground}
+          inactiveColor={colors.buttonBackgroundSecondary}
+          activeTextColor={colors.buttonText}
         />
         <Chip
           label="Past"
           active={view === "past"}
           onPress={() => setView("past")}
-          accentColor={colors.buttonBackgroundSecondary}
-          textColor={colors.buttonText}
+          activeColor={colors.buttonBackground}
+          inactiveColor={colors.buttonBackgroundSecondary}
+          activeTextColor={colors.buttonText}
         />
       </View>
       {body}
