@@ -3,12 +3,12 @@ import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import type { Tables } from "@/database.types";
 import { formatDisplayDate, formatDisplayTime } from "@/libs/datetime";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import Feather from "@expo/vector-icons/Feather";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import Octicons from "@expo/vector-icons/Octicons";
-import { router } from "expo-router";
+import { Link, router } from "expo-router";
 
 type Ride = Tables<"rides">;
 
@@ -33,10 +33,6 @@ function RideCard({ ride, onJoinRide, isJoining, isMember }: RideCardProps) {
     },
     primaryText: { color: colors.text },
     priceText: { color: colors.tint },
-  };
-
-  const openChat = () => {
-    router.push(`/message/${ride.id}`);
   };
 
   const handleJoinRide = () => {
@@ -88,21 +84,22 @@ function RideCard({ ride, onJoinRide, isJoining, isMember }: RideCardProps) {
           Total: ₹{ride.total_cost}
         </Text>
         {isMember ? (
-          <Button
-            text="Chat"
-            textColor={colors.buttonBackgroundSecondary}
-            backgroundColor="transparent"
-            borderColor={colors.buttonBackgroundSecondary}
-            onPress={openChat}
-            paddingVertical={10}
-            icon={
-              <Feather
-                name="message-circle"
-                size={18}
-                color={colors.buttonBackgroundSecondary}
+          <Link href={`/message/${ride.id}`} asChild withAnchor>
+              <Button
+                text="Chat"
+                textColor={colors.buttonBackgroundSecondary}
+                backgroundColor="transparent"
+                borderColor={colors.buttonBackgroundSecondary}
+                paddingVertical={10}
+                icon={
+                  <Feather
+                    name="message-circle"
+                    size={18}
+                    color={colors.buttonBackgroundSecondary}
+                  />
+                }
               />
-            }
-          />
+          </Link>
         ) : (
           <Button
             text="Join Ride"

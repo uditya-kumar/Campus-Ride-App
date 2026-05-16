@@ -83,3 +83,13 @@ export async function joinRide(rideId: string): Promise<void> {
   const { error } = await supabase.rpc("join_ride", { p_ride_id: rideId });
   if (error) throw error;
 }
+
+export async function fetchMyRides(userId: string): Promise<Ride[]> {
+  const { data, error } = await supabase
+    .from("bookings")
+    .select("ride:rides(*)")
+    .eq("user_id", userId)
+    .order("created_at", { referencedTable: "rides", ascending: false });
+  if (error) throw error;
+  return (data ?? []).map((row) => row.ride).filter((r): r is Ride => !!r);
+}

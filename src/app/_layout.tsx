@@ -4,23 +4,13 @@ import {
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
-import { Stack } from "expo-router";
+import { Stack, usePathname } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
-import { LogBox } from "react-native";
 import "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { QueryProvider } from "@/providers/QueryProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
-
-// Suppress edge-to-edge warning (these props are handled automatically).
-// LogBox is a no-op in production; the __DEV__ guard makes that explicit and
-// avoids re-registering the matcher on Fast Refresh.
-if (__DEV__) {
-  LogBox.ignoreLogs([
-    "statusBarTranslucent and navigationBarTranslucent values are ignored",
-  ]);
-}
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -47,6 +37,11 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (__DEV__) console.log("[route]", pathname);
+  }, [pathname]);
 
   return (
     <SafeAreaProvider>

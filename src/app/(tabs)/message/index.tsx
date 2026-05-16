@@ -6,31 +6,54 @@ import { FlashList } from "@shopify/flash-list";
 import { Link } from "expo-router";
 import { MessageCircle } from "lucide-react-native";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useMyRides } from "@/hooks/useMyRides";
+import { ActivityIndicator } from "react-native";
 
-import mockChatRooms from "@assets/data/chat";
-
-type ChatRoom = Tables<"chat_rooms">;
 type Ride = Tables<"rides">;
-
-type ChatRoomWithRide = ChatRoom & {
-  ride: Ride;
-};
 
 export default function MessagesScreen() {
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
+  const { data: rides, isLoading, isError, error } = useMyRides();
 
-  const renderChatItem = ({ item }: { item: ChatRoomWithRide }) => (
+  if (isLoading) {
+    return (
+      <View style={[styles.container, styles.centered]}>
+        <ActivityIndicator size="large" color={colors.tint} />
+      </View>
+    );
+  }
+
+  if (isError) {
+    return (
+      <View style={[styles.container, styles.centered]}>
+        <Text style={[styles.emptyText, { color: colors.text }]} selectable>
+          Couldn't load chats
+        </Text>
+        <Text
+          style={[styles.emptySubtext, { color: colors.tabIconDefault }]}
+          selectable
+        >
+          {error?.message ?? "Please try again."}
+        </Text>
+      </View>
+    );
+  }
+
+  const renderChatItem = ({ item }: { item: Ride }) => (
     <Link href={`/message/${item.id}`} asChild>
       <Pressable style={styles.chatItemPressable}>
-        <ChatRoomCard item={item} />
+        <ChatRoomCard ride={item} />
       </Pressable>
     </Link>
   );
 
   const emptyTextStyle = [styles.emptyText, { color: colors.text }];
 
-  const emptySubtextStyle = [styles.emptySubtext, { color: colors.tabIconDefault }];
+  const emptySubtextStyle = [
+    styles.emptySubtext,
+    { color: colors.tabIconDefault },
+  ];
 
   const renderEmptyComponent = () => (
     <View style={styles.emptyContainer}>
@@ -45,7 +68,7 @@ export default function MessagesScreen() {
   return (
     <View style={styles.container}>
       <FlashList
-        data={mockChatRooms}
+        data={rides}
         keyExtractor={(item) => item.id}
         renderItem={renderChatItem}
         ListEmptyComponent={renderEmptyComponent}
@@ -61,6 +84,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
   },
+  centered: { alignItems: "center", justifyContent: "center" },
   loadingContainer: {
     alignItems: "center",
     justifyContent: "center",

@@ -104,7 +104,6 @@ function Dropdown({
         visible={dropdownVisible}
         animationType="none"
         onRequestClose={closeDropdown}
-        statusBarTranslucent
       >
         <Pressable style={StyleSheet.absoluteFill} onPress={closeDropdown}>
           {dropdownPositionStyle && (

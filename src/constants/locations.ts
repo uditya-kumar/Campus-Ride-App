@@ -3,10 +3,11 @@ export const locations = [
   "RKMP Railway",
   "Indore",
   "Bhopal Airport",
-  "BPL Junction Railway",
+  "Bhopal Junction Railway",
   "Sehore",
   "Sant Hirdaram railway",
   "Chirayu Hospital",
   "Lalghati",
   "Nadra",
+  "DB Mall",
 ];

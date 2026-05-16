@@ -6,18 +6,13 @@ import { StyleSheet, Text, View } from "react-native";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 
-type ChatRoom = Tables<"chat_rooms">;
 type Ride = Tables<"rides">;
 
-type ChatRoomWithRide = ChatRoom & {
+type ChatRoomCardProps = {
   ride: Ride;
 };
 
-type ChatRoomCardProps = {
-  item: ChatRoomWithRide;
-};
-
-function ChatRoomCard({ item }: ChatRoomCardProps) {
+function ChatRoomCard({ ride }: ChatRoomCardProps) {
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
 
@@ -39,15 +34,15 @@ function ChatRoomCard({ item }: ChatRoomCardProps) {
         <View style={styles.routeInfo}>
           {/* routes */}
           <Text style={routeTextStyle} numberOfLines={1}>
-            {item.ride.origin} → {item.ride.destination}
+            {ride.origin} → {ride.destination}
           </Text>
 
           {/* Date Row */}
           <View style={styles.dateRow}>
             <FontAwesome5 name="calendar-alt" color={colors.tabIconDefault} size={14} />
             <Text style={dateTextStyle}>
-              {formatDisplayDate(item.ride.departure_date)},{" "}
-              {formatDisplayTime(item.ride.departure_date)}
+              {formatDisplayDate(ride.departure_date)},{" "}
+              {formatDisplayTime(ride.departure_date)}
             </Text>
           </View>
         </View>

@@ -2,6 +2,14 @@ import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { Stack } from "expo-router";
 
+// Treat the chat list as the implicit root of the message stack. Without this,
+// deep-linking straight to /message/[id] (e.g. from a ride card's Chat button)
+// pushes [id] without `index` underneath — breaking the back button and the
+// "tap tab to see chat list" behavior.
+export const unstable_settings = {
+  initialRouteName: "index",
+};
+
 // Hoisted static screen options
 const indexScreenOptions = {
   title: "Messages",
