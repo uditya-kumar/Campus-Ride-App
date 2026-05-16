@@ -84,12 +84,32 @@ export async function joinRide(rideId: string): Promise<void> {
   if (error) throw error;
 }
 
-export async function fetchMyRides(userId: string): Promise<Ride[]> {
-  const { data, error } = await supabase
-    .from("bookings")
-    .select("ride:rides(*)")
-    .eq("user_id", userId)
-    .order("created_at", { referencedTable: "rides", ascending: false });
+export type MyRidesView = "upcoming" | "past";
+
+export async function fetchMyRides(
+  userId: string,
+  view: MyRidesView,
+): Promise<Ride[]> {
+  const now = new Date().toISOString();
+  // Query rides directly; `bookings!inner(user_id)` filters to rides the user
+  // is booked into. Querying rides as the parent lets `.order()` actually sort
+  // the result — ordering on a referenced (one-to-one) table is a no-op.
+  let query = supabase
+    .from("rides")
+    .select("*, bookings!inner(user_id)")
+    .eq("bookings.user_id", userId);
+
+  if (view === "upcoming") {
+    query = query.gte("departure_date", now);
+  } else {
+    query = query.lt("departure_date", now);
+  }
+
+  query = query.order("departure_date", {
+    ascending: view === "upcoming", // upcoming: soonest first; past: most recent first
+  });
+
+  const { data, error } = await query;
   if (error) throw error;
-  return (data ?? []).map((row) => row.ride).filter((r): r is Ride => !!r);
+  return data ?? [];
 }

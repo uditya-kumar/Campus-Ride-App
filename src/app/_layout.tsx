@@ -37,11 +37,11 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
-  const pathname = usePathname();
+  // const pathname = usePathname();
 
-  useEffect(() => {
-    if (__DEV__) console.log("[route]", pathname);
-  }, [pathname]);
+  // useEffect(() => {
+  //   if (__DEV__) console.log("[route]", pathname);
+  // }, [pathname]);
 
   return (
     <SafeAreaProvider>

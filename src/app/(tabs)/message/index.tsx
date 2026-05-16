@@ -1,3 +1,4 @@
+import Chip from "@/components/Chip";
 import ChatRoomCard from "@/components/rideComponents/ChatRoomCard";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
@@ -5,28 +6,63 @@ import { Tables } from "@/database.types";
 import { FlashList } from "@shopify/flash-list";
 import { Link } from "expo-router";
 import { MessageCircle } from "lucide-react-native";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { useMyRides } from "@/hooks/useMyRides";
-import { ActivityIndicator } from "react-native";
+import type { MyRidesView } from "@/api/rides";
 
 type Ride = Tables<"rides">;
 
 export default function MessagesScreen() {
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
-  const { data: rides, isLoading, isError, error } = useMyRides();
+  const [view, setView] = useState<MyRidesView>("upcoming");
+  const { data: rides, isLoading, isError, error } = useMyRides(view);
 
+  const renderChatItem = ({ item }: { item: Ride }) => (
+    <Link href={`/message/${item.id}`} asChild withAnchor>
+      <Pressable style={styles.chatItemPressable}>
+        <ChatRoomCard ride={item} />
+      </Pressable>
+    </Link>
+  );
+
+  const emptyTextStyle = [styles.emptyText, { color: colors.text }];
+  const emptySubtextStyle = [
+    styles.emptySubtext,
+    { color: colors.tabIconDefault },
+  ];
+
+  const renderEmptyComponent = () => (
+    <View style={styles.emptyContainer}>
+      <MessageCircle color={colors.tabIconDefault} size={64} />
+      <Text style={emptyTextStyle}>
+        {view === "upcoming" ? "No upcoming rides" : "No past rides yet"}
+      </Text>
+      <Text style={emptySubtextStyle}>
+        {view === "upcoming"
+          ? "Join or create a ride to start chatting."
+          : "Past ride chats will show up here."}
+      </Text>
+    </View>
+  );
+
+  let body;
   if (isLoading) {
-    return (
-      <View style={[styles.container, styles.centered]}>
+    body = (
+      <View style={[styles.bodyFill, styles.centered]}>
         <ActivityIndicator size="large" color={colors.tint} />
       </View>
     );
-  }
-
-  if (isError) {
-    return (
-      <View style={[styles.container, styles.centered]}>
+  } else if (isError) {
+    body = (
+      <View style={[styles.bodyFill, styles.centered]}>
         <Text style={[styles.emptyText, { color: colors.text }]} selectable>
           Couldn't load chats
         </Text>
@@ -38,35 +74,8 @@ export default function MessagesScreen() {
         </Text>
       </View>
     );
-  }
-
-  const renderChatItem = ({ item }: { item: Ride }) => (
-    <Link href={`/message/${item.id}`} asChild>
-      <Pressable style={styles.chatItemPressable}>
-        <ChatRoomCard ride={item} />
-      </Pressable>
-    </Link>
-  );
-
-  const emptyTextStyle = [styles.emptyText, { color: colors.text }];
-
-  const emptySubtextStyle = [
-    styles.emptySubtext,
-    { color: colors.tabIconDefault },
-  ];
-
-  const renderEmptyComponent = () => (
-    <View style={styles.emptyContainer}>
-      <MessageCircle color={colors.tabIconDefault} size={64} />
-      <Text style={emptyTextStyle}>No chats yet</Text>
-      <Text style={emptySubtextStyle}>
-        Join a ride to start chatting with other passengers
-      </Text>
-    </View>
-  );
-
-  return (
-    <View style={styles.container}>
+  } else {
+    body = (
       <FlashList
         data={rides}
         keyExtractor={(item) => item.id}
@@ -75,6 +84,28 @@ export default function MessagesScreen() {
         contentContainerStyle={styles.listContent}
         contentInsetAdjustmentBehavior="automatic"
       />
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.chipsRow}>
+        <Chip
+          label="Upcoming"
+          active={view === "upcoming"}
+          onPress={() => setView("upcoming")}
+          accentColor={colors.buttonBackgroundSecondary}
+          textColor={colors.buttonText}
+        />
+        <Chip
+          label="Past"
+          active={view === "past"}
+          onPress={() => setView("past")}
+          accentColor={colors.buttonBackgroundSecondary}
+          textColor={colors.buttonText}
+        />
+      </View>
+      {body}
     </View>
   );
 }
@@ -84,6 +115,13 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
   },
+  chipsRow: {
+    flexDirection: "row",
+    gap: 12,
+    paddingTop: 14,
+    paddingBottom: 6,
+  },
+  bodyFill: { flex: 1 },
   centered: { alignItems: "center", justifyContent: "center" },
   loadingContainer: {
     alignItems: "center",
