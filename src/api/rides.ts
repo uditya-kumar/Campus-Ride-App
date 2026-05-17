@@ -137,3 +137,8 @@ export async function fetchMyRides(
   if (error) throw error;
   return data ?? [];
 }
+
+export async function leaveRide(rideId: string): Promise<void> {
+  const { error } = await supabase.rpc("leave_ride", { p_ride_id: rideId });
+  if (error) throw error;
+}
