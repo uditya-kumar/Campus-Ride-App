@@ -29,7 +29,8 @@ Routes live in `src/app/`, not a top-level `app/`. `expo-router/entry` is the ma
 - `src/app/index.tsx` — auth gate: while `loading` shows a spinner, then redirects to `(tabs)/home` or `(auth)/signin` based on session.
 - `src/app/(auth)/signin.tsx` — combined sign-in/sign-up form, calls helpers in `src/libs/auth.ts`.
 - `src/app/(tabs)/_layout.tsx` — three tabs: `home`, `createRide`, `message`. Also enforces auth: redirects to signin if no session. `home` and `message` hide the header and use nested stacks inside their folders.
-- `src/app/(tabs)/message/[id].tsx` — dynamic chat room route.
+- `src/app/(tabs)/message/[id]/index.tsx` — chat detail (realtime). `message/[id]/info.tsx` — ride metadata + members list. The `[id]` is a folder, not a file — the chat needs `info` as a sibling, and Expo Router can't have both `[id].tsx` and `[id]/info.tsx`.
+- `src/app/(tabs)/message/_layout.tsx` declares `unstable_settings.anchor: "index"` so deep links into `/message/[id]` (e.g. from a ride card's Chat button) put `index` underneath as the implicit stack root. `Link` callers should pass `withAnchor` to honor it — see `RideCard.tsx`. Without this pair, the chat-list screen disappears from the stack and the back button leaves the message tab.
 - **Typed routes** are enabled (`experiments.typedRoutes`), so `expo-router`'s `Href` / `Link` / `router.push` are type-checked against real route paths.
 
 ### Path aliases (tsconfig.json + `tsconfigPaths` experiment)
@@ -46,14 +47,19 @@ Use these aliases; relative `../../` imports aren't the convention here.
 - `src/libs/auth.ts` — thin wrappers: `signIn` / `signUp` / `signOut` / `getSession`. Supabase resolves with `{ error }` rather than throwing — handle by destructuring, not `try/catch`.
 - `src/providers/AuthProvider.tsx` — single subscription to `onAuthStateChange` (the source of truth for `session`); `getSession()` is awaited only to flip the initial `loading` flag, its return value is intentionally ignored to avoid racing with the subscription. Also owns the `AppState` auto-refresh wiring. Exposes `{ session, loading }` via `useAuth()`. UI that branches on auth state must read this, not call `getSession()` directly.
 - `src/providers/QueryProvider.tsx` — `QueryClient` with `staleTime: 60_000`, `retry: 2`. Wires TanStack Query's `onlineManager` to `@react-native-community/netinfo` and `focusManager` to `AppState`.
-- `src/api/rides.ts` — `fetchRides(filters)`, plus thin wrappers around two Postgres RPCs: `createRide(...)` calls `create_ride` (atomic: inserts into `rides` and `bookings` for the creator, sets `available_seats = total_seats - 1`); `joinRide(rideId)` calls `join_ride` (atomic: inserts a booking and decrements seats with `FOR UPDATE` row lock). Multi-row writes always go through RPCs, never client-side multi-statement sequences.
-- `cost_per_person` is a Postgres `GENERATED ALWAYS AS (...) STORED` column on `rides`. It's read for sorting and display but **never written by the client** — the `create_ride` RPC doesn't accept it, and the column is read-only at the DB level.
-- `src/hooks/useFilteredRides.ts` — `useQuery` wrapper around `fetchRides`. Returns `{ rides, isLoading, isError, error, refetch }`. **No `keepPreviousData`** — filter changes intentionally show a spinner instead of a stale list. `fetchRides` filters out past departures and rides with `available_seats = 0` server-side.
-- `src/hooks/useJoinRide.ts` — mutation that calls `joinRide`. On success, invalidates both `["rides"]` and `["bookings"]` query keys. The home screen consumes `mutate`, `isPending`, and `variables` (the in-flight ride id) to show a per-card spinner.
-- `src/hooks/useMyBookings.ts` — `useQuery` for the current user's bookings. Returns a `Set<string>` of `ride_id`s for O(1) `has()` lookups in renderItem. **Membership is `bookings`-based for everyone** (creators are inserted into `bookings` by the `create_ride` RPC; no creator special-case at the UI layer).
-- `src/database.types.ts` holds the Supabase-generated schema (`rides`, `bookings`, `messages`, `users`) and the `Functions` block (`create_ride`, `join_ride`). **Saved as UTF-16** (BOM + wide chars); the Read tool output looks garbled but the file is valid — don't "fix" the encoding. Regenerate with `npx supabase gen types typescript ...` after schema or function changes.
+- `src/api/rides.ts` — `fetchRides`, `fetchRide`, `fetchMyRides(userId, view)`, `fetchRideMembers`, plus thin wrappers around three Postgres RPCs: `createRide` → `create_ride` (atomic: inserts ride + creator's booking, sets `available_seats = total_seats - 1`); `joinRide` → `join_ride` (atomic insert booking + decrement seats with `FOR UPDATE` row lock); `leaveRide` → `leave_ride` (atomic delete booking + increment seats). **Multi-row writes always go through RPCs**, never client-side multi-statement sequences.
+- `src/api/messages.ts` — `fetchMessages(rideId)` (with embedded sender profile via `users` join — typed as `MessageWithUser`), `sendMessage`. The `MessageWithUser` cast is needed because Supabase's TS codegen doesn't infer embedded-select shapes.
+- `cost_per_person` is a Postgres `GENERATED ALWAYS AS ROUND(total_cost / total_seats, 2) STORED` column on `rides`. Read for sorting and display, **never written by the client** — none of the RPCs accept it and the column is read-only at the DB level.
+- `src/hooks/useFilteredRides.ts` — home-screen list. Returns `{ rides, isLoading, isError, error, refetch }`. **No `keepPreviousData`** — filter changes show a spinner instead of stale data. `fetchRides` filters out past departures, full rides, and non-active status server-side.
+- `src/hooks/useJoinRide.ts` / `useLeaveRide.ts` — mutations. On success both invalidate `["rides"]` and `["bookings"]`. The home screen reads `mutate`, `isPending`, and `variables` (in-flight ride id) from `useJoinRide` to show a per-card spinner. **`useLeaveRide` callers also `router.replace("/(tabs)/message")`** since the user just lost access to the chat they're on.
+- `src/hooks/useMyBookings.ts` — `Set<string>` of the current user's `ride_id`s for O(1) lookup. **Membership is `bookings`-based for everyone** (hosts are inserted into `bookings` by `create_ride`; no creator special-case at the UI layer). When a user leaves, their messages render as "User left" — derived from absence in this Set, not stored on the message.
+- `src/hooks/useMyRides.ts` — chat list, takes a `MyRidesView` ("upcoming" | "past"), filters by `departure_date` against `now()`. Sorts ascending for upcoming (soonest first), descending for past (most recent first). Cache-keyed per view so switching is instant after first fetch.
+- `src/hooks/useRide.ts` / `useRideMembers.ts` — single ride detail and its current members (via `bookings ⨝ users`). Used by the chat header title and the info screen.
+- `src/hooks/useChatMessages.ts` — `useQuery` + Supabase Realtime subscription on `messages` filtered to a single `ride_id`. INSERT events append to the cached list directly (no refetch). Cleanup removes the channel on unmount. **Realtime payloads omit the joined `user` field** — appended rows have `user: null` and show plain `user_id` until the next refetch backfills.
+- `src/hooks/useSendMessage.ts` — mutation wrapper. **Doesn't invalidate `["messages"]`** because the realtime subscription delivers the new row back via the channel, avoiding a double round-trip.
+- `src/database.types.ts` holds the Supabase-generated schema (`rides`, `bookings`, `messages`, `users`) and the `Functions` block (`create_ride`, `join_ride`, `leave_ride`). **Saved as UTF-16** (BOM + wide chars); the Read tool output looks garbled but the file is valid — don't "fix" the encoding. Regenerate with `npx supabase gen types typescript ...` after schema or function changes.
 
-Chat detail screen (`src/app/(tabs)/message/[id].tsx`) and chat list (`message/index.tsx`) still read mocks from `assets/data/`. The `messages` table exists in the DB but isn't wired up yet. Migrating is on the backlog.
+`src/components/rideComponents/ChatScreen.tsx` is **fully controlled** — `messages` is rendered straight from props with no internal `useState`. Required for realtime: incoming subscription updates flow through the cache to the prop, so any local state would shadow them.
 
 ### Date formats
 
@@ -66,11 +72,19 @@ Convert via `src/libs/datetime.ts` (`toIsoIST`, `fromIsoToDDMMYYYY`). Date-range
 
 ### Theming
 
-Most screens read `Colors[useColorScheme() ?? "light"]` directly from `src/constants/Colors.ts`. The `Text` / `View` wrappers in `src/components/Themed.tsx` exist but are barely used — match the surrounding file's style.
+Most screens read `Colors[useColorScheme() ?? "light"]` directly from `src/constants/Colors.ts`. The `Text` / `View` wrappers in `src/components/Themed.tsx` exist but are barely used — match the surrounding file's style. Two semantic colors worth knowing: `buttonBackground` (primary actions like Join Ride, Sign In, active chip fill) and `buttonBackgroundSecondary` (lighter blue used for the Chat button outline and inactive chip borders). The hardcoded `#6B7280` in `RideCard`'s `secondaryText` is the muted-gray convention used across cards — match it when styling new card content.
+
+### Modal-based menus: outside-tap-to-close pattern
+
+`Dropdown.tsx`, `LocationSelectorModal.tsx`, and `ActionMenu.tsx` all use the same pattern: outer `Pressable` with `onPress={onClose}` covers the screen as the backdrop, inner `Pressable` with empty `onPress={() => {}}` swallows taps so they don't propagate up. **The empty-handler is required** — without it, `Pressable` doesn't intercept touches. Any future modal UI should follow this pattern.
 
 ### FlashList v2 gotcha
 
 `@shopify/flash-list` 2.x enables `maintainVisibleContentPosition` **by default** (chat-app behavior). For non-chat lists where re-sorts/re-filters should land at the top, pass `maintainVisibleContentPosition={{ disabled: true }}`. The home screen's ride list does this.
+
+### Form validation conventions
+
+`createRide.tsx` validates at three layers: (1) input clamps via `Math.min/max` (e.g. seats can't exceed `MAX_RIDE_SEATS`), (2) submit-time guards with specific Alert messages, (3) Postgres `CHECK` constraints + RPC-level checks. The duplication is intentional — input clamps prevent absurd values during typing, submit guards give user-friendly errors before the network round-trip, and DB constraints are the last line of defense. When adding new form fields, mirror this three-layer approach.
 
 ## Conventions observed
 
