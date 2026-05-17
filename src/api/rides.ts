@@ -66,6 +66,16 @@ export async function fetchRides(filters: RideFilters): Promise<Ride[]> {
   return data ?? [];
 }
 
+export async function fetchRide(rideId: string): Promise<Ride> {
+  const { data, error } = await supabase
+    .from("rides")
+    .select("*")
+    .eq("id", rideId)
+    .single();
+  if (error) throw error;
+  return data;
+}
+
 export async function createRide(input: CreateRideInput): Promise<string> {
   const { data, error } = await supabase.rpc("create_ride", {
     p_origin: input.origin,

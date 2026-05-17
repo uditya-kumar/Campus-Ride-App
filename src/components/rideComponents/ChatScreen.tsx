@@ -25,7 +25,7 @@ interface ChatScreenProps {
 }
 
 function ChatScreen({
-  messages: initialMessages,
+  messages,
   currentUserId,
   currentUserName = "You",
   onSendMessage,
@@ -34,17 +34,12 @@ function ChatScreen({
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
 
-  const [messages, setMessages] = useState<IMessage[]>(initialMessages);
-
   const user = {
     _id: currentUserId,
     name: currentUserName,
   };
 
   const onSend = (newMessages: IMessage[] = []) => {
-    setMessages((previousMessages) =>
-      GiftedChat.append(previousMessages, newMessages),
-    );
     onSendMessage?.(newMessages);
   };
 
@@ -254,7 +249,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    transform: [{ scaleY: -1 }],
+    // Container is flipped, so paddingBottom (in flipped space) visually
+    // pushes the text up. Tune this number to move the placeholder up/down.
+    paddingBottom: 20,
+    // Un-flip the empty placeholder. GiftedChat's inverted list applies a
+    // scaleY transform to its container; without this, the text renders
+    // upside-down/mirrored.
+    transform: [{ scaleY: -1 }, { scaleX: -1 }],
   },
   emptyChatText: {
     fontSize: 16,
