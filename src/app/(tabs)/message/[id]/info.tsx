@@ -102,13 +102,17 @@ export default function RideInfo() {
       {/* Cost */}
       <View style={cardStyle}>
         <View style={styles.rowSpaceBetween}>
-          <Text style={styles.secondaryText}>Total cost</Text>
+          <Text style={[styles.secondaryText, { color: colors.text }]}>
+            Total cost
+          </Text>
           <Text style={[styles.priceText, { color: colors.tint }]}>
             ₹{ride.total_cost}
           </Text>
         </View>
         <View style={styles.rowSpaceBetween}>
-          <Text style={styles.secondaryText}>Cost per person</Text>
+          <Text style={[styles.secondaryText, { color: colors.text }]}>
+            Cost per person
+          </Text>
           <Text style={[styles.priceText, { color: colors.tint }]}>
             ₹{ride.cost_per_person}
           </Text>
@@ -199,6 +203,7 @@ const styles = StyleSheet.create({
   },
   secondaryText: {
     fontSize: 16,
+    fontWeight: "500",
     color: "#6B7280",
   },
   priceText: {

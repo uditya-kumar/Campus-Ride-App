@@ -10,7 +10,7 @@ import { router, Stack, useLocalSearchParams } from "expo-router";
 import { ActivityIndicator, Platform, Pressable, View } from "react-native";
 import { IMessage } from "react-native-gifted-chat";
 import Entypo from "@expo/vector-icons/Entypo";
-import ActionMenu from "@/components/ActionMenu";
+import ActionMenu from "@/components/rideComponents/ActionMenu";
 import { useLeaveRide } from "@/hooks/useLeaveRide";
 import { useState } from "react";
 import { Alert } from "react-native";

@@ -1,4 +1,4 @@
-import Chip from "@/components/Chip";
+import Chip from "@/components/rideComponents/Chip";
 import ChatRoomCard from "@/components/rideComponents/ChatRoomCard";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";

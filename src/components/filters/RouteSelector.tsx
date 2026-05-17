@@ -1,4 +1,4 @@
-import LocationSelectorModal from "@/components/LocationSelectorModal";
+import LocationSelectorModal from "@/components/rideComponents/LocationSelectorModal";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { CircleDot, MapPin, X } from "lucide-react-native";
