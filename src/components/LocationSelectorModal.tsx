@@ -136,8 +136,17 @@ function LocationSelectorModal({
       transparent={true}
       onRequestClose={handleClose}
     >
-      <View style={[styles.modalOverlay, dynamicStyles.overlay]}>
-        <View style={[styles.modalContent, dynamicStyles.content]}>
+      {/* Outer Pressable catches taps on the dimmed background to dismiss. */}
+      <Pressable
+        style={[styles.modalOverlay, dynamicStyles.overlay]}
+        onPress={handleClose}
+      >
+        {/* Inner Pressable swallows taps so they don't bubble up to the
+            overlay and accidentally close the sheet. No onPress needed. */}
+        <Pressable
+          style={[styles.modalContent, dynamicStyles.content]}
+          onPress={() => {}}
+        >
           <View style={styles.modalHeader}>
             <Text style={[styles.modalTitle, dynamicStyles.title]}>
               {selectionMode === "origin"
@@ -166,8 +175,8 @@ function LocationSelectorModal({
             ListEmptyComponent={ListEmptyComponent}
             contentContainerStyle={styles.listContent}
           />
-        </View>
-      </View>
+        </Pressable>
+      </Pressable>
     </Modal>
   );
 }
