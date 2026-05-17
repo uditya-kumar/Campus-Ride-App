@@ -1,12 +1,18 @@
+import { useColorScheme } from "@/components/useColorScheme";
 import ChatScreen from "@/components/rideComponents/ChatScreen";
+import Colors from "@/constants/Colors";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { useChatMessages } from "@/hooks/useChatMessages";
 import { useSendMessage } from "@/hooks/useSendMessage";
 import { useRide } from "@/hooks/useRide";
 import { useAuth } from "@/providers/AuthProvider";
-import { Stack, useLocalSearchParams } from "expo-router";
-import { ActivityIndicator, Platform, View } from "react-native";
+import Feather from "@expo/vector-icons/Feather";
+import { router, Stack, useLocalSearchParams } from "expo-router";
+import { ActivityIndicator, Platform, Pressable, View } from "react-native";
 import { IMessage } from "react-native-gifted-chat";
+
+const truncate = (s: string, n: number) =>
+  s.length > n ? `${s.slice(0, n)}..` : s;
 
 export default function ChatDetails() {
   const { id: rideId } = useLocalSearchParams<{ id: string }>();
@@ -15,10 +21,25 @@ export default function ChatDetails() {
   const { data: ride } = useRide(rideId);
   const { data: messages, isLoading } = useChatMessages(rideId);
   const { mutate: sendMessage } = useSendMessage(rideId);
+  const colorScheme = useColorScheme() ?? "light";
+  const colors = Colors[colorScheme];
 
   const headerTitle = ride
-    ? `${ride.origin} → ${ride.destination}`
+    ? `${truncate(ride.origin, 12)} → ${truncate(ride.destination, 12)}`
     : "Chat";
+
+  const renderHeaderRight = () => (
+    <Pressable
+      onPress={() => router.push(`/message/${rideId}/info`)}
+      hitSlop={10}
+      style={({ pressed }) => ({
+        opacity: pressed ? 0.5 : 1,
+        paddingRight: 4,
+      })}
+    >
+      <Feather name="info" size={24} color={colors.text} />
+    </Pressable>
+  );
 
   const keyboardVerticalOffset = Platform.select({
     ios: headerHeight,
@@ -29,7 +50,9 @@ export default function ChatDetails() {
   if (isLoading || !session) {
     return (
       <>
-        <Stack.Screen options={{ title: headerTitle }} />
+        <Stack.Screen
+          options={{ title: headerTitle, headerRight: renderHeaderRight }}
+        />
         <View
           style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
         >
@@ -59,7 +82,9 @@ export default function ChatDetails() {
 
   return (
     <>
-      <Stack.Screen options={{ title: headerTitle }} />
+      <Stack.Screen
+        options={{ title: headerTitle, headerRight: renderHeaderRight }}
+      />
       <ChatScreen
         messages={giftedMessages}
         currentUserId={session.user.id}

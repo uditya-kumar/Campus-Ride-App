@@ -34,7 +34,8 @@ export default function MessageLayout() {
   return (
     <Stack screenOptions={screenOptions}>
       <Stack.Screen name="index" options={indexScreenOptions} />
-      <Stack.Screen name="[id]" options={chatScreenOptions} />
+      <Stack.Screen name="[id]/index" options={chatScreenOptions} />
+      <Stack.Screen name="[id]/info" options={{ title: "Ride info" }} />
     </Stack>
   );
 }
