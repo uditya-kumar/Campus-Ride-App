@@ -45,8 +45,6 @@ yarn-error.*
 .github
 .vscode
 
-supabase/
-
 .env
 .agents
 .claude
