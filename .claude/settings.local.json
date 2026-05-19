@@ -7,13 +7,16 @@
       "Bash(ls \"C:\\\\Users\\\\udity\\\\.opensrc\\\\repos/github.com/Shopify/flash-list/2.0.2/\")",
       "Read(//c/Users/udity/.opensrc/repos/github.com/Shopify/flash-list/2.0.2/**)",
       "mcp__supabase__execute_sql",
-      "mcp__exa__web_search_exa"
+      "mcp__exa__web_search_exa",
+      "WebFetch(domain:docs.expo.dev)",
+      "Bash(npx opensrc *)"
     ]
   },
   "enabledMcpjsonServers": [
     "exa",
     "context7",
-    "claude-code-docs"
+    "claude-code-docs",
+    "supabase"
   ],
   "disabledMcpjsonServers": [
     "shadcn",
