@@ -9,7 +9,8 @@
       "mcp__supabase__execute_sql",
       "mcp__exa__web_search_exa",
       "WebFetch(domain:docs.expo.dev)",
-      "Bash(npx opensrc *)"
+      "Bash(npx opensrc *)",
+      "mcp__supabase__get_advisors"
     ]
   },
   "enabledMcpjsonServers": [

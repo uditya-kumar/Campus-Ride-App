@@ -103,16 +103,25 @@ security definer
 set search_path = public, net
 as $$
 declare
-  v_url      text := current_setting('app.edge_function_url', true);
-  v_anon_key text := current_setting('app.edge_function_key', true);
+  v_url text;
+  v_key text;
 begin
-  if v_url is null or v_anon_key is null then
-    return new;  -- not configured yet, silently no-op
+  -- Secrets live in Supabase Vault (managed Postgres blocks ALTER DATABASE
+  -- ... SET, so we can't use GUCs). vault.decrypted_secrets is only readable
+  -- by the postgres role and SECURITY DEFINER functions.
+  select decrypted_secret into v_url
+    from vault.decrypted_secrets where name = 'edge_function_url';
+
+  select decrypted_secret into v_key
+    from vault.decrypted_secrets where name = 'edge_function_key';
+
+  if v_url is null or v_key is null then
+    return new;  -- not configured yet
   end if;
 
   perform net.http_post(
-    url     := v_url,
-    body    := jsonb_build_object(
+    url := v_url,
+    body := jsonb_build_object(
       'message_id', new.id,
       'ride_id',    new.ride_id,
       'sender_id',  new.user_id,
@@ -120,26 +129,51 @@ begin
     ),
     headers := jsonb_build_object(
       'Content-Type',  'application/json',
-      'Authorization', 'Bearer ' || v_anon_key
+      'Authorization', 'Bearer ' || v_key
     )
   );
   return new;
 end;
 $$;
 
+
 create trigger on_message_insert_notify
   after insert on public.messages
   for each row execute function public.notify_new_message();
+
+-- Mirror the hardening from rls_policies.sql §6: SECURITY DEFINER functions
+-- in `public` are auto-exposed at /rest/v1/rpc/<name>. Revoke EXECUTE so the
+-- function is callable only by the table owner via the trigger, not by any
+-- signed-in (or anonymous) caller hitting the REST endpoint.
+revoke execute on function public.notify_new_message() from public, anon, authenticated;
 ```
 
-After running this, set the two GUCs from Supabase Dashboard → SQL Editor:
+After running this, store the two secrets in Vault from Dashboard → SQL Editor:
 
 ```sql
-alter database postgres set app.edge_function_url = 'https://zwdjjlcpyfbybjdexdji.functions.supabase.co/send-push';
-alter database postgres set app.edge_function_key = 'YOUR_SERVICE_ROLE_KEY';
+select vault.create_secret(
+  'https://zwdjjlcpyfbybjdexdji.functions.supabase.co/send-push',
+  'edge_function_url',
+  'Edge function endpoint for push notifications'
+);
+
+select vault.create_secret(
+  'YOUR_SERVICE_ROLE_KEY',
+  'edge_function_key',
+  'Service role key used by the message trigger'
+);
 ```
 
-(Service role key, not anon key — the Edge Function will validate it.)
+(Service role key, not anon key — the Edge Function will validate it. Get it from Project Settings → API → `service_role`.)
+
+**To rotate later:**
+
+```sql
+select vault.update_secret(id, 'new-value', 'edge_function_key')
+from vault.secrets where name = 'edge_function_key';
+```
+
+**Why Vault and not `ALTER DATABASE ... SET`?** Supabase's managed Postgres restricts the role you connect as — it can't set database-level GUCs (`ERROR: 42501: permission denied to set parameter`). Vault is the platform-supported alternative.
 
 Then regenerate types:
 
@@ -440,8 +474,9 @@ When a user uninstalls or revokes permission, the Expo API returns `DeviceNotReg
 - iOS simulators can't receive push. You need a physical device.
 - Expo Go (not your dev build) can receive push but uses a different token format and will drop after SDK 53. Use the dev build.
 - The `pg_net`-based trigger fires asynchronously — your `sendMessage` mutation returns instantly even before the push goes out. That's intended.
-- If the trigger silently does nothing, `app.edge_function_url` / `app.edge_function_key` GUCs probably aren't set.
+- If the trigger silently does nothing, the Vault secrets `edge_function_url` / `edge_function_key` probably aren't set. Check with `select name from vault.secrets;`.
 - `pg_net` lives in the `net` schema, NOT `extensions`. Calls must use `net.http_post(...)`. If you see `function extensions.http_post does not exist`, the trigger SQL is using the wrong qualifier.
+- Don't try `ALTER DATABASE postgres SET app.foo = ...` — Supabase blocks it (42501 permission denied). Use Vault instead.
 
 ---
 
@@ -463,7 +498,8 @@ This plan was checked against `expo-notifications@0.32.17`, `expo-device@8.0.10`
 | `Device.isDevice` | Confirmed |
 | `supabase.from(...).upsert(values, { onConflict: 'col' })` signature | Confirmed in postgrest-js source |
 | `pg_net` schema is `net`; function is `net.http_post` | Confirmed via Supabase MCP |
-| `current_setting('app.foo', true)` returns null when missing | Confirmed via SQL execution |
+| `revoke execute on function public.notify_new_message() from public, anon, authenticated` | Required — silences advisors 0028/0029 (anon/authenticated SECURITY DEFINER exposure); trigger still fires as table owner |
+| Secrets stored via `vault.create_secret(...)`, read via `vault.decrypted_secrets` | Required — `ALTER DATABASE ... SET` is blocked on managed Postgres |
 | `messages` is in `supabase_realtime` publication | Confirmed — trigger and realtime fire independently |
 | `authenticated` has default TRUNCATE/REFERENCES/TRIGGER on tables | Confirmed — revoke line is meaningful |
 | Edge Function imports use `npm:@supabase/supabase-js@2` (not `esm.sh`) | Updated — current Supabase docs recommendation |
