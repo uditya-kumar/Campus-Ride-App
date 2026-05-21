@@ -1,5 +1,5 @@
 -- ============================================================================
--- Campus Ride — Performance indexes & RLS plan tweaks
+-- Karpool — Performance indexes & RLS plan tweaks
 -- ============================================================================
 -- Run after rls_policies.sql. All indexes use IF NOT EXISTS so re-running is
 -- safe.

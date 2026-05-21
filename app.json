@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "CampusRide",
-    "slug": "CampusRide",
+    "name": "Karpool",
+    "slug": "Karpool",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "campusride",
+    "scheme": "Karpool",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -14,9 +14,12 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
+      "bundleIdentifier": "com.fluxByte.Karpool",
       "supportsTablet": true
     },
     "android": {
+      "googleServicesFile": "./google-services.json",
+      "package": "com.fluxByte.Karpool",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -44,6 +47,7 @@
       "eas": {
         "projectId": "720edd92-1be1-48e9-96bf-09191fbd2731"
       }
-    }
+    },
+    "owner": "uditya204"
   }
 }

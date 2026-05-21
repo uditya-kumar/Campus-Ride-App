@@ -29,7 +29,7 @@ export default function HomeLayout() {
       <Stack.Screen
         name="index"
         options={{
-          title: "Campus Ride",
+          title: "Karpool",
           headerRight: () => (
             <Pressable
               onPress={handleSignOut}

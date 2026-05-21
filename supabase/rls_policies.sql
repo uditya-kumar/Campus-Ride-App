@@ -1,5 +1,5 @@
 -- ============================================================================
--- Campus Ride — Row Level Security Policies
+-- Karpool — Row Level Security Policies
 -- ============================================================================
 -- Strategy
 --   * All four tables get RLS enabled.

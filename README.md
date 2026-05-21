@@ -1,6 +1,6 @@
 <div align="center">
 
-# Campus Ride
+# Karpool
 
 ### Student Ride-Sharing for Campus Communities
 
