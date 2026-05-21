@@ -3,6 +3,7 @@ import type { PropsWithChildren } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { AppState } from "react-native";
 import { supabase } from "@/libs/supabase";
+import { registerForPushNotifications } from "@/libs/pushNotifications";
 
 type AuthCtx = { session: Session | null; loading: boolean };
 
@@ -38,6 +39,14 @@ export function AuthProvider({ children }: PropsWithChildren) {
       appStateSub.remove();
     };
   }, []);
+
+  useEffect(() => {
+    const userId = session?.user.id;
+    if (!userId) return;
+    registerForPushNotifications(userId).catch((err) => {
+      if (__DEV__) console.warn("push registration failed:", err);
+    });
+  }, [session?.user.id]);
 
   return (
     <AuthContext.Provider value={{ session, loading }}>

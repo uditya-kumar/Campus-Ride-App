@@ -50,3 +50,5 @@ yarn-error.*
 .claude
 
 google-services.json
+
+supabase/.temp/

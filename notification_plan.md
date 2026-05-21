@@ -345,12 +345,11 @@ The `handledRef` guard prevents the cold-start path from re-navigating on every 
 npx supabase functions new send-push
 ```
 
-Replace [supabase/functions/send-push/index.ts](supabase/functions/send-push/index.ts):
+The current Supabase CLI (`supabase functions new`) scaffolds the **new runtime template** that wraps your handler in `withSupabase(...)` and exposes a typed `ctx` with `supabaseAdmin`, `authMode`, etc. Use it directly — don't replace it with `Deno.serve` + `createClient`. Replace [supabase/functions/send-push/index.ts](supabase/functions/send-push/index.ts):
 
 ```ts
-// Use the npm: specifier — current Supabase recommendation for Edge Functions
-// (esm.sh works but is no longer the documented path).
-import { createClient } from "npm:@supabase/supabase-js@2";
+import "@supabase/functions-js/edge-runtime.d.ts";
+import { withSupabase } from "@supabase/server";
 
 const EXPO_PUSH_URL = "https://exp.host/--/api/v2/push/send";
 
@@ -361,83 +360,80 @@ interface Payload {
   content: string;
 }
 
-Deno.serve(async (req) => {
-  // The trigger sends the service-role key as Bearer; reject everything else.
-  const auth = req.headers.get("Authorization") ?? "";
-  if (auth !== `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`) {
-    return new Response("unauthorized", { status: 401 });
-  }
+export default {
+  // auth: ["secret"] — only service-role / secret-key callers pass. Our
+  // Postgres trigger sends Authorization: Bearer <service_role>, which the
+  // runtime maps to authMode === "secret".
+  fetch: withSupabase({ auth: ["secret"] }, async (req, ctx) => {
+    if (ctx.authMode !== "secret") {
+      return new Response("unauthorized", { status: 401 });
+    }
 
-  const { ride_id, sender_id, content }: Payload = await req.json();
+    const { ride_id, sender_id, content }: Payload = await req.json();
 
-  const supabase = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-  );
+    // ctx.supabaseAdmin uses the service role and bypasses RLS.
+    const [{ data: sender }, { data: ride }, { data: rows }] =
+      await Promise.all([
+        ctx.supabaseAdmin
+          .from("users")
+          .select("full_name")
+          .eq("id", sender_id)
+          .single(),
+        ctx.supabaseAdmin
+          .from("rides")
+          .select("origin, destination")
+          .eq("id", ride_id)
+          .single(),
+        ctx.supabaseAdmin
+          .from("bookings")
+          .select("user_id")
+          .eq("ride_id", ride_id)
+          .neq("user_id", sender_id),
+      ]);
 
-  // 1. Look up sender name (for the notification title).
-  const { data: sender } = await supabase
-    .from("users")
-    .select("full_name")
-    .eq("id", sender_id)
-    .single();
+    const recipientIds = (rows ?? []).map((r) => r.user_id);
+    if (recipientIds.length === 0) return new Response("no recipients");
 
-  // 2. Look up ride origin/destination (so the title says "Pune → Mumbai").
-  const { data: ride } = await supabase
-    .from("rides")
-    .select("origin, destination")
-    .eq("id", ride_id)
-    .single();
+    const { data: tokens } = await ctx.supabaseAdmin
+      .from("notification_tokens")
+      .select("expo_push_token")
+      .in("user_id", recipientIds);
 
-  // 3. Find every member of this ride EXCEPT the sender, then their tokens.
-  const { data: rows } = await supabase
-    .from("bookings")
-    .select("user_id")
-    .eq("ride_id", ride_id)
-    .neq("user_id", sender_id);
+    if (!tokens?.length) return new Response("no tokens");
 
-  const recipientIds = (rows ?? []).map((r) => r.user_id);
-  if (recipientIds.length === 0) return new Response("no recipients");
+    const messages = tokens.map((t) => ({
+      to: t.expo_push_token,
+      title: `${sender?.full_name ?? "Someone"} • ${ride?.origin} → ${ride?.destination}`,
+      body: content,
+      data: { rideId: ride_id },
+      sound: "default",
+      channelId: "default",
+    }));
 
-  const { data: tokens } = await supabase
-    .from("notification_tokens")
-    .select("expo_push_token")
-    .in("user_id", recipientIds);
+    // Expo accepts up to 100 messages per request.
+    for (let i = 0; i < messages.length; i += 100) {
+      const batch = messages.slice(i, i + 100);
+      await fetch(EXPO_PUSH_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(batch),
+      });
+    }
 
-  if (!tokens?.length) return new Response("no tokens");
-
-  // 4. Build messages. Expo accepts up to 100 per request; chunk if needed.
-  const messages = tokens.map((t) => ({
-    to: t.expo_push_token,
-    title: `${sender?.full_name ?? "Someone"} • ${ride?.origin} → ${ride?.destination}`,
-    body: content,
-    data: { rideId: ride_id },
-    sound: "default",
-    channelId: "default",
-  }));
-
-  for (let i = 0; i < messages.length; i += 100) {
-    const batch = messages.slice(i, i + 100);
-    await fetch(EXPO_PUSH_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(batch),
-    });
-  }
-
-  return new Response("ok");
-});
+    return new Response("ok");
+  }),
+};
 ```
 
 Deploy:
 
 ```powershell
-npx supabase functions deploy send-push --no-verify-jwt
+npx supabase functions deploy send-push
 ```
 
-(`--no-verify-jwt` because we're authenticating via our own Bearer-token check, not Supabase's JWT.)
+**No `--no-verify-jwt` flag.** The new `withSupabase({ auth: ["secret"] })` runtime does its own auth check on the way in — anything other than a service-role / secret-key Bearer is rejected before your handler runs. Adding `--no-verify-jwt` would actually weaken the function (it disables the runtime's check).
 
-The function reads `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` from Edge Function secrets — these are auto-provided by Supabase, no manual setup.
+The trigger's `Authorization: Bearer <service_role_key>` (read from Vault) is what the runtime classifies as `authMode === "secret"`. No DB-side changes are needed — the Vault secret you stored as `edge_function_key` should still be the project's service-role key.
 
 ---
 
@@ -502,9 +498,9 @@ This plan was checked against `expo-notifications@0.32.17`, `expo-device@8.0.10`
 | Secrets stored via `vault.create_secret(...)`, read via `vault.decrypted_secrets` | Required — `ALTER DATABASE ... SET` is blocked on managed Postgres |
 | `messages` is in `supabase_realtime` publication | Confirmed — trigger and realtime fire independently |
 | `authenticated` has default TRUNCATE/REFERENCES/TRIGGER on tables | Confirmed — revoke line is meaningful |
-| Edge Function imports use `npm:@supabase/supabase-js@2` (not `esm.sh`) | Updated — current Supabase docs recommendation |
-| `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` auto-injected in Edge Functions | Confirmed (legacy keys, but still active) |
-| `--no-verify-jwt` flag exists in Supabase CLI 2.x | Confirmed via `--help` |
+| Edge Function uses `withSupabase({ auth: ["secret"] })` from `@supabase/server` | Current CLI scaffold — replaces the older `Deno.serve` + manual `createClient` pattern |
+| `ctx.supabaseAdmin` is service-role / RLS-bypassing | Provided by `withSupabase` runtime; no manual `createClient` needed |
+| Service-role Bearer maps to `ctx.authMode === "secret"` | Runtime gates this; do NOT pass `--no-verify-jwt` |
 | `router.push(\`/message/${id}\`)` works for cross-tab navigation | Confirmed — pattern already used in `[id]/index.tsx:132` |
 
 Want me to start writing any of these files now?
