@@ -48,5 +48,3 @@ yarn-error.*
 .env
 .agents
 .claude
-
-google-services.json
