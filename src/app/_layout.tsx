@@ -2,9 +2,11 @@ import { useColorScheme } from "@/components/useColorScheme";
 import {
   DarkTheme,
   DefaultTheme,
+  router,
+  Stack,
   ThemeProvider,
-} from "@react-navigation/native";
-import { router, Stack, usePathname } from "expo-router";
+  usePathname,
+} from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import * as Notifications from "expo-notifications";

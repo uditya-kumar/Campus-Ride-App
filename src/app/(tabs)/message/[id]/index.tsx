@@ -1,7 +1,7 @@
 import { useColorScheme } from "@/components/useColorScheme";
 import ChatScreen from "@/components/rideComponents/ChatScreen";
 import Colors from "@/constants/Colors";
-import { useHeaderHeight } from "@react-navigation/elements";
+import { useHeaderHeight } from "expo-router/react-navigation";
 import { useChatMessages } from "@/hooks/useChatMessages";
 import { useSendMessage } from "@/hooks/useSendMessage";
 import { useRide } from "@/hooks/useRide";

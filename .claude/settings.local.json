@@ -11,7 +11,8 @@
       "WebFetch(domain:docs.expo.dev)",
       "Bash(npx opensrc *)",
       "mcp__supabase__get_advisors",
-      "mcp__supabase__list_edge_functions"
+      "mcp__supabase__list_edge_functions",
+      "Bash(npx -y expo-codemod sdk-56-expo-router-react-navigation-replace \"src/app/\\(tabs\\)/message/[id]/index.tsx\")"
     ]
   },
   "enabledMcpjsonServers": [
