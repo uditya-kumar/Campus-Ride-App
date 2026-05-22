@@ -22,6 +22,7 @@ import { useLeaveRide } from "@/hooks/useLeaveRide";
 import { useRef, useState } from "react";
 import { Alert } from "react-native";
 import { useRideMembers } from "@/hooks/useRideMembers";
+import { useToast } from "@/providers/ToastProvider";
 
 const truncate = (s: string, n: number) =>
   s.length > n ? `${s.slice(0, n)}..` : s;
@@ -39,6 +40,7 @@ export default function ChatDetails() {
   const triggerRef = useRef<RNView>(null);
   const { mutate: leaveRide, isPending: isLeaving } = useLeaveRide();
   const { data: members } = useRideMembers(rideId);
+  const { showToast } = useToast();
 
   const colors = Colors[colorScheme];
 
@@ -61,7 +63,7 @@ export default function ChatDetails() {
           onPress: () => {
             leaveRide(rideId, {
               onSuccess: () => router.replace("/(tabs)/message"),
-              onError: (err) => Alert.alert("Couldn't leave", err.message),
+              onError: (err) => showToast(err.message),
             });
           },
         },

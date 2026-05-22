@@ -17,10 +17,11 @@ import { vehicleOptions } from "@/constants/vehicles";
 import { Tables } from "@/database.types";
 import { daysFromNow, toIsoIST } from "@/libs/datetime";
 import { useAuth } from "@/providers/AuthProvider";
+import { useToast } from "@/providers/ToastProvider";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 type Ride = Tables<"rides">;
 
@@ -44,6 +45,7 @@ const CreateRideScreen = () => {
 
   const queryClient = useQueryClient();
   const { session } = useAuth();
+  const { showToast } = useToast();
 
   const resetForm = () => {
     setOrigin(null);
@@ -66,7 +68,7 @@ const CreateRideScreen = () => {
       router.push("/(tabs)/home");
     },
     onError: (err) => {
-      Alert.alert("Could not create ride", err.message);
+      showToast(err.message);
     },
   });
 
@@ -86,55 +88,55 @@ const CreateRideScreen = () => {
       !departureTime ||
       !vehicleType
     ) {
-      Alert.alert("Please fill in all fields");
+      showToast("Please fill in all fields");
       return;
     }
 
     if (origin === destination) {
-      Alert.alert("Origin and destination must be different");
+      showToast("Origin and destination must be different");
       return;
     }
 
     const departure = new Date(toIsoIST(departureDate, departureTime));
     if (departure.getTime() <= Date.now()) {
-      Alert.alert("Departure must be in the future");
+      showToast("Departure must be in the future");
       return;
     }
 
     if (departure.getTime() > maxDepartureDate.getTime()) {
-      Alert.alert(
+      showToast(
         `Departure must be within ${MAX_DEPARTURE_DAYS_AHEAD} days from today`,
       );
       return;
     }
 
     if (!totalSeats || totalSeats <= 0) {
-      Alert.alert("Total seats must be greater than 0");
+      showToast("Total seats must be greater than 0");
       return;
     }
 
     if (totalSeats > MAX_RIDE_SEATS) {
-      Alert.alert(`Total seats can't exceed ${MAX_RIDE_SEATS}`);
+      showToast(`Total seats can't exceed ${MAX_RIDE_SEATS}`);
       return;
     }
 
     if (totalSeats < 2) {
-      Alert.alert("A ride needs at least 2 seats (you + 1 passenger)");
+      showToast("A ride needs at least 2 seats (you + 1 passenger)");
       return;
     }
 
     if (!totalCost || totalCost <= 0) {
-      Alert.alert("Total cost must be greater than 0");
+      showToast("Total cost must be greater than 0");
       return;
     }
 
     if (totalCost > MAX_TOTAL_COST) {
-      Alert.alert(`Total cost can't exceed ₹${MAX_TOTAL_COST}`);
+      showToast(`Total cost can't exceed ₹${MAX_TOTAL_COST}`);
       return;
     }
 
     if (!session) {
-      Alert.alert("You must be signed in to create a ride");
+      showToast("You must be signed in to create a ride");
       return;
     }
 

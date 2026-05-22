@@ -3,13 +3,13 @@ import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { useProfile } from "@/hooks/useProfile";
 import { signOut } from "@/libs/auth";
+import { useToast } from "@/providers/ToastProvider";
 import Feather from "@expo/vector-icons/Feather";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import {
   ActivityIndicator,
-  Alert,
   Pressable,
   StyleSheet,
   Text,
@@ -22,6 +22,7 @@ export default function ProfileScreen() {
   const isDark = colorScheme === "dark";
 
   const { data: profile, isLoading } = useProfile();
+  const { showToast } = useToast();
 
   if (isLoading || !profile) {
     return (
@@ -41,7 +42,7 @@ export default function ProfileScreen() {
 
   const handleSignOut = async () => {
     const { error } = await signOut();
-    if (error) Alert.alert("Sign out failed", error.message);
+    if (error) showToast(error.message);
   };
 
   return (

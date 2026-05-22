@@ -13,6 +13,7 @@ import "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { QueryProvider } from "@/providers/QueryProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
+import { ToastProvider } from "@/providers/ToastProvider";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -96,13 +97,15 @@ function RootLayoutNav() {
           <ThemeProvider
             value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
           >
-            <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-            <Stack>
-              <Stack.Screen name="index" options={hiddenHeaderOptions} />
-              <Stack.Screen name="(auth)" options={hiddenHeaderOptions} />
-              <Stack.Screen name="(tabs)" options={hiddenHeaderOptions} />
-              <Stack.Screen name="+not-found" />
-            </Stack>
+            <ToastProvider>
+              <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+              <Stack>
+                <Stack.Screen name="index" options={hiddenHeaderOptions} />
+                <Stack.Screen name="(auth)" options={hiddenHeaderOptions} />
+                <Stack.Screen name="(tabs)" options={hiddenHeaderOptions} />
+                <Stack.Screen name="+not-found" />
+              </Stack>
+            </ToastProvider>
           </ThemeProvider>
         </QueryProvider>
       </AuthProvider>

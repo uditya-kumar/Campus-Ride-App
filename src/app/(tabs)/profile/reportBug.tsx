@@ -3,10 +3,10 @@ import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { useSubmitBugReport } from "@/hooks/useSubmitBugReport";
 import { useAuth } from "@/providers/AuthProvider";
+import { useToast } from "@/providers/ToastProvider";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -21,6 +21,7 @@ export default function ReportBug() {
   const colors = Colors[colorScheme];
   const { session } = useAuth();
   const { mutate: submitBug, isPending } = useSubmitBugReport(session?.user.id);
+  const { showToast } = useToast();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -53,7 +54,7 @@ export default function ReportBug() {
         onSuccess: () => {
           router.back();
           setTimeout(() => {
-            Alert.alert("Thanks!", "Bug reported successfully.");
+            showToast("Bug reported successfully.");
           }, 200);
         },
         onError: (e) =>

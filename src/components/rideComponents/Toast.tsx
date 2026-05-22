@@ -40,25 +40,20 @@ const Toast: React.FC<ToastProps> = ({ visible, message, durationMs = 1800, onHi
 
   if (!visible) return null;
 
-  const isDark = (colorScheme ?? 'light') === 'dark';
-  const bg = isDark ? '#1f2937' : '#FFFFFF';
-  const textColor = isDark ? '#FFFFFF' : '#000000';
-  const border = isDark ? colors.borderColor : colors.borderColor;
-
   return (
     <View pointerEvents="none" style={styles.wrapper}>
       <Animated.View
         style={[
           styles.toast,
           {
-            backgroundColor: bg,
-            borderColor: border,
+            backgroundColor: colors.cardBackground,
+            borderColor: colors.borderColor,
             opacity,
             transform: [{ translateY }],
           },
         ]}
       >
-        <Text style={[styles.text, { color: textColor }]} numberOfLines={3}>
+        <Text style={[styles.text, { color: colors.text }]} numberOfLines={3}>
           {message}
         </Text>
       </Animated.View>

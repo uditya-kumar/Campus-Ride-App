@@ -15,13 +15,13 @@ import { router } from "expo-router";
 import { useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 import { useJoinRide } from "@/hooks/useJoinRide";
 import { useMyBookings } from "@/hooks/useMyBookings";
+import { useToast } from "@/providers/ToastProvider";
 
 type Ride = Tables<"rides">;
 
@@ -50,6 +50,7 @@ export default function HomeScreen() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>("");
   const { data: myBookedRideIds } = useMyBookings();
+  const { showToast } = useToast();
   const {
     mutate: joinRide,
     isPending: isJoining,
@@ -69,10 +70,10 @@ export default function HomeScreen() {
   const onJoinRide = (rideId: string) => {
     joinRide(rideId, {
       onError: (err) => {
-        Alert.alert("Couldn't join ride", err.message);
+        showToast(err.message);
       },
       onSuccess: () => {
-        Alert.alert("Joined!", "You've been added to this ride.");
+        showToast("Joined! You've been added to this ride.");
       },
     });
   };

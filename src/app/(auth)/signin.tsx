@@ -1,13 +1,15 @@
 import { useState } from "react";
-import { Alert, StyleSheet, TextInput, View } from "react-native";
+import { StyleSheet, TextInput, View } from "react-native";
 import Button from "@/components/rideComponents/Button";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { signIn, signUp } from "@/libs/auth";
+import { useToast } from "@/providers/ToastProvider";
 
 export default function SignInScreen() {
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
+  const { showToast } = useToast();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,7 +19,7 @@ export default function SignInScreen() {
     // Trim email only — passwords may legitimately contain surrounding whitespace.
     const cleanEmail = email.trim();
     if (!cleanEmail || !password) {
-      Alert.alert("Please enter email and password");
+      showToast("Please enter email and password");
       return;
     }
     setLoading(true);
@@ -25,7 +27,7 @@ export default function SignInScreen() {
       const { error } = mode === "in"
         ? await signIn(cleanEmail, password)
         : await signUp(cleanEmail, password);
-      if (error) return Alert.alert(error.message);
+      if (error) return showToast(error.message);
       // (auth)/_layout.tsx handles redirect once the session arrives.
     } finally {
       setLoading(false);
