@@ -4,7 +4,7 @@ import {
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
-import { Stack, router, usePathname } from "expo-router";
+import { router, Stack, usePathname } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import * as Notifications from "expo-notifications";
 import { useEffect, useRef } from "react";
@@ -38,7 +38,7 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
-  // const pathname = usePathname();
+  const pathname = usePathname();
 
   // useEffect(() => {
   //   if (__DEV__) console.log("[route]", pathname);
@@ -49,17 +49,29 @@ function RootLayoutNav() {
 
   // Cold-start handler: useLastNotificationResponse returns the response that
   // launched the app (if any), then keeps returning it across re-renders.
-  // Track the request id so we navigate exactly once.
+  // We have to wait until the user has actually landed inside (tabs) — on a
+  // cold start the auth gate at index.tsx redirects "/" → "/(tabs)/home", and
+  // navigating *before* that redirect lands creates the message stack with
+  // [id] as its only screen (no list underneath, no back button).
   useEffect(() => {
     if (!lastResponse) return;
+    if (!pathname.startsWith("/home") && !pathname.startsWith("/message"))
+      return;
     const id = lastResponse.notification.request.identifier;
     if (handledRef.current === id) return;
     handledRef.current = id;
     const rideId = lastResponse.notification.request.content.data?.rideId as
       | string
       | undefined;
-    if (rideId) router.push(`/message/${rideId}`);
-  }, [lastResponse]);
+    if (rideId) {
+      // Same call <Link withAnchor> makes internally — withAnchor seeds the
+      // message stack with `index` (its `unstable_settings.initialRouteName`)
+      // before pushing [id] on top, so the back arrow works.
+      router.navigate(`/(tabs)/message/${rideId}` as never, {
+        withAnchor: true,
+      } as never);
+    }
+  }, [lastResponse, pathname]);
 
   // Warm-state handler: taps that arrive while the app is foregrounded.
   useEffect(() => {
@@ -67,7 +79,11 @@ function RootLayoutNav() {
       const rideId = res.notification.request.content.data?.rideId as
         | string
         | undefined;
-      if (rideId) router.push(`/message/${rideId}`);
+      if (rideId) {
+        router.navigate(`/(tabs)/message/${rideId}` as never, {
+          withAnchor: true,
+        } as never);
+      }
     });
     return () => sub.remove();
   }, []);
