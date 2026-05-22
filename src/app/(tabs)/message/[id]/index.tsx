@@ -16,7 +16,7 @@ import {
   type View as RNView,
 } from "react-native";
 import { IMessage } from "react-native-gifted-chat";
-import Entypo from "@expo/vector-icons/Entypo";
+import Entypo from "@react-native-vector-icons/entypo/static";
 import ActionMenu from "@/components/rideComponents/ActionMenu";
 import { useLeaveRide } from "@/hooks/useLeaveRide";
 import { useRef, useState } from "react";

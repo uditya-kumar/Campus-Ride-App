@@ -4,10 +4,10 @@ import Colors from "@/constants/Colors";
 import type { Tables } from "@/database.types";
 import { formatDisplayDate, formatDisplayTime } from "@/libs/datetime";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import Feather from "@expo/vector-icons/Feather";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import Octicons from "@expo/vector-icons/Octicons";
+import Feather from "@react-native-vector-icons/feather/static";
+import FontAwesome5 from "@react-native-vector-icons/fontawesome5/static";
+import MaterialCommunityIcons from "@react-native-vector-icons/material-design-icons/static";
+import Octicons from "@react-native-vector-icons/octicons/static";
 import { Link, router } from "expo-router";
 
 type Ride = Tables<"rides">;

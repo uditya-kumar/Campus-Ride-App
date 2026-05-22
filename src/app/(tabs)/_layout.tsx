@@ -1,8 +1,8 @@
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { Redirect, Tabs } from "expo-router";
-import Feather from '@expo/vector-icons/Feather';
-import AntDesign from '@expo/vector-icons/AntDesign';
+import Feather from "@react-native-vector-icons/feather/static";
+import AntDesign from "@react-native-vector-icons/ant-design/static";
 import { useAuth } from "@/providers/AuthProvider";
 import { ActivityIndicator, View } from "react-native";
 

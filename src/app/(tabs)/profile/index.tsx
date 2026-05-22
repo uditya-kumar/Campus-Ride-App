@@ -4,8 +4,8 @@ import Colors from "@/constants/Colors";
 import { useProfile } from "@/hooks/useProfile";
 import { signOut } from "@/libs/auth";
 import { useToast } from "@/providers/ToastProvider";
-import Feather from "@expo/vector-icons/Feather";
-import Ionicons from "@expo/vector-icons/Ionicons";
+import Feather from "@react-native-vector-icons/feather/static";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { router } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import {

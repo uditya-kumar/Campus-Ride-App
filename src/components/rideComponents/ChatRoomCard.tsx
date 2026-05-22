@@ -3,8 +3,8 @@ import Colors from "@/constants/Colors";
 import { Tables } from "@/database.types";
 import { formatDisplayDate, formatDisplayTime } from "@/libs/datetime";
 import { StyleSheet, Text, View } from "react-native";
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import EvilIcons from '@expo/vector-icons/EvilIcons';
+import FontAwesome5 from "@react-native-vector-icons/fontawesome5/static";
+import EvilIcons from "@react-native-vector-icons/evil-icons/static";
 
 type Ride = Tables<"rides">;
 

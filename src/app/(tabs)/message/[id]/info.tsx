@@ -3,10 +3,10 @@ import Colors from "@/constants/Colors";
 import { useRide } from "@/hooks/useRide";
 import { useRideMembers } from "@/hooks/useRideMembers";
 import { formatDisplayDate, formatDisplayTime } from "@/libs/datetime";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import Octicons from "@expo/vector-icons/Octicons";
-import Feather from "@expo/vector-icons/Feather";
+import FontAwesome5 from "@react-native-vector-icons/fontawesome5/static";
+import MaterialCommunityIcons from "@react-native-vector-icons/material-design-icons/static";
+import Octicons from "@react-native-vector-icons/octicons/static";
+import Feather from "@react-native-vector-icons/feather/static";
 import { useLocalSearchParams } from "expo-router";
 import type { ReactNode } from "react";
 import {
