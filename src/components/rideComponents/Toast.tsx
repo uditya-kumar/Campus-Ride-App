@@ -1,0 +1,99 @@
+import React, { useEffect, useRef } from 'react';
+import { Animated, StyleSheet, Text, View } from 'react-native';
+import Colors from '@/constants/Colors';
+import { useColorScheme } from '@/components/useColorScheme';
+
+type ToastProps = {
+  visible: boolean;
+  message: string;
+  durationMs?: number; // how long to stay visible before calling onHide
+  onHide?: () => void;
+};
+
+const Toast: React.FC<ToastProps> = ({ visible, message, durationMs = 1800, onHide }) => {
+  const opacity = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(20)).current;
+  const colorScheme = useColorScheme() ?? "light";
+  const colors = Colors[colorScheme];
+
+  useEffect(() => {
+    let hideTimer: ReturnType<typeof setTimeout> | undefined;
+    if (visible) {
+      Animated.parallel([
+        Animated.timing(opacity, { toValue: 1, duration: 220, useNativeDriver: true }),
+        Animated.timing(translateY, { toValue: 0, duration: 220, useNativeDriver: true }),
+      ]).start();
+
+      hideTimer = setTimeout(() => {
+        Animated.parallel([
+          Animated.timing(opacity, { toValue: 0, duration: 180, useNativeDriver: true }),
+          Animated.timing(translateY, { toValue: 20, duration: 180, useNativeDriver: true }),
+        ]).start(() => {
+          onHide?.();
+        });
+      }, durationMs);
+    }
+    return () => {
+      if (hideTimer) clearTimeout(hideTimer);
+    };
+  }, [visible, durationMs, onHide, opacity, translateY]);
+
+  if (!visible) return null;
+
+  const isDark = (colorScheme ?? 'light') === 'dark';
+  const bg = isDark ? '#1f2937' : '#FFFFFF';
+  const textColor = isDark ? '#FFFFFF' : '#000000';
+  const border = isDark ? colors.borderColor : colors.borderColor;
+
+  return (
+    <View pointerEvents="none" style={styles.wrapper}>
+      <Animated.View
+        style={[
+          styles.toast,
+          {
+            backgroundColor: bg,
+            borderColor: border,
+            opacity,
+            transform: [{ translateY }],
+          },
+        ]}
+      >
+        <Text style={[styles.text, { color: textColor }]} numberOfLines={3}>
+          {message}
+        </Text>
+      </Animated.View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  wrapper: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  toast: {
+    minWidth: 200,
+    maxWidth: '85%',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 15,
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 4,
+  },
+  text: {
+    fontSize: 14,
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+});
+
+export default Toast;
+

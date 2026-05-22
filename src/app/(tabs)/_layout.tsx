@@ -69,6 +69,17 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          animation: "none",
+          title: "profile",
+          headerShown: false,
+          tabBarIcon: ({ color }) => (
+            <Feather name="user" size={24} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }

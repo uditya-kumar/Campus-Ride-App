@@ -13,9 +13,14 @@ import type { Tables } from "@/database.types";
 import { FlashList } from "@shopify/flash-list";
 import { router } from "expo-router";
 import { useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { useJoinRide } from "@/hooks/useJoinRide";
-import { Alert } from "react-native";
 import { useMyBookings } from "@/hooks/useMyBookings";
 
 type Ride = Tables<"rides">;
