@@ -75,7 +75,7 @@ function Dropdown({
 
   const dropdownPositionStyle = triggerLayout
     ? {
-        top: triggerLayout.y + triggerLayout.height + 4,
+        top: triggerLayout.y + triggerLayout.height + 45,
         left: triggerLayout.x,
         width: triggerLayout.width,
       }
@@ -101,6 +101,7 @@ function Dropdown({
 
       <Modal
         transparent
+        statusBarTranslucent
         visible={dropdownVisible}
         animationType="none"
         onRequestClose={closeDropdown}

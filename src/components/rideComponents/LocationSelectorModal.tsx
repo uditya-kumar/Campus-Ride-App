@@ -134,6 +134,7 @@ function LocationSelectorModal({
       visible={visible}
       animationType="slide"
       transparent={true}
+      statusBarTranslucent
       onRequestClose={handleClose}
     >
       {/* Outer Pressable catches taps on the dimmed background to dismiss. */}

@@ -21,7 +21,7 @@ export default function ActionMenu({ visible, onClose, items, anchor }: Props) {
   const colors = Colors[colorScheme];
 
   return (
-    <Modal transparent visible={visible} animationType="none" onRequestClose={onClose}>
+    <Modal transparent statusBarTranslucent visible={visible} animationType="none" onRequestClose={onClose}>
       <Pressable style={StyleSheet.absoluteFill} onPress={onClose}>
         <View
           style={[

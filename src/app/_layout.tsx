@@ -6,6 +6,7 @@ import {
 } from "@react-navigation/native";
 import { router, Stack, usePathname } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
 import * as Notifications from "expo-notifications";
 import { useEffect, useRef } from "react";
 import "react-native-reanimated";
@@ -95,6 +96,7 @@ function RootLayoutNav() {
           <ThemeProvider
             value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
           >
+            <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
             <Stack>
               <Stack.Screen name="index" options={hiddenHeaderOptions} />
               <Stack.Screen name="(auth)" options={hiddenHeaderOptions} />

@@ -7,12 +7,19 @@ import { useSendMessage } from "@/hooks/useSendMessage";
 import { useRide } from "@/hooks/useRide";
 import { useAuth } from "@/providers/AuthProvider";
 import { router, Stack, useLocalSearchParams } from "expo-router";
-import { ActivityIndicator, Platform, Pressable, View } from "react-native";
+import {
+  ActivityIndicator,
+  Dimensions,
+  Platform,
+  Pressable,
+  View,
+  type View as RNView,
+} from "react-native";
 import { IMessage } from "react-native-gifted-chat";
 import Entypo from "@expo/vector-icons/Entypo";
 import ActionMenu from "@/components/rideComponents/ActionMenu";
 import { useLeaveRide } from "@/hooks/useLeaveRide";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Alert } from "react-native";
 import { useRideMembers } from "@/hooks/useRideMembers";
 
@@ -28,6 +35,8 @@ export default function ChatDetails() {
   const { mutate: sendMessage } = useSendMessage(rideId);
   const colorScheme = useColorScheme() ?? "light";
   const [menuVisible, setMenuVisible] = useState(false);
+  const [menuAnchor, setMenuAnchor] = useState({ top: 54, right: 12 });
+  const triggerRef = useRef<RNView>(null);
   const { mutate: leaveRide, isPending: isLeaving } = useLeaveRide();
   const { data: members } = useRideMembers(rideId);
 
@@ -59,9 +68,21 @@ export default function ChatDetails() {
       ],
     );
   };
+  const openMenu = () => {
+    triggerRef.current?.measureInWindow((x, y, width, height) => {
+      const screenWidth = Dimensions.get("window").width;
+      setMenuAnchor({
+        top: y + height + 50,
+        right: screenWidth - (x + width),
+      });
+      setMenuVisible(true);
+    });
+  };
+
   const renderHeaderRight = () => (
     <Pressable
-      onPress={() => setMenuVisible(true)}
+      ref={triggerRef}
+      onPress={openMenu}
       hitSlop={10}
       style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1, paddingRight: 4 })}
     >
@@ -125,7 +146,7 @@ export default function ChatDetails() {
       <ActionMenu
         visible={menuVisible}
         onClose={() => setMenuVisible(false)}
-        anchor={{ top: 54, right: 12 }} // approximate; tune visually
+        anchor={menuAnchor}
         items={[
           {
             label: "Ride info",
