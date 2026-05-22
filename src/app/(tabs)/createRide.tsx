@@ -17,7 +17,6 @@ import { vehicleOptions } from "@/constants/vehicles";
 import { Tables } from "@/database.types";
 import { daysFromNow, toIsoIST } from "@/libs/datetime";
 import { useAuth } from "@/providers/AuthProvider";
-import { useToast } from "@/providers/ToastProvider";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useState } from "react";
@@ -42,10 +41,10 @@ const CreateRideScreen = () => {
   const [vehicleType, setVehicleType] =
     useState<Ride["vehicle_type"]>("Eco Van");
   const [departureTime, setDepartureTime] = useState<string | null>(null); // "HH:mm"
+  const [error, setError] = useState("");
 
   const queryClient = useQueryClient();
   const { session } = useAuth();
-  const { showToast } = useToast();
 
   const resetForm = () => {
     setOrigin(null);
@@ -68,7 +67,7 @@ const CreateRideScreen = () => {
       router.push("/(tabs)/home");
     },
     onError: (err) => {
-      showToast(err.message);
+      setError(err.message);
     },
   });
 
@@ -81,6 +80,7 @@ const CreateRideScreen = () => {
   const maxDepartureDate = daysFromNow(MAX_DEPARTURE_DAYS_AHEAD);
 
   const handleSubmit = () => {
+    setError("");
     if (
       !origin ||
       !destination ||
@@ -88,55 +88,55 @@ const CreateRideScreen = () => {
       !departureTime ||
       !vehicleType
     ) {
-      showToast("Please fill in all fields");
+      setError("Please fill in all fields");
       return;
     }
 
     if (origin === destination) {
-      showToast("Origin and destination must be different");
+      setError("Origin and destination must be different");
       return;
     }
 
     const departure = new Date(toIsoIST(departureDate, departureTime));
     if (departure.getTime() <= Date.now()) {
-      showToast("Departure must be in the future");
+      setError("Departure must be in the future");
       return;
     }
 
     if (departure.getTime() > maxDepartureDate.getTime()) {
-      showToast(
+      setError(
         `Departure must be within ${MAX_DEPARTURE_DAYS_AHEAD} days from today`,
       );
       return;
     }
 
     if (!totalSeats || totalSeats <= 0) {
-      showToast("Total seats must be greater than 0");
+      setError("Total seats must be greater than 0");
       return;
     }
 
     if (totalSeats > MAX_RIDE_SEATS) {
-      showToast(`Total seats can't exceed ${MAX_RIDE_SEATS}`);
+      setError(`Total seats can't exceed ${MAX_RIDE_SEATS}`);
       return;
     }
 
     if (totalSeats < 2) {
-      showToast("A ride needs at least 2 seats (you + 1 passenger)");
+      setError("A ride needs at least 2 seats (you + 1 passenger)");
       return;
     }
 
     if (!totalCost || totalCost <= 0) {
-      showToast("Total cost must be greater than 0");
+      setError("Total cost must be greater than 0");
       return;
     }
 
     if (totalCost > MAX_TOTAL_COST) {
-      showToast(`Total cost can't exceed ₹${MAX_TOTAL_COST}`);
+      setError(`Total cost can't exceed ₹${MAX_TOTAL_COST}`);
       return;
     }
 
     if (!session) {
-      showToast("You must be signed in to create a ride");
+      setError("You must be signed in to create a ride");
       return;
     }
 
@@ -225,6 +225,12 @@ const CreateRideScreen = () => {
           Cost Per Person is:- Rs {costPerPerson.toFixed(2)} /-
         </Text>
 
+        {error ? (
+          <Text style={[styles.errorText, { color: colors.error }]}>
+            {error}
+          </Text>
+        ) : null}
+
         {/* Submit Button */}
         <Button
           text={isPending ? "Creating..." : "Create Ride"}
@@ -262,6 +268,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 15,
+  },
+  errorText: {
+    textAlign: "center",
+    fontWeight: "500",
+    fontSize: 14,
+    marginTop: -10,
   },
 });
 
