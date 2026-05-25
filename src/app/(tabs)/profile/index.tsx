@@ -144,7 +144,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 22,
     paddingHorizontal: 16,
-    borderBottomWidth: 1,
   },
   lastRow: {
     borderBottomWidth: 0,
