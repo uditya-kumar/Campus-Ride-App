@@ -81,7 +81,11 @@ export default function ProfileScreen() {
         </Pressable>
 
         <Pressable
-          style={[styles.row, { borderBottomColor: colors.borderColor }]}
+          style={[
+            styles.row,
+            styles.lastRow,
+            { borderBottomColor: colors.borderColor },
+          ]}
           onPress={() =>
             WebBrowser.openBrowserAsync("https://github.com/uditya-kumar", {
               createTask: false,
@@ -144,6 +148,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 22,
     paddingHorizontal: 16,
+    borderBottomWidth: 1
   },
   lastRow: {
     borderBottomWidth: 0,
