@@ -44,23 +44,16 @@ export default function GenderScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.content}>
         <View style={styles.header}>
-          <View
-            style={[
-              styles.iconBadge,
-              { backgroundColor: colors.buttonBackgroundSecondary },
-            ]}
-          >
-            <Ionicons
+          <Ionicons
               name="people-sharp"
-              size={28}
-              color={colors.buttonBackground}
+              size={78}
+              color={colors.buttonBackgroundSecondary}
             />
-          </View>
           <Text style={[styles.title, { color: colors.text }]}>
             Select Gender
           </Text>
           <Text style={[styles.subtitle, { color: colors.tabIconDefault }]}>
-            This helps other riders know who they're traveling with.
+            This helps other riders know {'\n'} who they're traveling with.
           </Text>
         </View>
 
@@ -69,11 +62,13 @@ export default function GenderScreen() {
             label="Male"
             active={selected === "male"}
             onPress={() => setSelected("male")}
+            icon={<Ionicons name="male" size={24} color={colors.text} />}
           />
           <RadioOption
             label="Female"
             active={selected === "female"}
             onPress={() => setSelected("female")}
+            icon={<Ionicons name="female" size={24} color={colors.text} />}
           />
         </View>
 
@@ -119,8 +114,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   subtitle: {
-    fontSize: 14,
-    paddingHorizontal: 16,
+    fontSize: 16,
     textAlign: "center",
   },
   options: {

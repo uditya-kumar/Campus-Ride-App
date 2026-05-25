@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
@@ -6,12 +7,14 @@ type RadioOptionProps = {
   label: string;
   active: boolean;
   onPress: () => void;
+  icon?: ReactNode;
 };
 
 export default function RadioOption({
   label,
   active,
   onPress,
+  icon,
 }: RadioOptionProps) {
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
@@ -27,7 +30,10 @@ export default function RadioOption({
         },
       ]}
     >
-      <Text style={[styles.label, { color: colors.text }]}>{label}</Text>
+      <View style={styles.labelGroup}>
+        {icon ? <View style={styles.icon}>{icon}</View> : null}
+        <Text style={[styles.label, { color: colors.text }]}>{label}</Text>
+      </View>
       <View
         style={[
           styles.radioOuter,
@@ -60,6 +66,13 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingVertical: 16,
     paddingHorizontal: 18,
+  },
+  labelGroup: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  icon: {
+    marginRight: 12,
   },
   label: {
     fontSize: 16,
