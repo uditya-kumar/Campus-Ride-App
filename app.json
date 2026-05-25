@@ -54,7 +54,8 @@
       "@react-native-vector-icons/octicons",
       "@react-native-vector-icons/evil-icons",
       "@react-native-vector-icons/ionicons",
-      "@react-native-vector-icons/entypo"
+      "@react-native-vector-icons/entypo",
+      "expo-image"
     ],
     "experiments": {
       "typedRoutes": true,
