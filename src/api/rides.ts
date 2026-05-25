@@ -96,13 +96,13 @@ export async function joinRide(rideId: string): Promise<void> {
 
 export type RideMember = {
   user_id: string;
-  user: Pick<Tables<"users">, "full_name" | "avatar_url"> | null;
+  user: Pick<Tables<"users">, "full_name" | "avatar_url" | "gender"> | null;
 };
 
 export async function fetchRideMembers(rideId: string): Promise<RideMember[]> {
   const { data, error } = await supabase
     .from("bookings")
-    .select("user_id, user:users(full_name, avatar_url)")
+    .select("user_id, user:users(full_name, avatar_url, gender)")
     .eq("ride_id", rideId);
   if (error) throw error;
   return (data ?? []) as RideMember[];

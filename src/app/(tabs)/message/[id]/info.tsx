@@ -127,6 +127,13 @@ export default function RideInfo() {
         {members?.map((m, idx) => {
           const isHost = m.user_id === ride.created_by_user_id;
           const isLast = idx === (members.length ?? 0) - 1;
+          const gender = m.user?.gender;
+          const genderColor =
+            gender === "male"
+              ? "#2563EB"
+              : gender === "female"
+                ? "#DB2777"
+                : null;
           return (
             <View
               key={m.user_id}
@@ -142,6 +149,13 @@ export default function RideInfo() {
               <Text style={[styles.primaryText, { color: colors.text }]}>
                 {m.user?.full_name ?? "Unknown"}
               </Text>
+              {gender && genderColor && (
+                <View style={[styles.genderBadge, { borderColor: genderColor }]}>
+                  <Text style={[styles.badgeText, { color: genderColor }]}>
+                    {gender === "male" ? "M" : "F"}
+                  </Text>
+                </View>
+              )}
               {isHost && (
                 <View
                   style={[
@@ -228,6 +242,12 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     paddingHorizontal: 10,
     paddingVertical: 3,
+  },
+  genderBadge: {
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
   },
   badgeText: {
     fontSize: 12,
