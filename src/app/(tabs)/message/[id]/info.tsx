@@ -7,6 +7,7 @@ import FontAwesome5 from "@react-native-vector-icons/fontawesome5/static";
 import MaterialCommunityIcons from "@react-native-vector-icons/material-design-icons/static";
 import Octicons from "@react-native-vector-icons/octicons/static";
 import Feather from "@react-native-vector-icons/feather/static";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { useLocalSearchParams } from "expo-router";
 import type { ReactNode } from "react";
 import {
@@ -130,7 +131,7 @@ export default function RideInfo() {
           const gender = m.user?.gender;
           const genderColor =
             gender === "male"
-              ? "#2563EB"
+              ? colors.buttonBackgroundSecondary
               : gender === "female"
                 ? "#DB2777"
                 : null;
@@ -150,11 +151,11 @@ export default function RideInfo() {
                 {m.user?.full_name ?? "Unknown"}
               </Text>
               {gender && genderColor && (
-                <View style={[styles.genderBadge, { borderColor: genderColor }]}>
-                  <Text style={[styles.badgeText, { color: genderColor }]}>
-                    {gender === "male" ? "M" : "F"}
-                  </Text>
-                </View>
+                <Ionicons
+                  name={gender === "male" ? "male" : "female"}
+                  size={19}
+                  color={genderColor}
+                />
               )}
               {isHost && (
                 <View
@@ -242,12 +243,6 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     paddingHorizontal: 10,
     paddingVertical: 3,
-  },
-  genderBadge: {
-    borderWidth: 1,
-    borderRadius: 999,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
   },
   badgeText: {
     fontSize: 12,

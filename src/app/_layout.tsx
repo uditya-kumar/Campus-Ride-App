@@ -44,9 +44,9 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const pathname = usePathname();
 
-  // useEffect(() => {
-  //   if (__DEV__) console.log("[route]", pathname);
-  // }, [pathname]);
+  useEffect(() => {
+    if (__DEV__) console.log("[route]", pathname);
+  }, [pathname]);
 
   const lastResponse = Notifications.useLastNotificationResponse();
   const handledRef = useRef<string | null>(null);

@@ -10,6 +10,7 @@ import Colors from "@/constants/Colors";
 import { supabase } from "@/libs/supabase";
 import { useAuth } from "@/providers/AuthProvider";
 import { useToast } from "@/providers/ToastProvider";
+import type { Profile } from "@/hooks/useProfile";
 
 type Gender = "male" | "female";
 
@@ -36,7 +37,14 @@ export default function GenderScreen() {
       showToast(error.message);
       return;
     }
-    queryClient.invalidateQueries({ queryKey: ["profile", session.user.id] });
+    // Update the cache synchronously so the tab layout sees gender=set on the
+    // very next render. Invalidating alone would refetch async, and the
+    // router.replace below would race with the refetch — the layout would
+    // briefly read the stale `gender: null` and bounce back here.
+    queryClient.setQueryData<Profile>(
+      ["profile", session.user.id],
+      (prev) => (prev ? { ...prev, gender: selected } : prev),
+    );
     router.replace("/(tabs)/home");
   };
 
