@@ -44,8 +44,12 @@ export default function ChatDetails() {
 
   const colors = Colors[colorScheme];
 
-  // build the membership Set once
-  const memberIds = new Set(members?.map((m) => m.user_id) ?? []);
+  // Build a user_id → full_name map. Used both for membership checks and to
+  // resolve sender names — realtime payloads omit the joined `user` field, so
+  // looking up by id keeps names visible without waiting for a refetch.
+  const memberNames = new Map(
+    members?.map((m) => [m.user_id, m.user?.full_name ?? null]) ?? [],
+  );
 
   const headerTitle = ride
     ? `${truncate(ride.origin, 12)} → ${truncate(ride.destination, 12)}`
@@ -116,17 +120,20 @@ export default function ChatDetails() {
   // Convert DB rows to gifted-chat shape (most recent first because gifted-chat
   // uses an inverted FlatList).
   const giftedMessages: IMessage[] = (messages ?? [])
-  .map((m) => ({
-    _id: m.id,
-    text: m.content,
-    createdAt: new Date(m.created_at!),
-    user: {
-      _id: m.user_id,
-      name: memberIds.has(m.user_id)
-        ? m.user?.full_name ?? "Unknown"
-        : "User left",
-    },
-  }))
+  .map((m) => {
+    const isMember = memberNames.has(m.user_id);
+    const resolvedName =
+      memberNames.get(m.user_id) ?? m.user?.full_name ?? "Unknown";
+    return {
+      _id: m.id,
+      text: m.content,
+      createdAt: new Date(m.created_at!),
+      user: {
+        _id: m.user_id,
+        name: isMember ? resolvedName : "User left",
+      },
+    };
+  })
   .reverse();
 
   const onSend = (newMessages: IMessage[]) => {
