@@ -5,7 +5,7 @@ import type { Tables } from "@/database.types";
 
 export type Profile = Pick<
   Tables<"users">,
-  "id" | "full_name" | "email" | "avatar_url"
+  "id" | "full_name" | "email" | "avatar_url" | "gender"
 >;
 
 export function useProfile() {
@@ -18,7 +18,7 @@ export function useProfile() {
     queryFn: async (): Promise<Profile> => {
       const { data, error } = await supabase
         .from("users")
-        .select("id, full_name, email, avatar_url")
+        .select("id, full_name, email, avatar_url, gender")
         .eq("id", userId!)
         .single();
       if (error) throw error;

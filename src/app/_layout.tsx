@@ -104,6 +104,7 @@ function RootLayoutNav() {
               <Stack>
                 <Stack.Screen name="index" options={hiddenHeaderOptions} />
                 <Stack.Screen name="(auth)" options={hiddenHeaderOptions} />
+                <Stack.Screen name="(onboarding)" options={hiddenHeaderOptions} />
                 <Stack.Screen name="(tabs)" options={hiddenHeaderOptions} />
                 <Stack.Screen name="+not-found" />
               </Stack>

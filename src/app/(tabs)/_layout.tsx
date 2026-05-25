@@ -1,19 +1,21 @@
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
-import { Redirect, Tabs } from "expo-router";
+import { Redirect, Tabs, type Href } from "expo-router";
 import Feather from "@react-native-vector-icons/feather/static";
 import AntDesign from "@react-native-vector-icons/ant-design/static";
 import { useAuth } from "@/providers/AuthProvider";
+import { useProfile } from "@/hooks/useProfile";
 import { ActivityIndicator, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TabLayout() {
   const { session, loading } = useAuth();
+  const { data: profile, isLoading: profileLoading } = useProfile();
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
   const insets = useSafeAreaInsets();
 
-  if (loading) {
+  if (loading || (session && profileLoading)) {
     return (
       <View
         style={{
@@ -28,6 +30,8 @@ export default function TabLayout() {
     );
   }
   if (!session) return <Redirect href="/(auth)/signin" />;
+  if (profile && !profile.gender)
+    return <Redirect href={"/(onboarding)/gender" as Href} />;
 
   const screenOptions = {
     tabBarActiveTintColor: colors.tabIconSelected,
