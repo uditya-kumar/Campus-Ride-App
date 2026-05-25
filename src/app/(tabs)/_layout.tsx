@@ -5,11 +5,13 @@ import Feather from "@react-native-vector-icons/feather/static";
 import AntDesign from "@react-native-vector-icons/ant-design/static";
 import { useAuth } from "@/providers/AuthProvider";
 import { ActivityIndicator, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TabLayout() {
   const { session, loading } = useAuth();
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
+  const insets = useSafeAreaInsets();
 
   if (loading) {
     return (
@@ -34,7 +36,8 @@ export default function TabLayout() {
     tabBarLabelPosition: "below-icon" as const,
     tabBarStyle: {
       paddingTop: 10,
-      height: 68,
+      paddingBottom: insets.bottom,
+      height: 68 + insets.bottom,
       backgroundColor: colors.tabBackground,
     },
   };
