@@ -17,8 +17,16 @@ export function useChatMessages(rideId: string) {
   });
 
   useEffect(() => {
+    // Unique suffix per effect run. `supabase.channel(name)` returns the
+    // existing channel if one with that name already exists — on fast
+    // remounts (navigation, fast refresh) the previous channel hasn't
+    // finished tearing down yet, so we'd get back an already-subscribed
+    // instance and `.on(...)` after `.subscribe()` throws.
+    const channelName = `messages:${rideId}:${Date.now()}-${Math.random()
+      .toString(36)
+      .slice(2)}`;
     const channel = supabase
-      .channel(`messages:${rideId}`)
+      .channel(channelName)
       .on(
         "postgres_changes",
         {
