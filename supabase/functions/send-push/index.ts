@@ -12,9 +12,12 @@ interface Payload {
 }
 
 Deno.serve(async (req) => {
-  // The trigger sends the service-role key as Bearer; reject everything else.
+  // The trigger sends a shared secret as Bearer; reject everything else.
+  // We use a dedicated PUSH_TRIGGER_SECRET (set in Edge Function secrets and
+  // mirrored in Vault) instead of the service-role key, so key rotations
+  // don't silently break push.
   const auth = req.headers.get("Authorization") ?? "";
-  if (auth !== `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`) {
+  if (auth !== `Bearer ${Deno.env.get("PUSH_TRIGGER_SECRET")}`) {
     return new Response("unauthorized", { status: 401 });
   }
 
