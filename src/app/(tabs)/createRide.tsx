@@ -63,6 +63,7 @@ const CreateRideScreen = () => {
       // The RPC also adds the creator to bookings — refetch so the home
       // screen shows "Chat" on the new card instead of "Join Ride".
       queryClient.invalidateQueries({ queryKey: ["bookings"] });
+      queryClient.invalidateQueries({ queryKey: ["chats"] });
       resetForm();
       router.push("/(tabs)/home");
     },

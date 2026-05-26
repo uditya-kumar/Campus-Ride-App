@@ -2,7 +2,6 @@ import Chip from "@/components/rideComponents/Chip";
 import ChatRoomCard from "@/components/rideComponents/ChatRoomCard";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
-import { Tables } from "@/database.types";
 import { FlashList } from "@shopify/flash-list";
 import { Link } from "expo-router";
 import { MessageCircle } from "lucide-react-native";
@@ -15,9 +14,7 @@ import {
   View,
 } from "react-native";
 import { useMyRides } from "@/hooks/useMyRides";
-import type { MyRidesView } from "@/api/rides";
-
-type Ride = Tables<"rides">;
+import type { ChatRide, MyRidesView } from "@/api/rides";
 
 export default function MessagesScreen() {
   const colorScheme = useColorScheme() ?? "light";
@@ -25,10 +22,10 @@ export default function MessagesScreen() {
   const [view, setView] = useState<MyRidesView>("upcoming");
   const { data: rides, isLoading, isError, error } = useMyRides(view);
 
-  const renderChatItem = ({ item }: { item: Ride }) => (
+  const renderChatItem = ({ item }: { item: ChatRide }) => (
     <Link href={`/message/${item.id}`} asChild withAnchor>
       <Pressable style={styles.chatItemPressable}>
-        <ChatRoomCard ride={item} />
+        <ChatRoomCard ride={item} unreadCount={item.unread_count} />
       </Pressable>
     </Link>
   );

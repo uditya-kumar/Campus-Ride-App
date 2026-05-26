@@ -21,6 +21,7 @@ export function useJoinRide() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["rides"] });
       queryClient.invalidateQueries({ queryKey: ["bookings"] });
+      queryClient.invalidateQueries({ queryKey: ["chats"] });
     },
     onError: (err, rideId) => {
       if (!STALE_RIDE_ERRORS.has(err.message)) return;

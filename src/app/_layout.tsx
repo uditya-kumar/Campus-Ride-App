@@ -16,6 +16,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { QueryProvider } from "@/providers/QueryProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { ToastProvider } from "@/providers/ToastProvider";
+import { useUnreadRealtime } from "@/hooks/useUnreadRealtime";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -96,6 +97,7 @@ function RootLayoutNav() {
     <SafeAreaProvider>
       <AuthProvider>
         <QueryProvider>
+          <UnreadRealtimeBridge />
           <ThemeProvider
             value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
           >
@@ -114,4 +116,12 @@ function RootLayoutNav() {
       </AuthProvider>
     </SafeAreaProvider>
   );
+}
+
+// Tiny bridge component — `useUnreadRealtime` needs both `useAuth` (from
+// AuthProvider) and `useQueryClient` (from QueryProvider), so it has to live
+// inside both. Rendering nothing.
+function UnreadRealtimeBridge() {
+  useUnreadRealtime();
+  return null;
 }

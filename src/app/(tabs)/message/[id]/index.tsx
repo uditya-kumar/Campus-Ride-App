@@ -19,10 +19,11 @@ import { IMessage } from "react-native-gifted-chat";
 import Entypo from "@react-native-vector-icons/entypo/static";
 import ActionMenu from "@/components/rideComponents/ActionMenu";
 import { useLeaveRide } from "@/hooks/useLeaveRide";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Alert } from "react-native";
 import { useRideMembers } from "@/hooks/useRideMembers";
 import { useToast } from "@/providers/ToastProvider";
+import { useMarkRideRead } from "@/hooks/useMarkRideRead";
 
 const truncate = (s: string, n: number) =>
   s.length > n ? `${s.slice(0, n)}..` : s;
@@ -41,6 +42,27 @@ export default function ChatDetails() {
   const { mutate: leaveRide, isPending: isLeaving } = useLeaveRide();
   const { data: members } = useRideMembers(rideId);
   const { showToast } = useToast();
+  const { mutate: markRead } = useMarkRideRead();
+  const atBottomRef = useRef(true);
+  const lastSeenLatestIdRef = useRef<string | null>(null);
+
+  // On mount: caller is opening the chat — clear unread for this ride.
+  useEffect(() => {
+    markRead(rideId);
+  }, [rideId, markRead]);
+
+  // For each new incoming message: only mark read if the user is currently at
+  // the bottom (i.e. actually looking at recent messages). If they're scrolled
+  // up reading older messages, leave the badge alone until they scroll back.
+  useEffect(() => {
+    if (!messages?.length) return;
+    const latestId = messages[messages.length - 1]!.id;
+    if (lastSeenLatestIdRef.current === latestId) return;
+    const isFirstSeen = lastSeenLatestIdRef.current === null;
+    lastSeenLatestIdRef.current = latestId;
+    if (isFirstSeen) return; // mount-effect already handled
+    if (atBottomRef.current) markRead(rideId);
+  }, [messages, rideId, markRead]);
 
   const colors = Colors[colorScheme];
 
@@ -151,6 +173,13 @@ export default function ChatDetails() {
         currentUserName="You"
         onSendMessage={onSend}
         keyboardVerticalOffset={keyboardVerticalOffset}
+        onScrolledToBottomChange={(atBottom) => {
+          const wasAtBottom = atBottomRef.current;
+          atBottomRef.current = atBottom;
+          // Edge case: user scrolls back to bottom after leaving unread above.
+          // Clear them now.
+          if (!wasAtBottom && atBottom) markRead(rideId);
+        }}
       />
       <ActionMenu
         visible={menuVisible}

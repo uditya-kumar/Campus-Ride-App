@@ -8,6 +8,7 @@ export function useLeaveRide() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["rides"] });
       queryClient.invalidateQueries({ queryKey: ["bookings"] });
+      queryClient.invalidateQueries({ queryKey: ["chats"] });
     },
   });
 }

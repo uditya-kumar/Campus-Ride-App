@@ -22,6 +22,7 @@ interface ChatScreenProps {
   currentUserName?: string;
   onSendMessage?: (messages: IMessage[]) => void;
   keyboardVerticalOffset?: number;
+  onScrolledToBottomChange?: (atBottom: boolean) => void;
 }
 
 function ChatScreen({
@@ -30,6 +31,7 @@ function ChatScreen({
   currentUserName = "You",
   onSendMessage,
   keyboardVerticalOffset = 0,
+  onScrolledToBottomChange,
 }: ChatScreenProps) {
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
@@ -173,12 +175,28 @@ function ChatScreen({
 
   const containerStyle = [styles.container, { backgroundColor: colors.background }];
 
+  // GiftedChat uses an inverted FlatList — newest messages live at the top
+  // visually, which corresponds to scroll offset ~0. "At bottom" (i.e. the
+  // user is looking at the most recent message) means contentOffset.y is
+  // close to 0.
+  const handleScroll = (
+    e: import("react-native").NativeSyntheticEvent<
+      import("react-native").NativeScrollEvent
+    >,
+  ) => {
+    if (!onScrolledToBottomChange) return;
+    const y = e.nativeEvent.contentOffset.y;
+    onScrolledToBottomChange(y < 60);
+  };
+
   const listProps = {
     removeClippedSubviews: true,
     maxToRenderPerBatch: 10,
     updateCellsBatchingPeriod: 50,
     windowSize: 11,
     initialNumToRender: 8,
+    onScroll: handleScroll,
+    scrollEventThrottle: 100,
   };
 
   return (

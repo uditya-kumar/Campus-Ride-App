@@ -10,9 +10,10 @@ type Ride = Tables<"rides">;
 
 type ChatRoomCardProps = {
   ride: Ride;
+  unreadCount?: number;
 };
 
-function ChatRoomCard({ ride }: ChatRoomCardProps) {
+function ChatRoomCard({ ride, unreadCount = 0 }: ChatRoomCardProps) {
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
 
@@ -46,6 +47,18 @@ function ChatRoomCard({ ride }: ChatRoomCardProps) {
             </Text>
           </View>
         </View>
+        {unreadCount > 0 && (
+          <View
+            style={[
+              styles.unreadBadge,
+              { backgroundColor: colors.buttonBackground },
+            ]}
+          >
+            <Text style={styles.unreadText}>
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </Text>
+          </View>
+        )}
         <EvilIcons name="chevron-right" color={colors.tabIconDefault} size={30} />
       </View>
     </View>
@@ -81,5 +94,18 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: 13,
+  },
+  unreadBadge: {
+    minWidth: 22,
+    height: 22,
+    borderRadius: 11,
+    paddingHorizontal: 6,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  unreadText: {
+    color: "#FFFFFF",
+    fontSize: 12,
+    fontWeight: "700",
   },
 });

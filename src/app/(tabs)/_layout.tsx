@@ -5,12 +5,14 @@ import Feather from "@react-native-vector-icons/feather/static";
 import AntDesign from "@react-native-vector-icons/ant-design/static";
 import { useAuth } from "@/providers/AuthProvider";
 import { useProfile } from "@/hooks/useProfile";
+import { useUnreadTotal } from "@/hooks/useUnreadTotal";
 import { ActivityIndicator, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TabLayout() {
   const { session, loading } = useAuth();
   const { data: profile, isLoading: profileLoading } = useProfile();
+  const unreadTotal = useUnreadTotal();
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
   const insets = useSafeAreaInsets();
@@ -74,6 +76,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <AntDesign name="message" size={24} color={color} />
           ),
+          tabBarBadge: unreadTotal > 0 ? unreadTotal : undefined,
         }}
       />
       <Tabs.Screen

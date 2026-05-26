@@ -110,32 +110,26 @@ export async function fetchRideMembers(rideId: string): Promise<RideMember[]> {
 
 export type MyRidesView = "upcoming" | "past";
 
-export async function fetchMyRides(
-  userId: string,
-  view: MyRidesView,
-): Promise<Ride[]> {
-  const now = new Date().toISOString();
-  // Query rides directly; `bookings!inner(user_id)` filters to rides the user
-  // is booked into. Querying rides as the parent lets `.order()` actually sort
-  // the result — ordering on a referenced (one-to-one) table is a no-op.
-  let query = supabase
-    .from("rides")
-    .select("*, bookings!inner(user_id)")
-    .eq("bookings.user_id", userId);
+// Ride row + per-user chat metadata. `last_message_at` drives the WhatsApp-
+// style sort; `unread_count` powers the per-card badge and tab badge total.
+export type ChatRide = Ride & {
+  last_message_at: string;
+  unread_count: number;
+};
 
-  if (view === "upcoming") {
-    query = query.gte("departure_date", now);
-  } else {
-    query = query.lt("departure_date", now);
-  }
-
-  query = query.order("departure_date", {
-    ascending: view === "upcoming", // upcoming: soonest first; past: most recent first
+export async function fetchMyChats(view: MyRidesView): Promise<ChatRide[]> {
+  const { data, error } = await supabase.rpc("fetch_my_chats", {
+    p_view: view,
   });
-
-  const { data, error } = await query;
   if (error) throw error;
-  return data ?? [];
+  return (data ?? []) as ChatRide[];
+}
+
+export async function markRideRead(rideId: string): Promise<void> {
+  const { error } = await supabase.rpc("mark_ride_read", {
+    p_ride_id: rideId,
+  });
+  if (error) throw error;
 }
 
 export async function leaveRide(rideId: string): Promise<void> {
