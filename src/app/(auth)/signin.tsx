@@ -1,5 +1,5 @@
 import { Image } from "expo-image";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import GoogleButton from "@/components/rideComponents/GoogleButton";
 import Colors from "@/constants/Colors";
 import { googleSignIn } from "@/libs/auth";
@@ -23,13 +23,10 @@ export default function SignInScreen() {
     <View style={styles.container}>
       <View style={styles.centerContent}>
         <Image
-          source={require("@assets/images/onboarding.png")}
+          source={require("@assets/images/onboarding.jpg")}
           style={styles.logo}
+          contentFit="contain"
         />
-        <Text style={styles.title}>Welcome to Karpool</Text>
-        <Text style={styles.subtitle}>
-          Find rides, share costs, and meet people heading the same way.
-        </Text>
       </View>
 
       <View style={styles.bottomButton}>
@@ -47,28 +44,14 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.background,
   },
   logo: {
-    width: 350,
-    height: 350,
-    borderRadius: 100,
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: "bold",
-    color: "#0F172A",
-  },
-  subtitle: {
-    fontSize: 15,
-    textAlign: "center",
-    marginTop: 12,
-    paddingHorizontal: 17,
-    color: "#0F172A",
+    width: "100%",
+    height: "100%",
   },
   centerContent: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 100,
+    width: "100%",
   },
   bottomButton: {
     paddingBottom: 40,
