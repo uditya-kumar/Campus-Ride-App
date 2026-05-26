@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="assets/images/icon.png" alt="Karpool" width="160"/>
+
 # Karpool
 
 ### Student Ride-Sharing for Campus Communities
