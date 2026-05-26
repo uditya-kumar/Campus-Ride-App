@@ -36,6 +36,7 @@
     "expo-splash-screen": "~56.0.9",
     "expo-sqlite": "~56.0.4",
     "expo-status-bar": "~56.0.4",
+    "expo-updates": "~56.0.17",
     "expo-web-browser": "~56.0.5",
     "lucide-react-native": "^0.563.0",
     "opensrc": "^0.7.2",

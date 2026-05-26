@@ -68,6 +68,12 @@
         "projectId": "28c423de-fea6-4568-b37d-ac1304a90900"
       }
     },
-    "owner": "uditya204"
+    "owner": "uditya204",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/28c423de-fea6-4568-b37d-ac1304a90900"
+    }
   }
 }
