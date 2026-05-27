@@ -30,12 +30,26 @@ export async function googleSignIn() {
     return null;
   }
 
-  // Supabase returns tokens in the URL fragment (#access_token=...&refresh_token=...).
-  const fragment = result.url.split("#")[1] ?? "";
-  const params = new URLSearchParams(fragment);
-  const access_token = params.get("access_token");
-  const refresh_token = params.get("refresh_token");
+  // Supabase returns tokens in the URL fragment on success
+  // (#access_token=...&refresh_token=...) and errors in either the fragment or
+  // the query string (?error=...&error_description=...). The latter is how a
+  // BEFORE INSERT trigger rejection on auth.users surfaces — the trigger's
+  // RAISE EXCEPTION message lands in error_description verbatim.
+  const [, fragment = ""] = result.url.split("#");
+  const queryString = result.url.split("?")[1]?.split("#")[0] ?? "";
+  const fragmentParams = new URLSearchParams(fragment);
+  const queryParams = new URLSearchParams(queryString);
+
+  const access_token = fragmentParams.get("access_token");
+  const refresh_token = fragmentParams.get("refresh_token");
   if (!access_token || !refresh_token) {
+    const errorDescription =
+      fragmentParams.get("error_description") ??
+      queryParams.get("error_description");
+    if (errorDescription) {
+      // Decode '+' as space (URL-encoded by Supabase) and surface the DB message.
+      throw new Error(decodeURIComponent(errorDescription.replace(/\+/g, " ")));
+    }
     throw new Error("Sign-in succeeded but no session was returned");
   }
 
