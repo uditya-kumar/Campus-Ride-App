@@ -1,5 +1,6 @@
 import { Image } from "expo-image";
 import { StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import GoogleButton from "@/components/rideComponents/GoogleButton";
 import Colors from "@/constants/Colors";
 import { googleSignIn } from "@/libs/auth";
@@ -7,6 +8,7 @@ import { useToast } from "@/providers/ToastProvider";
 
 export default function SignInScreen() {
   const { showToast } = useToast();
+  const insets = useSafeAreaInsets();
 
   const onSignin = async () => {
     try {
@@ -20,14 +22,17 @@ export default function SignInScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.centerContent}>
-        <Image
-          source={require("@assets/images/onboarding.jpg")}
-          style={styles.logo}
-          contentFit="contain"
-        />
-      </View>
+    <View
+      style={[
+        styles.container,
+        { paddingTop: insets.top, paddingBottom: insets.bottom },
+      ]}
+    >
+      <Image
+        source={require("@assets/images/onboarding.jpg")}
+        style={[StyleSheet.absoluteFill, styles.image]}
+        contentFit="cover"
+      />
 
       <View style={styles.bottomButton}>
         <GoogleButton onPress={onSignin} />
@@ -39,22 +44,15 @@ export default function SignInScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 16,
     alignItems: "center",
-    backgroundColor: Colors.light.background,
-  },
-  logo: {
-    width: "100%",
-    height: "100%",
-  },
-  centerContent: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    width: "100%",
+    justifyContent: "flex-end",
+    backgroundColor: "#EAF2FF"
   },
   bottomButton: {
-    paddingBottom: 40,
+    paddingBottom: 45,
     width: "90%",
+  },
+  image: {
+    top: 50,
   },
 });
