@@ -32,9 +32,10 @@ export async function googleSignIn() {
 
   // Supabase returns tokens in the URL fragment on success
   // (#access_token=...&refresh_token=...) and errors in either the fragment or
-  // the query string (?error=...&error_description=...). The latter is how a
-  // BEFORE INSERT trigger rejection on auth.users surfaces — the trigger's
-  // RAISE EXCEPTION message lands in error_description verbatim.
+  // the query string (?error=...&error_description=...). When the auth.users
+  // BEFORE INSERT trigger rejects an email, GoTrue wraps the RAISE EXCEPTION
+  // as "Database error saving new user", so we don't surface that raw — we
+  // show a friendly message since the trigger is the only realistic cause.
   const [, fragment = ""] = result.url.split("#");
   const queryString = result.url.split("?")[1]?.split("#")[0] ?? "";
   const fragmentParams = new URLSearchParams(fragment);
@@ -43,12 +44,13 @@ export async function googleSignIn() {
   const access_token = fragmentParams.get("access_token");
   const refresh_token = fragmentParams.get("refresh_token");
   if (!access_token || !refresh_token) {
-    const errorDescription =
+    const hasError =
+      fragmentParams.get("error") ??
       fragmentParams.get("error_description") ??
+      queryParams.get("error") ??
       queryParams.get("error_description");
-    if (errorDescription) {
-      // Decode '+' as space (URL-encoded by Supabase) and surface the DB message.
-      throw new Error(decodeURIComponent(errorDescription.replace(/\+/g, " ")));
+    if (hasError) {
+      throw new Error("Login using VIT Bhopal email");
     }
     throw new Error("Sign-in succeeded but no session was returned");
   }
