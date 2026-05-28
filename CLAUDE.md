@@ -103,7 +103,7 @@ Most screens read `Colors[useColorScheme() ?? "light"]` directly from `src/const
 - The `__DEV__` guard is used for dev-only logging (see `src/app/_layout.tsx`).
 - Lists that may grow (rides, chat rooms, messages) should use `@shopify/flash-list`, not `FlatList`.
 - Chat UI uses `react-native-gifted-chat`.
-- Icons: a mix of `@react-native-vector-icons/*` (the per-family packages — Feather, AntDesign, FontAwesome5, Ionicons, MaterialDesignIcons, Octicons, EvilIcons, Entypo) and `lucide-react-native`. The vector-icons packages are imported from `/static` subpaths (e.g. `@react-native-vector-icons/feather/static`) to skip the dynamic font-loading wrapper. Either family is fine — match the file you're editing.
+- Icons: `@react-native-vector-icons/*` (the per-family packages — Feather, AntDesign, FontAwesome5, Ionicons, MaterialDesignIcons, Octicons, EvilIcons, Entypo). Import from the `/static` subpath (e.g. `@react-native-vector-icons/feather/static`) to skip the dynamic font-loading wrapper. `lucide-react-native` was removed — don't reintroduce it.
 - Push notifications go through `expo-notifications`. Tap-to-deep-link routing (cold start + warm) lives in `src/app/_layout.tsx`; never navigate from `useEffect` before the auth gate at `index.tsx` has settled, or the message stack will mount without `index` underneath.
 
 ## Tooling
