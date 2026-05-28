@@ -8,6 +8,7 @@ import Feather from "@react-native-vector-icons/feather/static";
 import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { router } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
+import { useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -23,6 +24,7 @@ export default function ProfileScreen() {
 
   const { data: profile, isLoading } = useProfile();
   const { showToast } = useToast();
+  const [signingOut, setSigningOut] = useState(false);
 
   if (isLoading || !profile) {
     return (
@@ -41,8 +43,14 @@ export default function ProfileScreen() {
   const chevronColor = isDark ? "#9ca3af" : "#6b7280";
 
   const handleSignOut = async () => {
+    if (signingOut) return;
+    setSigningOut(true);
     const { error } = await signOut();
-    if (error) showToast(error.message);
+    if (error) {
+      showToast(error.message);
+      setSigningOut(false);
+    }
+    // On success the auth gate unmounts this screen — no need to clear state.
   };
 
   return (
@@ -106,7 +114,11 @@ export default function ProfileScreen() {
           <Feather name="chevron-right" size={20} color={chevronColor} />
         </Pressable>
       </View>
-      <Pressable style={styles.signOutButton} onPress={handleSignOut}>
+      <Pressable
+          style={styles.signOutButton}
+          onPress={handleSignOut}
+          disabled={signingOut}
+        >
           <View style={styles.rowLeft}>
             <Feather
               name="log-out"
@@ -117,6 +129,13 @@ export default function ProfileScreen() {
             <Text style={[styles.signOutText, { color: colors.error }]}>
               Sign Out
             </Text>
+            {signingOut && (
+              <ActivityIndicator
+                size="small"
+                color={colors.error}
+                style={styles.signOutSpinner}
+              />
+            )}
           </View>
         </Pressable>
     </View>
@@ -169,5 +188,8 @@ const styles = StyleSheet.create({
   signOutText: {
     fontSize: 16,
     fontWeight: "600",
+  },
+  signOutSpinner: {
+    marginLeft: 10,
   }
 });

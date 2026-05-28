@@ -62,3 +62,28 @@ export async function registerForPushNotifications(
 
   return token;
 }
+
+// Delete this device's row from notification_tokens. MUST run before
+// supabase.auth.signOut() — the RLS policy requires user_id = auth.uid(),
+// so once the session is gone the delete is silently rejected and the
+// device keeps receiving pushes for the previous account.
+export async function unregisterPushNotifications(): Promise<void> {
+  if (!Device.isDevice) return;
+
+  const projectId =
+    Constants.expoConfig?.extra?.eas?.projectId ??
+    Constants.easConfig?.projectId;
+  if (!projectId) return;
+
+  const { status } = await Notifications.getPermissionsAsync();
+  if (status !== "granted") return;
+
+  const { data: token } = await Notifications.getExpoPushTokenAsync({
+    projectId,
+  });
+
+  await supabase
+    .from("notification_tokens")
+    .delete()
+    .eq("expo_push_token", token);
+}

@@ -1,8 +1,18 @@
 import { supabase } from "@/libs/supabase";
 import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
+import { unregisterPushNotifications } from "@/libs/pushNotifications";
 
-export const signOut = () => supabase.auth.signOut();
+export async function signOut() {
+  // Drop this device's push token row first — RLS requires the session,
+  // so it has to happen before supabase.auth.signOut().
+  try {
+    await unregisterPushNotifications();
+  } catch (err) {
+    if (__DEV__) console.warn("push deregistration failed:", err);
+  }
+  return supabase.auth.signOut();
+}
 
 export const getSession = () => supabase.auth.getSession();
 
