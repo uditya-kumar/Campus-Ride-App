@@ -202,7 +202,7 @@ Add the plugin and (optional) icon/sound config:
       [
         "expo-notifications",
         {
-          "icon": "./assets/notification-icon.png",
+          "icon": "./assets/notification-icon.jpg",
           "color": "#2c7cfe"
         }
       ]
@@ -264,17 +264,15 @@ export async function registerForPushNotifications(
   });
 
   // Upsert by expo_push_token so multiple installs / account switches work.
-  await supabase
-    .from("notification_tokens")
-    .upsert(
-      {
-        user_id: userId,
-        expo_push_token: token,
-        platform: Platform.OS as "ios" | "android",
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "expo_push_token" },
-    );
+  await supabase.from("notification_tokens").upsert(
+    {
+      user_id: userId,
+      expo_push_token: token,
+      platform: Platform.OS as "ios" | "android",
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "expo_push_token" },
+  );
 
   return token;
 }
@@ -298,7 +296,7 @@ useEffect(() => {
 
 `addNotificationResponseReceivedListener` only fires for taps **while the app is running**. If the user taps a push when the app is killed, the listener never sees the launching tap. Cover both cases:
 
-In [src/app/_layout.tsx](src/app/_layout.tsx):
+In [src/app/\_layout.tsx](src/app/_layout.tsx):
 
 ```ts
 import * as Notifications from "expo-notifications";
@@ -335,7 +333,7 @@ useEffect(() => {
 }, []);
 ```
 
-The `handledRef` guard prevents the cold-start path from re-navigating on every re-render of `_layout.tsx`. `router.push(\`/message/${rideId}\`)` is the same pattern already used in [src/app/(tabs)/message/[id]/index.tsx:132](src/app/(tabs)/message/[id]/index.tsx#L132).
+The `handledRef` guard prevents the cold-start path from re-navigating on every re-render of `_layout.tsx`. `router.push(\`/message/${rideId}\`)` is the same pattern already used in [src/app/(tabs)/message/[id]/index.tsx:132](<src/app/(tabs)/message/[id]/index.tsx#L132>).
 
 ---
 
@@ -442,7 +440,7 @@ The trigger's `Authorization: Bearer <service_role_key>` (read from Vault) is wh
 1. **Token registration** — sign in on a real device, then in Supabase Dashboard → Table editor → `notification_tokens`, confirm a row appears.
 2. **Manual push** — paste the token into the [Expo Push Tool](https://expo.dev/notifications) and send a test. If this works, your client is fine.
 3. **End-to-end** — open the app on Device A, send a chat message from Device B. Device A should get a banner that, on tap, navigates to that ride's chat.
-4. **Foreground behavior** — when the app is in the foreground, the `setNotificationHandler` shows a banner instead of suppressing it. Tweak if undesired (e.g., if user is *already viewing that chat*, suppress). You can read `useFocusEffect` + the current `rideId` to skip in-chat banners.
+4. **Foreground behavior** — when the app is in the foreground, the `setNotificationHandler` shows a banner instead of suppressing it. Tweak if undesired (e.g., if user is _already viewing that chat_, suppress). You can read `useFocusEffect` + the current `rideId` to skip in-chat banners.
 
 ---
 
@@ -467,6 +465,7 @@ When a user uninstalls or revokes permission, the Expo API returns `DeviceNotReg
 ---
 
 **Watch out for:**
+
 - iOS simulators can't receive push. You need a physical device.
 - Expo Go (not your dev build) can receive push but uses a different token format and will drop after SDK 53. Use the dev build.
 - The `pg_net`-based trigger fires asynchronously — your `sendMessage` mutation returns instantly even before the push goes out. That's intended.
@@ -480,27 +479,27 @@ When a user uninstalls or revokes permission, the Expo API returns `DeviceNotReg
 
 This plan was checked against `expo-notifications@0.32.17`, `expo-device@8.0.10`, `expo-constants@~18.0.13`, and `@supabase/postgrest-js` in `node_modules/`, plus live database state via Supabase MCP.
 
-| Item | Status |
-|---|---|
-| `Notifications.setNotificationHandler({ handleNotification })` | Confirmed |
-| `shouldShowBanner` / `shouldShowList` (replacing deprecated `shouldShowAlert`) | Confirmed — `shouldShowAlert` is deprecated in SDK 54 |
-| `Notifications.setNotificationChannelAsync('default', { importance, ... })` | Confirmed |
-| `Notifications.AndroidImportance.HIGH` | Confirmed |
-| `Notifications.getPermissionsAsync()` / `requestPermissionsAsync()` | Confirmed |
-| `Notifications.getExpoPushTokenAsync({ projectId })` returning `{ type: 'expo', data: string }` | Confirmed |
-| `Notifications.addNotificationResponseReceivedListener` (warm taps only) | Confirmed |
-| `Notifications.useLastNotificationResponse()` for cold-start taps | Confirmed — required for app-killed launch path |
-| `Constants.expoConfig?.extra?.eas?.projectId` and `Constants.easConfig?.projectId` fallback | Both present in SDK 54; `easConfig` is NOT deprecated |
-| `Device.isDevice` | Confirmed |
-| `supabase.from(...).upsert(values, { onConflict: 'col' })` signature | Confirmed in postgrest-js source |
-| `pg_net` schema is `net`; function is `net.http_post` | Confirmed via Supabase MCP |
-| `revoke execute on function public.notify_new_message() from public, anon, authenticated` | Required — silences advisors 0028/0029 (anon/authenticated SECURITY DEFINER exposure); trigger still fires as table owner |
-| Secrets stored via `vault.create_secret(...)`, read via `vault.decrypted_secrets` | Required — `ALTER DATABASE ... SET` is blocked on managed Postgres |
-| `messages` is in `supabase_realtime` publication | Confirmed — trigger and realtime fire independently |
-| `authenticated` has default TRUNCATE/REFERENCES/TRIGGER on tables | Confirmed — revoke line is meaningful |
-| Edge Function uses `withSupabase({ auth: ["secret"] })` from `@supabase/server` | Current CLI scaffold — replaces the older `Deno.serve` + manual `createClient` pattern |
-| `ctx.supabaseAdmin` is service-role / RLS-bypassing | Provided by `withSupabase` runtime; no manual `createClient` needed |
-| Service-role Bearer maps to `ctx.authMode === "secret"` | Runtime gates this; do NOT pass `--no-verify-jwt` |
-| `router.push(\`/message/${id}\`)` works for cross-tab navigation | Confirmed — pattern already used in `[id]/index.tsx:132` |
+| Item                                                                                            | Status                                                                                                                    |
+| ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `Notifications.setNotificationHandler({ handleNotification })`                                  | Confirmed                                                                                                                 |
+| `shouldShowBanner` / `shouldShowList` (replacing deprecated `shouldShowAlert`)                  | Confirmed — `shouldShowAlert` is deprecated in SDK 54                                                                     |
+| `Notifications.setNotificationChannelAsync('default', { importance, ... })`                     | Confirmed                                                                                                                 |
+| `Notifications.AndroidImportance.HIGH`                                                          | Confirmed                                                                                                                 |
+| `Notifications.getPermissionsAsync()` / `requestPermissionsAsync()`                             | Confirmed                                                                                                                 |
+| `Notifications.getExpoPushTokenAsync({ projectId })` returning `{ type: 'expo', data: string }` | Confirmed                                                                                                                 |
+| `Notifications.addNotificationResponseReceivedListener` (warm taps only)                        | Confirmed                                                                                                                 |
+| `Notifications.useLastNotificationResponse()` for cold-start taps                               | Confirmed — required for app-killed launch path                                                                           |
+| `Constants.expoConfig?.extra?.eas?.projectId` and `Constants.easConfig?.projectId` fallback     | Both present in SDK 54; `easConfig` is NOT deprecated                                                                     |
+| `Device.isDevice`                                                                               | Confirmed                                                                                                                 |
+| `supabase.from(...).upsert(values, { onConflict: 'col' })` signature                            | Confirmed in postgrest-js source                                                                                          |
+| `pg_net` schema is `net`; function is `net.http_post`                                           | Confirmed via Supabase MCP                                                                                                |
+| `revoke execute on function public.notify_new_message() from public, anon, authenticated`       | Required — silences advisors 0028/0029 (anon/authenticated SECURITY DEFINER exposure); trigger still fires as table owner |
+| Secrets stored via `vault.create_secret(...)`, read via `vault.decrypted_secrets`               | Required — `ALTER DATABASE ... SET` is blocked on managed Postgres                                                        |
+| `messages` is in `supabase_realtime` publication                                                | Confirmed — trigger and realtime fire independently                                                                       |
+| `authenticated` has default TRUNCATE/REFERENCES/TRIGGER on tables                               | Confirmed — revoke line is meaningful                                                                                     |
+| Edge Function uses `withSupabase({ auth: ["secret"] })` from `@supabase/server`                 | Current CLI scaffold — replaces the older `Deno.serve` + manual `createClient` pattern                                    |
+| `ctx.supabaseAdmin` is service-role / RLS-bypassing                                             | Provided by `withSupabase` runtime; no manual `createClient` needed                                                       |
+| Service-role Bearer maps to `ctx.authMode === "secret"`                                         | Runtime gates this; do NOT pass `--no-verify-jwt`                                                                         |
+| `router.push(\`/message/${id}\`)` works for cross-tab navigation                                | Confirmed — pattern already used in `[id]/index.tsx:132`                                                                  |
 
 Want me to start writing any of these files now?
