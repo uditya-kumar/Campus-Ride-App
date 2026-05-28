@@ -5,7 +5,6 @@ import {
   router,
   Stack,
   ThemeProvider,
-  useNavigationContainerRef,
   usePathname,
 } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -14,7 +13,7 @@ import * as Notifications from "expo-notifications";
 import { useEffect, useRef } from "react";
 import "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { PostHogProvider } from "posthog-react-native";
+import { PostHogProvider, usePostHog } from "posthog-react-native";
 import { QueryProvider } from "@/providers/QueryProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { ToastProvider } from "@/providers/ToastProvider";
@@ -46,7 +45,6 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const pathname = usePathname();
-  const navigationRef = useNavigationContainerRef();
 
   useEffect(() => {
     if (__DEV__) console.log("[route]", pathname);
@@ -99,13 +97,7 @@ function RootLayoutNav() {
   return (
     <PostHogProvider
       apiKey={process.env.EXPO_PUBLIC_POSTHOG_KEY}
-      autocapture={{
-        navigationRef,
-        navigation: {
-          routeToName: (name) => name,
-          routeToProperties: (_name, params) => params,
-        },
-      }}
+      autocapture={{ captureScreens: false }}
       options={{
         host: process.env.EXPO_PUBLIC_POSTHOG_HOST,
         enableSessionReplay: true,
@@ -118,6 +110,7 @@ function RootLayoutNav() {
         },
       }}
     >
+      <ScreenTrackingBridge />
       <SafeAreaProvider>
         <AuthProvider>
           <QueryProvider>
@@ -148,5 +141,19 @@ function RootLayoutNav() {
 // inside both. Rendering nothing.
 function UnreadRealtimeBridge() {
   useUnreadRealtime();
+  return null;
+}
+
+// Manual $screen capture for Expo Router. The SDK's autocapture.captureScreens
+// hook is incompatible with Expo Router v7's navigator-context restriction, so
+// we drive it from `usePathname()` instead. Has to be a child of
+// PostHogProvider for `usePostHog()` to resolve.
+function ScreenTrackingBridge() {
+  const pathname = usePathname();
+  const posthog = usePostHog();
+  useEffect(() => {
+    if (!posthog || !pathname) return;
+    posthog.screen(pathname);
+  }, [pathname, posthog]);
   return null;
 }
