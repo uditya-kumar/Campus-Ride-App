@@ -2,6 +2,7 @@ import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { Platform, StyleSheet, Text, View } from "react-native";
+import type { ReanimatedScrollEvent } from "react-native-reanimated/lib/typescript/hook/commonTypes";
 import {
   Avatar,
   AvatarProps,
@@ -177,14 +178,11 @@ function ChatScreen({
   // GiftedChat uses an inverted FlatList — newest messages live at the top
   // visually, which corresponds to scroll offset ~0. "At bottom" (i.e. the
   // user is looking at the most recent message) means contentOffset.y is
-  // close to 0.
-  const handleScroll = (
-    e: import("react-native").NativeSyntheticEvent<
-      import("react-native").NativeScrollEvent
-    >,
-  ) => {
+  // close to 0. GiftedChat wires this through Reanimated, which flattens
+  // `nativeEvent` onto the event itself.
+  const handleScroll = (e: ReanimatedScrollEvent) => {
     if (!onScrolledToBottomChange) return;
-    const y = e.nativeEvent.contentOffset.y;
+    const y = e.contentOffset.y;
     onScrolledToBottomChange(y < 60);
   };
 
