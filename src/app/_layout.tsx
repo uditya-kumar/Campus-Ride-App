@@ -13,6 +13,7 @@ import * as Notifications from "expo-notifications";
 import { useEffect, useRef } from "react";
 import "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { PostHogProvider } from "posthog-react-native";
 import { QueryProvider } from "@/providers/QueryProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { ToastProvider } from "@/providers/ToastProvider";
@@ -94,27 +95,42 @@ function RootLayoutNav() {
   }, []);
 
   return (
-    <SafeAreaProvider>
-      <AuthProvider>
-        <QueryProvider>
-          <UnreadRealtimeBridge />
-          <ThemeProvider
-            value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-          >
-            <ToastProvider>
-              <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-              <Stack>
-                <Stack.Screen name="index" options={hiddenHeaderOptions} />
-                <Stack.Screen name="(auth)" options={hiddenHeaderOptions} />
-                <Stack.Screen name="(onboarding)" options={hiddenHeaderOptions} />
-                <Stack.Screen name="(tabs)" options={hiddenHeaderOptions} />
-                <Stack.Screen name="+not-found" />
-              </Stack>
-            </ToastProvider>
-          </ThemeProvider>
-        </QueryProvider>
-      </AuthProvider>
-    </SafeAreaProvider>
+    <PostHogProvider
+      apiKey={process.env.EXPO_PUBLIC_POSTHOG_KEY}
+      options={{
+        host: process.env.EXPO_PUBLIC_POSTHOG_HOST,
+        enableSessionReplay: true,
+        sessionReplayConfig: {
+          maskAllTextInputs: true,
+          maskAllImages: true,
+          captureLog: true,
+          captureNetworkTelemetry: true,
+          throttleDelayMs: 1000,
+        },
+      }}
+    >
+      <SafeAreaProvider>
+        <AuthProvider>
+          <QueryProvider>
+            <UnreadRealtimeBridge />
+            <ThemeProvider
+              value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+            >
+              <ToastProvider>
+                <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+                <Stack>
+                  <Stack.Screen name="index" options={hiddenHeaderOptions} />
+                  <Stack.Screen name="(auth)" options={hiddenHeaderOptions} />
+                  <Stack.Screen name="(onboarding)" options={hiddenHeaderOptions} />
+                  <Stack.Screen name="(tabs)" options={hiddenHeaderOptions} />
+                  <Stack.Screen name="+not-found" />
+                </Stack>
+              </ToastProvider>
+            </ThemeProvider>
+          </QueryProvider>
+        </AuthProvider>
+      </SafeAreaProvider>
+    </PostHogProvider>
   );
 }
 
