@@ -6,13 +6,24 @@ import { usePostHog } from "posthog-react-native";
 import { supabase } from "@/libs/supabase";
 import { registerForPushNotifications } from "@/libs/pushNotifications";
 
-type AuthCtx = { session: Session | null; loading: boolean };
+type AuthCtx = {
+  session: Session | null;
+  loading: boolean;
+  signingIn: boolean;
+  setSigningIn: (v: boolean) => void;
+};
 
-const AuthContext = createContext<AuthCtx>({ session: null, loading: true });
+const AuthContext = createContext<AuthCtx>({
+  session: null,
+  loading: true,
+  signingIn: false,
+  setSigningIn: () => {},
+});
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [signingIn, setSigningIn] = useState(false);
   const posthog = usePostHog();
   const lastIdentifiedId = useRef<string | null>(null);
 
@@ -26,6 +37,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, newSession) => {
       setSession(newSession);
+      // Once a session lands, the deep-link sign-in race is over.
+      if (newSession) setSigningIn(false);
     });
 
     supabase.auth.getSession().then(() => setLoading(false));
@@ -74,7 +87,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   }, [posthog, session?.user]);
 
   return (
-    <AuthContext.Provider value={{ session, loading }}>
+    <AuthContext.Provider value={{ session, loading, signingIn, setSigningIn }}>
       {children}
     </AuthContext.Provider>
   );

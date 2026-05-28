@@ -37,7 +37,7 @@ export async function googleSignIn() {
   });
   if (result.type !== "success" || !result.url) {
     // User dismissed the sheet or canceled in Google — nothing to do.
-    return null;
+    return false;
   }
 
   // Supabase returns tokens in the URL fragment on success
@@ -70,5 +70,5 @@ export async function googleSignIn() {
     refresh_token,
   });
   if (setErr) throw setErr;
-  return null;
+  return true;
 }

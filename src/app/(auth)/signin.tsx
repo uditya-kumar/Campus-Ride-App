@@ -2,22 +2,27 @@ import { Image } from "expo-image";
 import { StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import GoogleButton from "@/components/rideComponents/GoogleButton";
-import Colors from "@/constants/Colors";
 import { googleSignIn } from "@/libs/auth";
+import { useAuth } from "@/providers/AuthProvider";
 import { useToast } from "@/providers/ToastProvider";
 
 export default function SignInScreen() {
   const { showToast } = useToast();
+  const { signingIn, setSigningIn } = useAuth();
   const insets = useSafeAreaInsets();
 
   const onSignin = async () => {
+    setSigningIn(true);
     try {
-      await googleSignIn();
-      // (auth)/_layout.tsx redirects once the session arrives.
+      const signedIn = await googleSignIn();
+      // On success, leave signingIn=true so the spinner stays until the
+      // session arrives — AuthProvider clears it from onAuthStateChange.
+      if (!signedIn) setSigningIn(false);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Could not sign in with Google";
       showToast(message);
+      setSigningIn(false);
     }
   };
 
@@ -35,7 +40,7 @@ export default function SignInScreen() {
       />
 
       <View style={styles.bottomButton}>
-        <GoogleButton onPress={onSignin} />
+        <GoogleButton onPress={onSignin} loading={signingIn} />
       </View>
     </View>
   );
