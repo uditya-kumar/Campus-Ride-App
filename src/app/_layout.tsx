@@ -100,6 +100,7 @@ function RootLayoutNav() {
       autocapture={{ captureScreens: false }}
       options={{
         host: process.env.EXPO_PUBLIC_POSTHOG_HOST,
+        errorTracking: { autocapture: true },
         enableSessionReplay: true,
         sessionReplayConfig: {
           maskAllTextInputs: true,

@@ -1,7 +1,8 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import type { PropsWithChildren } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { AppState } from "react-native";
+import { usePostHog } from "posthog-react-native";
 import { supabase } from "@/libs/supabase";
 import { registerForPushNotifications } from "@/libs/pushNotifications";
 
@@ -12,6 +13,8 @@ const AuthContext = createContext<AuthCtx>({ session: null, loading: true });
 export function AuthProvider({ children }: PropsWithChildren) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const posthog = usePostHog();
+  const lastIdentifiedId = useRef<string | null>(null);
 
   useEffect(() => {
     // onAuthStateChange is the single source of truth for `session`. It fires
@@ -47,6 +50,28 @@ export function AuthProvider({ children }: PropsWithChildren) {
       if (__DEV__) console.warn("push registration failed:", err);
     });
   }, [session?.user.id]);
+
+  useEffect(() => {
+    if (!posthog) return;
+    const user = session?.user;
+    if (user) {
+      if (lastIdentifiedId.current === user.id) return;
+      lastIdentifiedId.current = user.id;
+      const meta = user.user_metadata ?? {};
+      const properties: Record<string, string | number | boolean> = {
+        created_at: user.created_at,
+      };
+      if (user.email) properties.email = user.email;
+      const name = (meta.full_name ?? meta.name) as string | undefined;
+      if (name) properties.name = name;
+      if (typeof meta.avatar_url === "string")
+        properties.avatar_url = meta.avatar_url;
+      posthog.identify(user.id, properties);
+    } else if (lastIdentifiedId.current) {
+      lastIdentifiedId.current = null;
+      posthog.reset();
+    }
+  }, [posthog, session?.user]);
 
   return (
     <AuthContext.Provider value={{ session, loading }}>
