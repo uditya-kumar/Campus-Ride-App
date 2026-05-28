@@ -20,9 +20,9 @@ A campus carpool app: students create rides, others join, members coordinate via
 <div align="center">
 <table>
   <tr>
-    <td><img src="assets/screenshots/screenshot2.png" alt="Home" width="220"/></td>
-    <td><img src="assets/screenshots/screenshot1.png" alt="Create Ride" width="220"/></td>
-    <td><img src="assets/screenshots/screenshot3.png" alt="Chat" width="220"/></td>
+    <td><img src="https://github.com/user-attachments/assets/053ecd4b-671f-42ee-9398-8243c862f612" alt="Home" width="220"/></td>
+    <td><img src="https://github.com/user-attachments/assets/7510f352-1ef3-44b0-a0d4-313b1ef0325a" alt="Create Ride" width="220"/></td>
+    <td><img src="https://github.com/user-attachments/assets/5db71f77-218a-496b-9927-7c7caf80d616" alt="Chat" width="220"/></td>
   </tr>
 </table>
 </div>
