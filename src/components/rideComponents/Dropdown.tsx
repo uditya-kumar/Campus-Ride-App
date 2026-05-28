@@ -93,9 +93,9 @@ function Dropdown({
           {selectedOption || placeholder || ""}
         </Text>
         {dropdownVisible ? (
-          <Entypo name="chevron-small-up" size={18} color={colors.text} />
+          <Entypo name="chevron-small-up" size={15} color={colors.text} />
         ) : (
-          <Entypo name="chevron-small-down" size={18} color={colors.text} />
+          <Entypo name="chevron-small-down" size={15} color={colors.text} />
         )}
       </Pressable>
 
