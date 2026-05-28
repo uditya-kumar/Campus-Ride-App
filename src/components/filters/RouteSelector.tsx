@@ -1,7 +1,8 @@
 import LocationSelectorModal from "@/components/rideComponents/LocationSelectorModal";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
-import { CircleDot, MapPin, X } from "lucide-react-native";
+import FontAwesome5 from '@react-native-vector-icons/fontawesome5';
+import Feather from '@react-native-vector-icons/feather';
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
@@ -63,7 +64,7 @@ export default function RouteSelector({
         {/* Origin */}
         <View style={styles.routeRow}>
           <View style={styles.iconContainer}>
-            <CircleDot color={colors.text} size={16} strokeWidth={2.5} />
+            <FontAwesome5 name="dot-circle" size={16} color={colors.text} />
           </View>
           <View style={styles.locationContent}>
             <Text style={[styles.label, { color: colors.text }]}>Pick-up</Text>
@@ -85,7 +86,7 @@ export default function RouteSelector({
           </View>
           {origin && (
             <Pressable onPress={handleClearOrigin} style={styles.clearButton}>
-              <X size = {15} color={colors.tabIconDefault}/>
+              <Feather name="x" size = {15} color={colors.tabIconDefault} />
             </Pressable>
           )}
         </View>
@@ -100,7 +101,7 @@ export default function RouteSelector({
         {/* Destination */}
         <View style={styles.routeRow}>
           <View style={styles.iconContainer}>
-            <MapPin color={colors.text} size={16} strokeWidth={2.5} />
+            <Feather name="map-pin" size={16} color={colors.text} />
           </View>
           <View style={styles.locationContent}>
             <Text style={[styles.label, { color: colors.text }]}>
@@ -127,7 +128,7 @@ export default function RouteSelector({
               onPress={handleClearDestination}
               style={styles.clearButton}
             >
-              <X size = {15} color={colors.tabIconDefault}/>
+              <Feather name="x" size = {15} color={colors.tabIconDefault} />
             </Pressable>
           )}
         </View>

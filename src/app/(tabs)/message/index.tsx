@@ -4,7 +4,7 @@ import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { FlashList } from "@shopify/flash-list";
 import { Link } from "expo-router";
-import { MessageCircle } from "lucide-react-native";
+import Feather from '@react-native-vector-icons/feather';
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -38,7 +38,7 @@ export default function MessagesScreen() {
 
   const renderEmptyComponent = () => (
     <View style={styles.emptyContainer}>
-      <MessageCircle color={colors.tabIconDefault} size={64} />
+      <Feather name="message-circle" size={74} color={colors.tabIconDefault} />
       <Text style={emptyTextStyle}>
         {view === "upcoming" ? "No upcoming rides" : "No past rides yet"}
       </Text>

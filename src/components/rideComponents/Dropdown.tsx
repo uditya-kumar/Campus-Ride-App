@@ -1,6 +1,6 @@
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
-import { ChevronDown, ChevronUp } from "lucide-react-native";
+import Entypo from "@react-native-vector-icons/entypo/static";
 import { useRef, useState } from "react";
 import {
   Modal,
@@ -93,9 +93,9 @@ function Dropdown({
           {selectedOption || placeholder || ""}
         </Text>
         {dropdownVisible ? (
-          <ChevronUp size={15} color={colors.text} />
+          <Entypo name="chevron-small-up" size={18} color={colors.text} />
         ) : (
-          <ChevronDown size={15} color={colors.text} />
+          <Entypo name="chevron-small-down" size={18} color={colors.text} />
         )}
       </Pressable>
 

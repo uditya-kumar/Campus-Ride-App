@@ -1,7 +1,6 @@
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
-import { SendHorizontal } from "lucide-react-native";
-import { useState } from "react";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { Platform, StyleSheet, Text, View } from "react-native";
 import {
   Avatar,
@@ -143,7 +142,7 @@ function ChatScreen({
     return (
       <Send {...props} containerStyle={styles.sendContainer}>
         <View style={styles.sendButton}>
-          <SendHorizontal size={24} color={colors.buttonBackground} />
+          <Ionicons name="send-sharp" size={24} color={colors.buttonBackground} />
         </View>
       </Send>
     );

@@ -5,7 +5,7 @@ import {
   parseHHmm,
   toHHmm,
 } from "@/libs/datetime";
-import { X } from "lucide-react-native";
+import Feather from "@react-native-vector-icons/feather";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
@@ -33,7 +33,7 @@ export default function TimeFilter({ selectedTime, onSelectTime, labelText }: Ti
         </Text>
         {selectedTime && (
           <Pressable onPress={() => onSelectTime(null)} style={styles.clearButton}>
-            <X size={14} color={colors.tabIconDefault} />
+            <Feather name="x" size = {14} color={colors.tabIconDefault} />
           </Pressable>
         )}
       </Pressable>
