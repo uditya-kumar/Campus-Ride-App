@@ -5,6 +5,7 @@ import {
   router,
   Stack,
   ThemeProvider,
+  useNavigationContainerRef,
   usePathname,
 } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -45,6 +46,7 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const pathname = usePathname();
+  const navigationRef = useNavigationContainerRef();
 
   useEffect(() => {
     if (__DEV__) console.log("[route]", pathname);
@@ -97,6 +99,13 @@ function RootLayoutNav() {
   return (
     <PostHogProvider
       apiKey={process.env.EXPO_PUBLIC_POSTHOG_KEY}
+      autocapture={{
+        navigationRef,
+        navigation: {
+          routeToName: (name) => name,
+          routeToProperties: (_name, params) => params,
+        },
+      }}
       options={{
         host: process.env.EXPO_PUBLIC_POSTHOG_HOST,
         enableSessionReplay: true,
