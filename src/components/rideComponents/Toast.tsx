@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Animated, StyleSheet, Text, View } from 'react-native';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -11,8 +11,8 @@ type ToastProps = {
 };
 
 const Toast: React.FC<ToastProps> = ({ visible, message, durationMs = 1800, onHide }) => {
-  const opacity = useRef(new Animated.Value(0)).current;
-  const translateY = useRef(new Animated.Value(20)).current;
+  const [opacity] = useState(() => new Animated.Value(0));
+  const [translateY] = useState(() => new Animated.Value(20));
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
 
@@ -77,11 +77,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 15,
     borderWidth: 1,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 4,
+    boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.2)',
   },
   text: {
     fontSize: 14,

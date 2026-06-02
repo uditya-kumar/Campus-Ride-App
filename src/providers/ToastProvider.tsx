@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useState } from "react";
+import { createContext, use, useState } from "react";
 import Toast from "@/components/rideComponents/Toast";
 
 type ToastContextValue = {
@@ -12,13 +12,13 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [message, setMessage] = useState("");
   const [durationMs, setDurationMs] = useState(1800);
 
-  const showToast = useCallback((msg: string, dur = 1800) => {
+  const showToast = (msg: string, dur = 1800) => {
     setMessage(msg);
     setDurationMs(dur);
     setVisible(true);
-  }, []);
+  };
 
-  const onHide = useCallback(() => setVisible(false), []);
+  const onHide = () => setVisible(false);
 
   return (
     <ToastContext.Provider value={{ showToast }}>
@@ -34,7 +34,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 }
 
 export function useToast() {
-  const ctx = useContext(ToastContext);
+  const ctx = use(ToastContext);
   if (!ctx) throw new Error("useToast must be used within ToastProvider");
   return ctx;
 }

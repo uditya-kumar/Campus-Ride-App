@@ -3,9 +3,9 @@ import {
   Text,
   StyleSheet,
   Pressable,
-  Image,
   ActivityIndicator,
 } from "react-native";
+import { Image } from "expo-image";
 import Colors from "@/constants/Colors";
 
 const GoogleButton = ({

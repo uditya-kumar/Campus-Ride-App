@@ -25,6 +25,31 @@ interface ChatScreenProps {
   onScrolledToBottomChange?: (atBottom: boolean) => void;
 }
 
+const messageContainerStyle = {
+  left: { alignItems: "center" as const },
+  right: { alignItems: "center" as const },
+};
+
+const avatarContainerStyle = {
+  left: { marginRight: 2, alignSelf: "center" as const },
+  right: { marginLeft: 2, alignSelf: "center" as const },
+};
+
+const avatarImageStyle = {
+  left: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderCurve: "continuous" as const,
+  },
+  right: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderCurve: "continuous" as const,
+  },
+};
+
 function ChatScreen({
   messages,
   currentUserId,
@@ -43,11 +68,6 @@ function ChatScreen({
 
   const onSend = (newMessages: IMessage[] = []) => {
     onSendMessage?.(newMessages);
-  };
-
-  const messageContainerStyle = {
-    left: { alignItems: "center" as const },
-    right: { alignItems: "center" as const },
   };
 
   const renderMessage = (props: MessageProps<IMessage>) => {
@@ -107,26 +127,6 @@ function ChatScreen({
         textStyle={bubbleTextStyle}
       />
     );
-  };
-
-  const avatarContainerStyle = {
-    left: { marginRight: 2, alignSelf: "center" as const },
-    right: { marginLeft: 2, alignSelf: "center" as const },
-  };
-
-  const avatarImageStyle = {
-    left: {
-      width: 36,
-      height: 36,
-      borderRadius: 18,
-      borderCurve: "continuous" as const,
-    },
-    right: {
-      width: 36,
-      height: 36,
-      borderRadius: 18,
-      borderCurve: "continuous" as const,
-    },
   };
 
   const renderAvatar = (props: AvatarProps<IMessage>) => {

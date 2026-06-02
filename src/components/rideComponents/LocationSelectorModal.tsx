@@ -11,6 +11,8 @@ import {
   View,
 } from "react-native";
 
+const keyExtractor = (item: string) => item;
+
 type LocationSelectorModalProps = {
   visible: boolean;
   onClose: () => void;
@@ -120,8 +122,6 @@ function LocationSelectorModal({
       colors={itemColors}
     />
   );
-
-  const keyExtractor = (item: string) => item;
 
   const ListEmptyComponent = (
     <Text style={[styles.noResults, dynamicStyles.noResults]}>

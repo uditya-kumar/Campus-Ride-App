@@ -46,14 +46,19 @@ Deno.serve(async (req) => {
     channelId: "default",
   }));
 
+  const batches: typeof messages[] = [];
   for (let i = 0; i < messages.length; i += 100) {
-    const batch = messages.slice(i, i + 100);
-    await fetch(EXPO_PUSH_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(batch),
-    });
+    batches.push(messages.slice(i, i + 100));
   }
+  await Promise.all(
+    batches.map((batch) =>
+      fetch(EXPO_PUSH_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(batch),
+      }),
+    ),
+  );
 
   return new Response("ok");
 });

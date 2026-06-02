@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, use, useEffect, useRef, useState } from "react";
 import type { PropsWithChildren } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { AppState } from "react-native";
@@ -93,4 +93,4 @@ export function AuthProvider({ children }: PropsWithChildren) {
   );
 }
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => use(AuthContext);

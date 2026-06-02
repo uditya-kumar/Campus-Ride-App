@@ -20,7 +20,8 @@
       "WebFetch(domain:api.github.com)",
       "Bash(curl -s \"https://api.github.com/repos/metrolistgroup/metrolist/git/trees/main?recursive=1\")",
       "mcp__plugin_posthog_posthog__exec",
-      "mcp__expo-mcp__read_documentation"
+      "mcp__expo-mcp__read_documentation",
+      "Bash(npx react-doctor@latest --verbose)"
     ]
   },
   "enabledMcpjsonServers": [

@@ -16,19 +16,19 @@ import {
 import { useMyRides } from "@/hooks/useMyRides";
 import type { ChatRide, MyRidesView } from "@/api/rides";
 
+const renderChatItem = ({ item }: { item: ChatRide }) => (
+  <Link href={`/message/${item.id}`} asChild withAnchor>
+    <Pressable style={styles.chatItemPressable}>
+      <ChatRoomCard ride={item} unreadCount={item.unread_count} />
+    </Pressable>
+  </Link>
+);
+
 export default function MessagesScreen() {
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
   const [view, setView] = useState<MyRidesView>("upcoming");
   const { data: rides, isLoading, isError, error } = useMyRides(view);
-
-  const renderChatItem = ({ item }: { item: ChatRide }) => (
-    <Link href={`/message/${item.id}`} asChild withAnchor>
-      <Pressable style={styles.chatItemPressable}>
-        <ChatRoomCard ride={item} unreadCount={item.unread_count} />
-      </Pressable>
-    </Link>
-  );
 
   const emptyTextStyle = [styles.emptyText, { color: colors.text }];
   const emptySubtextStyle = [

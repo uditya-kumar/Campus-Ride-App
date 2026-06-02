@@ -9,9 +9,9 @@ import { useAuth } from "@/providers/AuthProvider";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import {
   ActivityIndicator,
-  Dimensions,
   Platform,
   Pressable,
+  useWindowDimensions,
   View,
   type View as RNView,
 } from "react-native";
@@ -43,6 +43,7 @@ export default function ChatDetails() {
   const { data: members } = useRideMembers(rideId);
   const { showToast } = useToast();
   const { mutate: markRead } = useMarkRideRead();
+  const { width: screenWidth } = useWindowDimensions();
   const atBottomRef = useRef(true);
   const lastSeenLatestIdRef = useRef<string | null>(null);
 
@@ -98,7 +99,6 @@ export default function ChatDetails() {
   };
   const openMenu = () => {
     triggerRef.current?.measureInWindow((x, y, width, height) => {
-      const screenWidth = Dimensions.get("window").width;
       setMenuAnchor({
         top: y + height + 50,
         right: screenWidth - (x + width),

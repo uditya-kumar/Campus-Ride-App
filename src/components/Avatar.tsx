@@ -1,7 +1,8 @@
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import Feather from "@react-native-vector-icons/feather/static";
-import { Image, StyleSheet, View } from "react-native";
+import { Image } from "expo-image";
+import { StyleSheet, View } from "react-native";
 
 type Props = {
   uri: string | null | undefined;
@@ -25,7 +26,7 @@ export default function Avatar({ uri, size = 32 }: Props) {
       <Image
         source={{ uri }}
         style={[styles.container, containerStyle]}
-        resizeMode="cover"
+        contentFit="cover"
       />
     );
   }

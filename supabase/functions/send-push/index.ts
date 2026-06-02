@@ -28,26 +28,24 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
-  // 1. Look up sender name (for the notification title).
-  const { data: sender } = await supabase
-    .from("users")
-    .select("full_name")
-    .eq("id", sender_id)
-    .single();
-
-  // 2. Look up ride origin/destination (so the title says "Pune → Mumbai").
-  const { data: ride } = await supabase
-    .from("rides")
-    .select("origin, destination")
-    .eq("id", ride_id)
-    .single();
-
-  // 3. Find every member of this ride EXCEPT the sender, then their tokens.
-  const { data: rows } = await supabase
-    .from("bookings")
-    .select("user_id")
-    .eq("ride_id", ride_id)
-    .neq("user_id", sender_id);
+  // Steps 1–3 are independent — fan out in parallel.
+  const [
+    { data: sender },
+    { data: ride },
+    { data: rows },
+  ] = await Promise.all([
+    supabase.from("users").select("full_name").eq("id", sender_id).single(),
+    supabase
+      .from("rides")
+      .select("origin, destination")
+      .eq("id", ride_id)
+      .single(),
+    supabase
+      .from("bookings")
+      .select("user_id")
+      .eq("ride_id", ride_id)
+      .neq("user_id", sender_id),
+  ]);
 
   const recipientIds = (rows ?? []).map((r) => r.user_id);
   if (recipientIds.length === 0) return new Response("no recipients");
@@ -69,14 +67,19 @@ Deno.serve(async (req) => {
     channelId: "default",
   }));
 
+  const batches: typeof messages[] = [];
   for (let i = 0; i < messages.length; i += 100) {
-    const batch = messages.slice(i, i + 100);
-    await fetch(EXPO_PUSH_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(batch),
-    });
+    batches.push(messages.slice(i, i + 100));
   }
+  await Promise.all(
+    batches.map((batch) =>
+      fetch(EXPO_PUSH_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(batch),
+      }),
+    ),
+  );
 
   return new Response("ok");
 });
