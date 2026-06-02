@@ -40,13 +40,16 @@ export function useChatMessages(rideId: string) {
           // with `user: null`; the next refetch backfills the profile.
           const row = payload.new as Message;
           const enriched: MessageWithUser = { ...row, user: null };
-          queryClient.setQueryData<MessageWithUser[]>(queryKey, (prev) => {
-            if (!prev) return [enriched];
-            // Skip if the real row is already present (sender's optimistic
-            // path replaced its temp id with the real id on mutation success).
-            if (prev.some((m) => m.id === row.id)) return prev;
-            return [...prev, enriched];
-          });
+          queryClient.setQueryData<MessageWithUser[]>(
+            ["messages", rideId],
+            (prev) => {
+              if (!prev) return [enriched];
+              // Skip if the real row is already present (sender's optimistic
+              // path replaced its temp id with the real id on mutation success).
+              if (prev.some((m) => m.id === row.id)) return prev;
+              return [...prev, enriched];
+            },
+          );
         },
       )
       .subscribe();

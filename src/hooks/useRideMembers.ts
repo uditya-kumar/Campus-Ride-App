@@ -34,7 +34,9 @@ export function useRideMembers(rideId: string) {
         () => {
           // Invalidate the members list (drives the chat header / info screen)
           // and the ride row (drives `available_seats`).
-          queryClient.invalidateQueries({ queryKey });
+          queryClient.invalidateQueries({
+            queryKey: ["bookings", "members", rideId],
+          });
           queryClient.invalidateQueries({
             queryKey: ["rides", "detail", rideId],
           });
