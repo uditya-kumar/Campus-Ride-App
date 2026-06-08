@@ -131,9 +131,9 @@ export default function RideInfo() {
           const gender = m.user?.gender;
           const genderColor =
             gender === "male"
-              ? colors.buttonBackgroundSecondary
+              ? colors.genderMale
               : gender === "female"
-                ? "#DB2777"
+                ? colors.genderFemale
                 : null;
           return (
             <View

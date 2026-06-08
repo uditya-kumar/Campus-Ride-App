@@ -14,9 +14,11 @@ import {
   MAX_RIDE_SEATS,
 } from "@/constants/rides";
 import { vehicleOptions } from "@/constants/vehicles";
+import { genderPreferenceOptionsFor } from "@/constants/genderPreference";
 import { Tables } from "@/database.types";
 import { daysFromNow, toIsoIST } from "@/libs/datetime";
 import { useAuth } from "@/providers/AuthProvider";
+import { useProfile } from "@/hooks/useProfile";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useState } from "react";
@@ -40,11 +42,14 @@ const CreateRideScreen = () => {
   const [totalCost, setTotalCost] = useState<Ride["total_cost"] | null>(0);
   const [vehicleType, setVehicleType] =
     useState<Ride["vehicle_type"]>("Eco Van");
+  const [genderPreference, setGenderPreference] = useState("Both");
   const [departureTime, setDepartureTime] = useState<string | null>(null); // "HH:mm"
   const [error, setError] = useState("");
 
   const queryClient = useQueryClient();
   const { session } = useAuth();
+  const { data: profile } = useProfile();
+  const genderPreferenceOptions = genderPreferenceOptionsFor(profile?.gender);
 
   const resetForm = () => {
     setOrigin(null);
@@ -54,6 +59,7 @@ const CreateRideScreen = () => {
     setTotalSeats(0);
     setTotalCost(0);
     setVehicleType("Eco Van");
+    setGenderPreference("Both");
   };
 
   const { mutate, isPending } = useMutation({
@@ -141,6 +147,13 @@ const CreateRideScreen = () => {
       return;
     }
 
+    // Guard against a stale dropdown value: you can only restrict a ride to
+    // your own gender. The RPC enforces this too — this is the friendly error.
+    if (!genderPreferenceOptions.includes(genderPreference)) {
+      setError("You can only create rides for your own gender or both");
+      return;
+    }
+
     mutate({
       origin,
       destination,
@@ -148,6 +161,7 @@ const CreateRideScreen = () => {
       total_seats: totalSeats,
       total_cost: totalCost,
       vehicle_type: vehicleType,
+      gender_preference: genderPreference,
     });
   };
 
@@ -214,12 +228,20 @@ const CreateRideScreen = () => {
           </View>
         </View>
 
-        <Dropdown
-          labelText="Vehicle Type"
-          options={vehicleOptions}
-          selectedOption={vehicleType}
-          onSelect={setVehicleType}
-        />
+        <View style={styles.rowSpaceBetween}>
+          <Dropdown
+            labelText="Vehicle Type"
+            options={vehicleOptions}
+            selectedOption={vehicleType}
+            onSelect={setVehicleType}
+          />
+          <Dropdown
+            labelText="Gender Preference"
+            options={genderPreferenceOptions}
+            selectedOption={genderPreference}
+            onSelect={setGenderPreference}
+          />
+        </View>
 
         {/* Cost Per Person (Calculated) */}
         <Text style={[styles.label, { color: colors.text }]}>

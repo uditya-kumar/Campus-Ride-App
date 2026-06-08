@@ -11,6 +11,7 @@ export type CreateRideInput = {
   total_seats: number;
   total_cost: number;
   vehicle_type: string;
+  gender_preference: string;
 };
 
 export type RideFilters = {
@@ -18,6 +19,7 @@ export type RideFilters = {
   destination: string | null;
   selectedDate: string | null; // DD-MM-YYYY from the filter UI
   sortBy: string;
+  viewerGender: string | null; // "male" | "female" — gates gender-restricted rides
 };
 
 export async function fetchRides(filters: RideFilters): Promise<Ride[]> {
@@ -33,6 +35,16 @@ export async function fetchRides(filters: RideFilters): Promise<Ride[]> {
   if (filters.origin) query = query.ilike("origin", filters.origin);
   if (filters.destination)
     query = query.ilike("destination", filters.destination);
+
+  // Gender gating: men see "Both" + "Male Only", women see "Both" + "Female Only".
+  // Until the viewer's gender is known, show only unrestricted ("Both") rides.
+  if (filters.viewerGender === "male") {
+    query = query.in("gender_preference", ["Both", "Male Only"]);
+  } else if (filters.viewerGender === "female") {
+    query = query.in("gender_preference", ["Both", "Female Only"]);
+  } else {
+    query = query.eq("gender_preference", "Both");
+  }
 
   if (filters.selectedDate) {
     const { start, end } = dayRangeIST(filters.selectedDate);
@@ -84,6 +96,7 @@ export async function createRide(input: CreateRideInput): Promise<string> {
     p_total_seats: input.total_seats,
     p_total_cost: input.total_cost,
     p_vehicle_type: input.vehicle_type,
+    p_gender_preference: input.gender_preference,
   });
   if (error) throw error;
   return data; // ride_id (uuid)

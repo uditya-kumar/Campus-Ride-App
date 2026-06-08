@@ -15,9 +15,10 @@ import "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { PostHogProvider, usePostHog } from "posthog-react-native";
 import { QueryProvider } from "@/providers/QueryProvider";
-import { AuthProvider } from "@/providers/AuthProvider";
+import { AuthProvider, useAuth } from "@/providers/AuthProvider";
 import { ToastProvider } from "@/providers/ToastProvider";
 import { useUnreadRealtime } from "@/hooks/useUnreadRealtime";
+import { useProfile } from "@/hooks/useProfile";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -121,19 +122,56 @@ function RootLayoutNav() {
             >
               <ToastProvider>
                 <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-                <Stack>
-                  <Stack.Screen name="index" options={hiddenHeaderOptions} />
-                  <Stack.Screen name="(auth)" options={hiddenHeaderOptions} />
-                  <Stack.Screen name="(onboarding)" options={hiddenHeaderOptions} />
-                  <Stack.Screen name="(tabs)" options={hiddenHeaderOptions} />
-                  <Stack.Screen name="+not-found" />
-                </Stack>
+                <RootStack />
               </ToastProvider>
             </ThemeProvider>
           </QueryProvider>
         </AuthProvider>
       </SafeAreaProvider>
     </PostHogProvider>
+  );
+}
+
+// Group-level access control via Stack.Protected guards (client-side nav only;
+// the RPCs are the real enforcement). Lives inside Auth + Query providers so it
+// can read session + profile. `index` stays unguarded — it's the always-mounted
+// anchor fallback that holds the spinner while auth/profile resolve, then does
+// the state-aware redirect onto the correct group.
+//
+// Guards are nested to mirror the access hierarchy (signed-in is the parent
+// condition; onboarding vs tabs is the sub-condition), per Expo Router's
+// "Nesting protected screens" guidance:
+//   signed in ──┬── gender unset → (onboarding)
+//               └── gender set   → (tabs)
+//   signed out ──── (auth)
+function RootStack() {
+  const { session, loading } = useAuth();
+  const { data: profile, isLoading: profileLoading } = useProfile();
+
+  // Until auth (and, when signed in, the profile) resolve, neither branch
+  // asserts — `index` holds the spinner. Otherwise a brief unauthenticated
+  // frame would flash (auth) before the session lands.
+  const resolving = loading || (!!session && profileLoading);
+  const signedIn = !resolving && !!session;
+  const signedOut = !resolving && !session;
+
+  return (
+    <Stack>
+      <Stack.Screen name="index" options={hiddenHeaderOptions} />
+      <Stack.Protected guard={signedIn}>
+        {/* gender unset (or no profile row yet) → finish onboarding first */}
+        <Stack.Protected guard={!profile?.gender}>
+          <Stack.Screen name="(onboarding)" options={hiddenHeaderOptions} />
+        </Stack.Protected>
+        <Stack.Protected guard={!!profile?.gender}>
+          <Stack.Screen name="(tabs)" options={hiddenHeaderOptions} />
+        </Stack.Protected>
+      </Stack.Protected>
+      <Stack.Protected guard={signedOut}>
+        <Stack.Screen name="(auth)" options={hiddenHeaderOptions} />
+      </Stack.Protected>
+      <Stack.Screen name="+not-found" />
+    </Stack>
   );
 }
 

@@ -15,6 +15,8 @@ export default {
     buttonText: "#ffffff",
     cardBackground: "white",
     error: "#ef4444",
+    genderMale: "#60a5fa",
+    genderFemale: "#DB2777",
   },
   dark: {
     text: "#fff",
@@ -29,5 +31,7 @@ export default {
     buttonText: "#ffffff",
     cardBackground: "#191919",
     error: "#ef4444",
+    genderMale: "#60a5fa",
+    genderFemale: "#DB2777",
   },
 };

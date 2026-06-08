@@ -3,12 +3,13 @@ import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import type { Tables } from "@/database.types";
 import { formatDisplayDate, formatDisplayTime } from "@/libs/datetime";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import Feather from "@react-native-vector-icons/feather/static";
 import FontAwesome5 from "@react-native-vector-icons/fontawesome5/static";
 import MaterialCommunityIcons from "@react-native-vector-icons/material-design-icons/static";
 import Octicons from "@react-native-vector-icons/octicons/static";
-import { Link, router } from "expo-router";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
+import { Link } from "expo-router";
 
 type Ride = Tables<"rides">;
 
@@ -42,11 +43,23 @@ function RideCard({ ride, onJoinRide, isJoining, isMember }: RideCardProps) {
   return (
     <View style={[styles.card, dynamicStyles.card]}>
       {/* Date and Time Row */}
-      <View style={styles.row}>
-        <FontAwesome5 name="calendar-alt" color={colors.text} size={18} />
-        <Text style={[styles.primaryText, dynamicStyles.primaryText]}>
-          {date}, {time}
-        </Text>
+      <View style={styles.rowSpaceBetween}>
+        <View style={styles.row}>
+          <FontAwesome5 name="calendar-alt" color={colors.text} size={18} />
+          <Text style={[styles.primaryText, dynamicStyles.primaryText]}>
+            {date}, {time}
+          </Text>
+        </View>
+
+        {/* Gender preference icon(s) */}
+        <View style={styles.genderRow}>
+          {ride.gender_preference !== "Female Only" && (
+            <Ionicons name="male" size={19} color={colors.genderMale} />
+          )}
+          {ride.gender_preference !== "Male Only" && (
+            <Ionicons name="female" size={19} color={colors.genderFemale} />
+          )}
+        </View>
       </View>
 
       {/* Route Row */}
@@ -134,6 +147,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+  },
+  genderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
   },
   primaryText: {
     fontSize: 16,

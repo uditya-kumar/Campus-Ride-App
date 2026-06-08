@@ -1,39 +1,19 @@
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
-import { Redirect, Tabs, type Href } from "expo-router";
+import { Tabs } from "expo-router";
 import Feather from "@react-native-vector-icons/feather/static";
 import AntDesign from "@react-native-vector-icons/ant-design/static";
-import { useAuth } from "@/providers/AuthProvider";
-import { useProfile } from "@/hooks/useProfile";
 import { useUnreadTotal } from "@/hooks/useUnreadTotal";
-import { ActivityIndicator, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+// Auth + onboarding access control lives in the root layout's Stack.Protected
+// guards — this group only renders when the user is signed in AND onboarded, so
+// no redirect/loading gate is needed here.
 export default function TabLayout() {
-  const { session, loading } = useAuth();
-  const { data: profile, isLoading: profileLoading } = useProfile();
   const unreadTotal = useUnreadTotal();
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
   const insets = useSafeAreaInsets();
-
-  if (loading || (session && profileLoading)) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: colors.background,
-        }}
-      >
-        <ActivityIndicator size="large" color={colors.tint} />
-      </View>
-    );
-  }
-  if (!session) return <Redirect href="/(auth)/signin" />;
-  if (profile && !profile.gender)
-    return <Redirect href={"/(onboarding)/gender" as Href} />;
 
   const screenOptions = {
     tabBarActiveTintColor: colors.tabIconSelected,

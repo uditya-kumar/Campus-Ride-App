@@ -21,6 +21,7 @@ import {
 } from "react-native";
 import { useJoinRide } from "@/hooks/useJoinRide";
 import { useMyBookings } from "@/hooks/useMyBookings";
+import { useProfile } from "@/hooks/useProfile";
 import { useToast } from "@/providers/ToastProvider";
 
 type Ride = Tables<"rides">;
@@ -50,6 +51,7 @@ export default function HomeScreen() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>("");
   const { data: myBookedRideIds } = useMyBookings();
+  const { data: profile } = useProfile();
   const { showToast } = useToast();
   const {
     mutate: joinRide,
@@ -65,6 +67,7 @@ export default function HomeScreen() {
     destination,
     selectedDate,
     sortBy,
+    viewerGender: profile?.gender ?? null,
   });
 
   const onJoinRide = (rideId: string) => {

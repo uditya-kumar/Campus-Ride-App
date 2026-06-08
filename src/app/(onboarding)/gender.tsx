@@ -27,23 +27,31 @@ export default function GenderScreen() {
   const onContinue = async () => {
     if (!selected || !session) return;
     setSaving(true);
-    // `gender` is not in database.types.ts yet (regenerate types to drop the cast).
     const { error } = await supabase
       .from("users")
-      .update({ gender: selected } as never)
+      .update({ gender: selected })
       .eq("id", session.user.id);
     setSaving(false);
     if (error) {
       showToast(error.message);
       return;
     }
-    // Update the cache synchronously so the tab layout sees gender=set on the
-    // very next render. Invalidating alone would refetch async, and the
-    // router.replace below would race with the refetch — the layout would
-    // briefly read the stale `gender: null` and bounce back here.
-    queryClient.setQueryData<Profile>(
-      ["profile", session.user.id],
-      (prev) => (prev ? { ...prev, gender: selected } : prev),
+    // Update the cache synchronously so the root stack's gender guard
+    // (guard={!!profile?.gender}) flips (onboarding)→(tabs) on the very next
+    // render. Invalidating alone would refetch async and race with the
+    // router.replace below — the guard would briefly still read gender as unset.
+    // If no profile was cached yet (e.g. the initial fetch errored), seed a
+    // minimal one so the guard can flip rather than staying stuck on undefined.
+    queryClient.setQueryData<Profile>(["profile", session.user.id], (prev) =>
+      prev
+        ? { ...prev, gender: selected }
+        : {
+            id: session.user.id,
+            email: session.user.email ?? "",
+            full_name: session.user.user_metadata?.full_name ?? "",
+            avatar_url: session.user.user_metadata?.avatar_url ?? null,
+            gender: selected,
+          },
     );
     router.replace("/(tabs)/home");
   };
