@@ -1,6 +1,10 @@
 import { joinRide } from "@/api/rides";
 import type { Tables } from "@/database.types";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+  type InfiniteData,
+} from "@tanstack/react-query";
 
 type Ride = Tables<"rides">;
 
@@ -25,8 +29,18 @@ export function useJoinRide() {
     },
     onError: (err, rideId) => {
       if (!STALE_RIDE_ERRORS.has(err.message)) return;
-      queryClient.setQueriesData<Ride[]>({ queryKey: ["rides"] }, (old) =>
-        old ? old.filter((r) => r.id !== rideId) : old,
+      // ["rides"] is an infinite query — drop the stale ride from every page.
+      queryClient.setQueriesData<InfiniteData<Ride[]>>(
+        { queryKey: ["rides"] },
+        (old) =>
+          old
+            ? {
+                ...old,
+                pages: old.pages.map((page) =>
+                  page.filter((r) => r.id !== rideId),
+                ),
+              }
+            : old,
       );
     },
   });

@@ -22,7 +22,14 @@ export type RideFilters = {
   viewerGender: string | null; // "male" | "female" — gates gender-restricted rides
 };
 
-export async function fetchRides(filters: RideFilters): Promise<Ride[]> {
+// Home-list page size. A full page back means "there may be more" — see
+// useFilteredRides' getNextPageParam.
+export const RIDES_PAGE_SIZE = 20;
+
+export async function fetchRides(
+  filters: RideFilters,
+  page = 0,
+): Promise<Ride[]> {
   // building the query — only show active rides that still have at least one
   // seat AND haven't already departed.
   let query = supabase
@@ -71,6 +78,15 @@ export async function fetchRides(filters: RideFilters): Promise<Ride[]> {
       // No explicit sort → morning to night
       query = query.order("departure_date", { ascending: true });
   }
+
+  // Final tiebreaker on the primary key so rows with equal sort keys keep a
+  // stable order across pages — without it, paging can duplicate or skip rows.
+  query = query.order("id", { ascending: true });
+
+  // Page the result with a half-open range so each fetch returns at most
+  // RIDES_PAGE_SIZE rows.
+  const from = page * RIDES_PAGE_SIZE;
+  query = query.range(from, from + RIDES_PAGE_SIZE - 1);
 
   // sending the query to supabase
   const { data, error } = await query;

@@ -62,13 +62,32 @@ export default function HomeScreen() {
   const maxDepartureDate = daysFromNow(MAX_DEPARTURE_DAYS_AHEAD);
 
   //Filter and sort rides based on selected filters
-  const { rides, isLoading, isError, error } = useFilteredRides({
+  const {
+    rides,
+    isLoading,
+    isError,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useFilteredRides({
     origin,
     destination,
     selectedDate,
     sortBy,
     viewerGender: profile?.gender ?? null,
   });
+
+  const onEndReached = () => {
+    if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+  };
+
+  // Spinner below the last card while the next page loads in.
+  const listFooter = isFetchingNextPage ? (
+    <View style={styles.footerLoader}>
+      <ActivityIndicator size="small" color={colors.tint} />
+    </View>
+  ) : null;
 
   const onJoinRide = (rideId: string) => {
     joinRide(rideId, {
@@ -172,9 +191,12 @@ export default function HomeScreen() {
         data={rides}
         keyExtractor={keyExtractor}
         ListEmptyComponent={listEmpty}
+        ListFooterComponent={listFooter}
         renderItem={renderItem}
         contentContainerStyle={styles.listContent}
         maintainVisibleContentPosition={maintainVisibleContentPosition}
+        onEndReached={onEndReached}
+        onEndReachedThreshold={0.5}
       />
     </View>
   );
@@ -208,6 +230,10 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingVertical: 5,
+  },
+  footerLoader: {
+    paddingVertical: 16,
+    alignItems: "center",
   },
   emptyContainer: {
     flex: 1,

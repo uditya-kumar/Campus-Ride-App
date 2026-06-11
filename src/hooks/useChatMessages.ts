@@ -1,8 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/libs/supabase";
 import {
   fetchMessages,
+  MESSAGES_PAGE_SIZE,
   type Message,
   type MessageWithUser,
 } from "@/api/messages";
@@ -13,8 +14,53 @@ export function useChatMessages(rideId: string) {
 
   const query = useQuery({
     queryKey,
-    queryFn: () => fetchMessages(rideId),
+    queryFn: async () => {
+      const page = await fetchMessages(rideId);
+      // A short first page means the whole history fits — nothing older to load.
+      setHasMore(page.length === MESSAGES_PAGE_SIZE);
+      return page;
+    },
   });
+
+  // Older-history paging state. The cache stays a flat ascending array (so the
+  // realtime listener and optimistic sends keep appending to the end); load-
+  // older just prepends a page to the front.
+  //
+  // Seed from any cached data so a remount within staleTime (which skips
+  // queryFn) doesn't lose the flag and wrongly disable load-older. A full
+  // first page means "there's probably more"; if not, the first loadOlder
+  // fetch returns empty and self-corrects.
+  const [hasMore, setHasMore] = useState(() => {
+    const cached = queryClient.getQueryData<MessageWithUser[]>(queryKey);
+    return cached ? cached.length >= MESSAGES_PAGE_SIZE : false;
+  });
+  const [isLoadingOlder, setIsLoadingOlder] = useState(false);
+
+  const loadOlder = async () => {
+    if (isLoadingOlder || !hasMore) return;
+    const current = queryClient.getQueryData<MessageWithUser[]>(queryKey);
+    // Oldest real message in cache is the cursor. Skip temp/optimistic rows,
+    // which only ever live at the newest end anyway.
+    const oldest = current?.[0];
+    if (!oldest?.created_at) return;
+
+    setIsLoadingOlder(true);
+    try {
+      const older = await fetchMessages(rideId, oldest.created_at);
+      if (older.length < MESSAGES_PAGE_SIZE) setHasMore(false);
+      if (older.length > 0) {
+        queryClient.setQueryData<MessageWithUser[]>(queryKey, (prev) => {
+          if (!prev) return older;
+          // Guard against overlap if pages straddle equal timestamps.
+          const seen = new Set(prev.map((m) => m.id));
+          const fresh = older.filter((m) => !seen.has(m.id));
+          return [...fresh, ...prev];
+        });
+      }
+    } finally {
+      setIsLoadingOlder(false);
+    }
+  };
 
   useEffect(() => {
     // Unique suffix per effect run. `supabase.channel(name)` returns the
@@ -59,5 +105,5 @@ export function useChatMessages(rideId: string) {
     };
   }, [rideId, queryClient]);
 
-  return query;
+  return { ...query, loadOlder, hasMore, isLoadingOlder };
 }

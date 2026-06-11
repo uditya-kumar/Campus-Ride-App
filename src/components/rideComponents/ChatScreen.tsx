@@ -23,6 +23,12 @@ interface ChatScreenProps {
   onSendMessage?: (messages: IMessage[]) => void;
   keyboardVerticalOffset?: number;
   onScrolledToBottomChange?: (atBottom: boolean) => void;
+  // Older-history paging. `loadEarlier` shows the "load earlier" affordance,
+  // `onLoadEarlier` fires when the user reaches the top, `isLoadingEarlier`
+  // renders the spinner above the oldest message while a page loads.
+  loadEarlier?: boolean;
+  onLoadEarlier?: () => void;
+  isLoadingEarlier?: boolean;
 }
 
 const messageContainerStyle = {
@@ -57,6 +63,9 @@ function ChatScreen({
   onSendMessage,
   keyboardVerticalOffset = 0,
   onScrolledToBottomChange,
+  loadEarlier = false,
+  onLoadEarlier,
+  isLoadingEarlier = false,
 }: ChatScreenProps) {
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
@@ -173,6 +182,16 @@ function ChatScreen({
 
   const keyboardAvoidingProps = { keyboardVerticalOffset };
 
+  // Auto-load older history when the user scrolls to the top of the chat
+  // (isInfiniteScrollEnabled), with a spinner above the oldest message.
+  const loadEarlierMessagesProps = {
+    isAvailable: loadEarlier,
+    isLoading: isLoadingEarlier,
+    isInfiniteScrollEnabled: true,
+    onPress: () => onLoadEarlier?.(),
+    activityIndicatorColor: colors.buttonBackground,
+  };
+
   const containerStyle = [styles.container, { backgroundColor: colors.background }];
 
   // GiftedChat uses an inverted FlatList — newest messages live at the top
@@ -202,6 +221,7 @@ function ChatScreen({
         messages={messages}
         onSend={onSend}
         user={user}
+        loadEarlierMessagesProps={loadEarlierMessagesProps}
         renderBubble={renderBubble}
         renderMessage={renderMessage}
         renderAvatar={renderAvatar}

@@ -33,7 +33,13 @@ export default function ChatDetails() {
   const { session } = useAuth();
   const headerHeight = useHeaderHeight();
   const { data: ride } = useRide(rideId);
-  const { data: messages, isLoading } = useChatMessages(rideId);
+  const {
+    data: messages,
+    isLoading,
+    loadOlder,
+    hasMore,
+    isLoadingOlder,
+  } = useChatMessages(rideId);
   const { mutate: sendMessage } = useSendMessage(rideId);
   const colorScheme = useColorScheme() ?? "light";
   const [menuVisible, setMenuVisible] = useState(false);
@@ -173,6 +179,9 @@ export default function ChatDetails() {
         currentUserName="You"
         onSendMessage={onSend}
         keyboardVerticalOffset={keyboardVerticalOffset}
+        loadEarlier={hasMore}
+        isLoadingEarlier={isLoadingOlder}
+        onLoadEarlier={loadOlder}
         onScrolledToBottomChange={(atBottom) => {
           const wasAtBottom = atBottomRef.current;
           atBottomRef.current = atBottom;

@@ -29,7 +29,8 @@
     "context7",
     "claude-code-docs",
     "supabase",
-    "expo-mcp"
+    "expo-mcp",
+    "posthog"
   ],
   "disabledMcpjsonServers": [
     "shadcn",

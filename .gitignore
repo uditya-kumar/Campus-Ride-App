@@ -52,3 +52,4 @@ yarn-error.*
 google-services.json
 
 supabase/.temp/
+skills-lock.json
