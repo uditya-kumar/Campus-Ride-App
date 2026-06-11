@@ -1,7 +1,7 @@
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import Ionicons from "@react-native-vector-icons/ionicons/static";
-import { Platform, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Platform, StyleSheet, Text, View } from "react-native";
 import type { ReanimatedScrollEvent } from "react-native-reanimated/lib/typescript/hook/commonTypes";
 import {
   Avatar,
@@ -182,8 +182,12 @@ function ChatScreen({
 
   const keyboardAvoidingProps = { keyboardVerticalOffset };
 
-  // Auto-load older history when the user scrolls to the top of the chat
-  // (isInfiniteScrollEnabled), with a spinner above the oldest message.
+  // Auto-load older history when the user scrolls to the top of the chat.
+  // GiftedChat's inverted list fires onPress() on scroll-to-top whenever
+  // isAvailable && isInfiniteScrollEnabled && !isLoading — so loading is
+  // automatic. We don't want the default "Load earlier messages" button
+  // though (it renders whenever isAvailable is true), so renderLoadEarlier
+  // below shows only a spinner while a page loads and nothing otherwise.
   const loadEarlierMessagesProps = {
     isAvailable: loadEarlier,
     isLoading: isLoadingEarlier,
@@ -191,6 +195,13 @@ function ChatScreen({
     onPress: () => onLoadEarlier?.(),
     activityIndicatorColor: colors.buttonBackground,
   };
+
+  const renderLoadEarlier = () =>
+    isLoadingEarlier ? (
+      <View style={styles.loadEarlierLoader}>
+        <ActivityIndicator size="small" color={colors.buttonBackground} />
+      </View>
+    ) : null;
 
   const containerStyle = [styles.container, { backgroundColor: colors.background }];
 
@@ -222,6 +233,7 @@ function ChatScreen({
         onSend={onSend}
         user={user}
         loadEarlierMessagesProps={loadEarlierMessagesProps}
+        renderLoadEarlier={renderLoadEarlier}
         renderBubble={renderBubble}
         renderMessage={renderMessage}
         renderAvatar={renderAvatar}
@@ -295,5 +307,9 @@ const styles = StyleSheet.create({
   emptyChatText: {
     fontSize: 16,
     textAlign: "center",
+  },
+  loadEarlierLoader: {
+    paddingVertical: 12,
+    alignItems: "center",
   },
 });
