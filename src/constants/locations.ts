@@ -10,4 +10,5 @@ export const locations = [
   "Lalghati",
   "Nadra",
   "DB Mall",
+  "Ujjain"
 ];
